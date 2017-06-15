@@ -1,58 +1,64 @@
 
 <template lang="html">
   <div>
-    <div class='container'>
+    <div class='ui grid'>
   		<div class='row'>
-  			<div class='col-xs-12 col-md-3' id='plan'>
+  			<div class='four wide column' id='plan'>
   				Plan:  {{profile.plan.name}} &nbsp
           <router-link v-if='profile.plan.name=="Free" || profile.plan.name=="Individual (free)"' to='profile/plan'>
             Upgrade
           </router-link>
   			</div>
-  			<div class='col-xs-12 col-md-6' id='data'>
+  			<div class='eight wide column' >
   				 Private Storage:  {{ data_fmt }} / {{data_cap_fmt}} &nbsp;
-           <router-link to='invite'>
+           <router-link to='invite/send'>
              Invite friends to add storage
            </router-link>
-  				 <div class="progress">
-  				 	<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{ width: data_percent + '%'}">
-  				 		<span class="sr-only">{{data_percent}} % Data Used</span>
-  				 	</div>
-  				 </div>
+  				 <!-- <div class="ui progress" id='privateStorage'>
+  				   <div class="bar"></div>
+  				               <div class="progress"></div>
+  				   <div class="label">{{data_percent}} %</div>
+  				 </div> -->
+
+           <!-- <template>
+             <progress-bar :type="'success'" :size="'large'" :value="20" :max="100" :show-label="false"></progress-bar>
+           </template> -->
+
+
+           <div id="myProgress">
+             <div id="myBar" :style="{width: data_percent + '%'  }">
+
+             </div>
+           </div>
+
+
   			</div>
   		</div>
-  	</div>
-    <div class='container'>
   		<div class='row'>
-  			<div class='col-md-4'>
+  			<div class='five wide column'>
   				<div class='row'>
-  					<div class='col-xs-12' id='profile'>
-  						<div class='panel panel-default'>
-  							<div class="panel-heading">
-  								<i class="fa fa-user text-primary" aria-hidden="true"></i>
-  								&nbsp
-  								My Profile
-                  <router-link to='/profile/public'>
-                    <button class='btn btn-default btn-xs pull-right'>
-  										<i class="fa fa-gear" aria-hidden="true"></i>
-  										Manage
-  									</button>
-                  </router-link>
-  							</div>
-  							<div class="panel-body">
-  								<p id='profile-summary'>
-  									<div class='row'>
-  										<div class='col-xs-2'>
-  											<img v-if='profile.picture' :src='profile.picture' style='height:40px'/>
-  											<i v-else class="fa fa-user fa-3x" aria-hidden="true"></i>
-  										</div>
-  										<div class='col-xs-10'>
-  											<h2 style='margin:auto'>{{ profile.name }}</h2>
-  										</div>
-  									</div>
-  									<br>
-  									<div class='row'>
-  										<div class='col-xs-12'>
+  					<div class='sixteen wide column' id='profile'>
+              <div class="ui small top attached header">
+                <i class="fa-user icon"></i>
+                <div class="content">
+                  &nbsp My Profile
+                </div>
+              </div>
+              <div class="ui bottom attached clearing segment">
+                <p id='profile-summary'>
+                  <div class="ui grid">
+                    <div class='row'>
+                      <div class='four wide column'>
+                        <img v-if='profile.picture' :src='profile.picture' style='height:50px'/>
+                        <i v-else class="fa fa-user fa-2x" aria-hidden="true"></i>
+                      </div>
+                      <div class='twelve wide column'>
+                        <h1 style='margin:auto'>{{ profile.name }}</h1>
+                      </div>
+                    </div>
+                    <br>
+                    <div class='row'>
+                      <div class='sixteen wide column'>
                         <span v-if='profile.public_name'>
                           <i class="fa fa-user"></i>
                           &nbsp {{ profile.public_name }}<br>
@@ -67,100 +73,118 @@
                           <i class="fa fa-link"></i>
                           &nbsp <a :href='profile.website'> {{ profile.website }}</a><br>
                         </span>
-  											<span v-if='profile.public_email'>
+                        <span v-if='profile.public_email'>
                           <i class="fa fa-envelope-o"></i>
-
                           &nbsp <a :href='"mailto:" + profile.public_email'> {{profile.public_email}}</a><br>
-  											</span>
-
-  										</div>
-  									</div>
-  								</p>
-  							</div>
-  						</div>
+                        </span>
+                        <br>
+                        <router-link to='/profile/public'>
+                          <button class='ui right floated mini button'>
+                            <i class="fa fa-gear" aria-hidden="true"></i>
+                            Manage
+                          </button>
+                        </router-link>
+                      </div>
+                    </div>
+                  </div>
+                </p>
+              </div>
   					</div>
   				</div>
+          <br>
           <div class='row'>
-  					<div class='col-xs-12' id='projects'>
-  						<div class='panel panel-default'>
-  							<div class="panel-heading">
+  					<div class='sixteen wide column' id='projects'>
+  						<div class='ui small top attached header'>
   								<i class="fa fa-folder-open-o text-primary" aria-hidden="true"></i>
-  								&nbsp
-  								My Projects
+                  <div class="content">
+                    &nbsp
+    								My Projects
+                  </div>
+  						</div>
+  						<div class="ui bottom attached clearing segment">
+  								You are not a team member for any projects.
+  								<br><br>
                   <router-link to='/project'>
-    								<button class='btn btn-default btn-xs pull-right'>
+    								<button class='ui right floated mini button'>
     									<i class="fa fa-plus" aria-hidden="true"> </i>
-    									New Project
+    									&nbsp New Project
     								</button>
                   </router-link>
   							</div>
-  							<div class="panel-body">
-  								You are not a team member for any projects.
-  								<br><br>
-  							</div>
-  						</div>
   					</div>
   				</div>
+          <br>
   				<div class='row'>
-  					<div class='col-xs-12' id='organizations'>
-  						<div class='panel panel-default'>
-  							<div class="panel-heading">
-  								<i class="fa fa-users text-primary" aria-hidden="true"></i>
-  								&nbsp
+  					<div class='sixteen wide column' id='organizations'>
+  						<div class='ui small top attached header'>
+								<i class="fa fa-users text-primary" aria-hidden="true"></i>
+                <div class="content">
+                  &nbsp
   								My Teams
-  								<button class='btn btn-default btn-xs pull-right'>
-  									<i class="fa fa-plus" aria-hidden="true"> </i>
-  									New Team
-  								</button>
-  							</div>
-  							<div class="panel-body">
-  								You are not a member of any organizations.
-  								<br><br>
-  							</div>
+                </div>
+              </div>
+              <div class="ui bottom attached clearing segment">
+								You are not a member of any organizations.
+								<br><br>
+                <button class='ui right floated mini button'>
+									<i class="fa fa-plus" aria-hidden="true"> </i>
+									New Team
+								</button>
   						</div>
   					</div>
   				</div>
-  			</div>
-  			<div class='col-xs-12 col-md-8'>
+        </div>
+  			<div class='eleven wide column'>
   				<div class='row'>
-  					<div class='col-xs-12' id='contributions'>
-  						<div class='panel panel-default'>
-  							<div class="panel-heading">
-  								<i class="fa fa-random text-primary" aria-hidden="true"></i>
-  								&nbsp
-  								My Contributions
-  							</div>
-  							<div class="panel-body">
-  								<div id="cal-heatmap">
-  								</div>
-  							</div>
-  						</div>
-  					</div>
+  					<div class='ui small top attached header' id='contributions'>
+							<i class="fa fa-random text-primary" aria-hidden="true"></i>
+              <div class="content">
+                &nbsp
+								My Contributions
+              </div>
+						</div>
+						<div class="ui bottom attached clearing segment">
+							<div id="cal-heatmap">
+							</div>
+						</div>
   				</div>
+          <br>
   				<div class='row'>
-  					<div class='col-xs-12' id='feed'>
-  						<div class='panel panel-default'>
-  							<div class="panel-heading">
-  								<i class="fa fa-feed text-primary" aria-hidden="true"></i>
-  								&nbsp
+  						<div class="ui small top attached header" id='feed'>
+  							<i class="fa fa-feed text-primary" aria-hidden="true"></i>
+                <div class="content">
+                  &nbsp
   								My Activity Feed
-  							</div>
-  							<div class="panel-body">
-  								<div id='app'>
-  									<ul >
-  									<!-- 	<li :class="{ 'completed': task.completed }" v-cloak v-for='task in tasks' @click="task.completed = ! task.completed">[[ task.body ]]</li> -->
-  									</ul>
-  								</div>
-  								<br><br>
-  							</div>
+                </div>
+  						</div>
+  						<div class="ui bottom attached clearing segment">
+								<div id='app'>
+									<ul >
+									<!-- 	<li :class="{ 'completed': task.completed }" v-cloak v-for='task in tasks' @click="task.completed = ! task.completed">[[ task.body ]]</li> -->
+									</ul>
+								</div>
+								<br><br>
   						</div>
   					</div>
   				</div>
   			</div>
   		</div>
-  	</div>
   </div>
 </template>
+
+<style>
+  #myProgress {
+      width: 100%;
+      background-color: #eee;
+      border-radius: 5px;
+  }
+  #myBar {
+      height: 20px;
+      background-color: #337ab7;
+      border-radius: 5px 0px 0px 5px;
+  }
+</style>
+
 
 <script>
 function formatBytes(bytes,decimals) {
@@ -172,6 +196,15 @@ function formatBytes(bytes,decimals) {
    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
+$(document).ready(function() {
+  $('.ui.dropdown').dropdown();
+  // $('#privateStorage').progress();
+
+  // $('.ui.menu .item').tab();
+  // $('table').tablesort()
+  // $('.ui.checkbox').checkbox();
+;
+});
 
 import { mapGetters } from 'vuex'
 export default {
@@ -193,6 +226,8 @@ export default {
   },
   created: function() {
     this.$store.commit('getProfile')
+
+
   },
   mounted: function() {
     let cal = new CalHeatMap()
@@ -204,6 +239,5 @@ export default {
     })
   }
 }
-
 
 </script>

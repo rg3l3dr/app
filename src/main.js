@@ -27,7 +27,7 @@ Vue.http.interceptors.push((request, next) => {
   }
 })
 
-// Vue.http.headers.common['Access-Control-Allow-Origin'] = 'http://localhost:8080'
+// Vue.http.headers.common['Access-Control-Allow-Origin'] = '*'
 // Vue.http.headers.common['Access-Control-Request-Method'] = '*'
 
 const router = new VueRouter({

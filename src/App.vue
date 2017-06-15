@@ -1,6 +1,7 @@
 <template>
-  <div>
+  <div class='ui container'>
     <app-navbar></app-navbar>
+    <hr style='margin-top: 0px'>
     <router-view></router-view>
     <app-footer></app-footer>
   </div>
@@ -20,6 +21,10 @@ export default {
 
 <style >
 a {
+  color: #337ab7;
+}
+
+.omni {
   color: #337ab7;
 }
 </style>

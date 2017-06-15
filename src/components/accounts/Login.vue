@@ -1,62 +1,65 @@
 <template lang="html">
-  <div class="container">
-    <div class="row">
-      <div class="col-xs-6 col-xs-offset-3">
-        <div class='login'>
-          <h1 class='text-center'>Login to OmniBuilds</h1>
-          <form>
-            <div
-              class="form-group has-feedback"
-              :class="{
-                'has-error': password.hasError || username.hasError
-              }">
-              <label for="username" class="control-label">Username</label>
-              <input
-                type="text"
-                class="form-control"
-                id="username"
-                placeholder="Enter your username"
-                v-model='username.data'
-                >
-                <span v-if='password.hasError || username.hasError' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-                <span
-                <span
-                  v-if='username.hasError'
-                  class="help-block"
-                  >{{username.error}}
-                </span>
-            </div>
-            <div
-              class="form-group has-feedback"
-              :class="{
-                'has-error': password.hasError
-                }"
-              >
-              <label for="password" class="control-label">Password</label>
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                placeholder="Enter your password"
-                v-model='password.data'
-                >
-                <span v-if='username.hasError || password.hasError' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-                <span
-                <span
-                  v-if='password.hasError'
-                  class="help-block"
-                  >{{password.error}}
-                </span>
-              </div>
-              <button
-                type="submit"
-                class="btn btn-primary"
-                @click.prevent='submit'
-                >Login
-              </button>
-          </form>
+  <div class="ui container">
+    <div class="ui two column centered grid">
+      <div class="row">
+        <div class="column">
           <br>
-          <router-link to='/accounts/reset'>Forgot Password</router-link>
+          <br>
+          <br>
+          <div class='login'>
+            <form class='ui form'>
+              <h1 class="ui dividing header">Login to OmniBuilds</h1>
+              <div
+                class="field"
+                :class="{
+                  'error': password.hasError || username.hasError
+                }">
+                <label for="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  placeholder="Enter your username"
+                  v-model='username.data'
+                  >
+                  <span v-if='password.hasError || username.hasError' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                  <span
+                    v-if='username.hasError'
+                    class="help-block"
+                    >{{username.error}}
+                  </span>
+              </div>
+              <div
+                class="field has-feedback"
+                :class="{
+                  'error': password.hasError
+                  }"
+                >
+                <label for="password" class="control-label">Password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  placeholder="Enter your password"
+                  v-model='password.data'
+                  >
+                  <span v-if='username.hasError || password.hasError' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                  <span
+                  <span
+                    v-if='password.hasError'
+                    class="help-block"
+                    >{{password.error}}
+                  </span>
+                </div>
+                <button
+                  type="submit"
+                  class="ui button primary"
+                  @click.prevent='submit'
+                  >Login
+                </button>
+            </form>
+            <br>
+            <router-link to='/accounts/reset'>Forgot Password</router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -89,7 +92,9 @@ export default {
   methods: {
     submit: function () {
       this.username.hasError = null
+      this.username.data = this.username.data.trim()
       this.password.hasError = null
+      this.password.data = this.password.data.trim()
 
       if (this.username.data === '') {
         this.username.hasError = true
@@ -122,6 +127,7 @@ export default {
           this.$store.commit('startSession', payload)
           // redirect to dashboard
           this.$router.push({ path: '/home' })
+
         }, response => {
           console.log('Error logging in user')
           console.log(response)

@@ -1,17 +1,17 @@
 <template lang="html">
-  <div class="tab-pane active fade in " id='projects'>
-    <div class='panel panel-default'>
-      <div class="panel-heading">
-        <i class="fa fa-folder-open-o text-primary" aria-hidden="true"></i>
+  <div id='projects'>
+    <div class="ui small top attached header">
+      <i class="fa fa-folder-open-o text-primary" aria-hidden="true"></i>
+      <div class="content">
         &nbsp
         Projects Owned
       </div>
-      <div class="panel-body">
-        Project Info
-        <br><br>
-      </div>
     </div>
-  </div><!-- /.tab-pane fade in  -->
+    <div class="ui bottom attached segment">
+      Project Info
+    </div>
+  </div>
+
 </template>
 
 <script>

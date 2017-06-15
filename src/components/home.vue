@@ -1,15 +1,12 @@
 <template lang="html">
-  <div class="container">
-    <div class="row">
-      <div class="col-xs-6 col-xs-offset-3">
-        <h1 class='text-center'>What are you doing here ?!?  <br> OmniBuilds isn't ready, yet...</h1>
-      </div>
-    </div>
-  </div>
+
+  <h1 class='text-center'>OmniBuilds Home</h1>
+
 </template>
 
 <script>
 export default {
+
 }
 </script>
 

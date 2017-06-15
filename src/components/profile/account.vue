@@ -1,187 +1,187 @@
 <template lang="html">
-  <div class="tab-pane active fade-in" id='account'>
-    <div class='panel panel-default'>
-      <div class="panel-heading">
-        <i class="fa fa-bars text-primary" aria-hidden="true"></i>
+  <div id='account'>
+    <div class='ui small top attached header'>
+      <i class="fa fa-bars text-primary" aria-hidden="true"></i>
+      <div class="content">
         &nbsp
         Account Settings
       </div>
-      <div class="panel-body">
-        <h4>Change your account email address</h4>
-        <form>
-          <div
-            class="form-group has-feedback"
-            :class="{
-              'has-success': email.isValid,
-              'has-error': email.isValid == false || email.isTaken || email.hasError
-              }"
+    </div>
+    <div class="ui bottom attached clearing segment">
+      <h4>Change your account email address</h4>
+      <form class='ui form'>
+        <div
+          class="field has-feedback"
+          :class="{
+            'has-success': email.isValid,
+            'has-error': email.isValid == false || email.isTaken || email.hasError
+            }"
+          >
+          <label for="emailInput" class="control-label">Email address</label>
+          <input
+            type="text"
+            class="form-control"
+            id="emailInput"
+            placeholder="Type in a new email address"
+            v-model='email.data'
+          >
+          <span v-if='email.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+          <span v-else-if='email.isTaken || email.hasError || email.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+          <span
+            v-if='email.isValid == false'
+            class="help-block"
+            >Enter a valid email address
+          </span>
+          <span
+            v-else-if='email.isTaken'
+            class="help-block"
+            >This email address is already being used by a member of this site.
+          </span>
+          <span
+            v-else-if='email.hasError'
+            class="help-block"
+            > {{email.error}}
+          </span>
+          <span
+            v-else-if='email.hasError===null && email.isTaken===false && email.isValid ===true'
+            class="help-block"
+            >Successfully updated email address
+          </span>
+        </div>
+        <button class='ui button' @click.prevent='changeEmail'>
+          Change Email
+        </button>
+      </form>
+      <hr>
+      <h4>Change your account password</h4>
+      <form class='ui form'>
+        <div
+          class="field has-feedback"
+          :class="{
+            'has-success': oldPassword.isValid,
+            'has-error': oldPassword.isValid == false || oldPassword.hasError
+            }">
+          <label for="oldPasswordInput" class='control-label'>Current Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="oldPasswordInput"
+            placeholder="Type in your current password"
+            v-model='oldPassword.data'
             >
-            <label for="emailInput" class="control-label">Email address</label>
-            <input
-              type="text"
-              class="form-control"
-              id="emailInput"
-              placeholder="Type in a new email address"
-              v-model='email.data'
+          <span v-if='oldPassword.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+          <span v-else-if='oldPassword.hasError || oldPassword.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+         <span
+           v-if='oldPassword.isValid == false'
+           class="help-block"
+           >Password must contain at least 8 characters
+         </span>
+         <span
+           v-else-if='oldPassword.hasError'
+           class="help-block"
+           > {{oldPassword.error}}
+         </span>
+        </div>
+        <div
+          class="field has-feedback"
+          :class="{
+            'has-success': password1.isValid,
+            'has-error': password1.isValid == false || password1.hasError
+            }">
+          <label for="passwor1dInput" class='control-label'>New Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="password1Input"
+            placeholder="Choose a new password"
+            aria-describedby="emailHelp"
+            v-model='password1.data'
             >
-            <span v-if='email.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-            <span v-else-if='email.isTaken || email.hasError || email.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-            <span
-              v-if='email.isValid == false'
-              class="help-block"
-              >Enter a valid email address
-            </span>
-            <span
-              v-else-if='email.isTaken'
-              class="help-block"
-              >This email address is already being used by a member of this site.
-            </span>
-            <span
-              v-else-if='email.hasError'
-              class="help-block"
-              > {{email.error}}
-            </span>
-            <span
-              v-else-if='email.hasError===null && email.isTaken===false && email.isValid ===true'
-              class="help-block"
-              >Successfully updated email address
-            </span>
-          </div>
-          <button class='btn btn-primary btn-sm' @click.prevent='changeEmail'>
-            Change Email
-          </button>
-        </form>
-        <hr>
-        <h4>Change your account password</h4>
-        <form>
-          <div
-            class="form-group has-feedback"
-            :class="{
-              'has-success': oldPassword.isValid,
-              'has-error': oldPassword.isValid == false || oldPassword.hasError
-              }">
-            <label for="oldPasswordInput" class='control-label'>Current Password</label>
-            <input
-              type="password"
-              class="form-control"
-              id="oldPasswordInput"
-              placeholder="Type in your current password"
-              v-model='oldPassword.data'
-              >
-            <span v-if='oldPassword.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-            <span v-else-if='oldPassword.hasError || oldPassword.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-           <span
-             v-if='oldPassword.isValid == false'
-             class="help-block"
-             >Password must contain at least 8 characters
-           </span>
-           <span
-             v-else-if='oldPassword.hasError'
-             class="help-block"
-             > {{oldPassword.error}}
-           </span>
-          </div>
-          <div
-            class="form-group has-feedback"
-            :class="{
-              'has-success': password1.isValid,
-              'has-error': password1.isValid == false || password1.hasError
-              }">
-            <label for="passwor1dInput" class='control-label'>New Password</label>
-            <input
-              type="password"
-              class="form-control"
-              id="password1Input"
-              placeholder="Choose a new password"
-              aria-describedby="emailHelp"
-              v-model='password1.data'
-              >
-            <span v-if='password1.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-            <span v-else-if='password1.hasError || password1.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-           <span
-             v-if='password1.isValid == false'
-             class="help-block"
-             >Password must contain at least 8 characters and include at least one number and one letter
-           </span>
-           <span
-             v-else-if='password1.hasError'
-             class="help-block"
-             > {{password1.error}}
-           </span>
-          </div>
-          <div
-            class="form-group has-feedback"
-            :class="{
-              'has-success': password2.isValid,
-              'has-error': password2.isValid == false || password2.hasError
-              }">
-            <label for="passwor2dInput" class='control-label'>Retype New Password</label>
-            <input
-              type="password"
-              class="form-control"
-              id="password2Input"
-              placeholder="Retype your new password"
-              v-model='password2.data'
-              >
-            <span v-if='password2.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-            <span v-else-if='password2.hasError || password2.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-           <span
-             v-if='password2.isValid == false'
-             class="help-block"
-             >Password must contain at least 8 characters and include at least one number and one letter
-           </span>
-           <span
-             v-else-if='password2.hasError'
-             class="help-block"
-             > {{password2.error}}
-           </span>
-          </div>
-          <button class='btn btn-primary btn-sm' @click.prevent='changePassword'>
-            Change Password
-          </button>
-          <br><br>
-        </form>
-        <hr>
-        <h4>Change your account username</h4>
-        <form>
-          <div
-            class="form-group has-feedback"
-            :class="{
-              'has-success': username.isValid,
-              'has-error': username.isValid == false || username.isTaken || username.hasError
-              }"
+          <span v-if='password1.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+          <span v-else-if='password1.hasError || password1.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+         <span
+           v-if='password1.isValid == false'
+           class="help-block"
+           >Password must contain at least 8 characters and include at least one number and one letter
+         </span>
+         <span
+           v-else-if='password1.hasError'
+           class="help-block"
+           > {{password1.error}}
+         </span>
+        </div>
+        <div
+          class="field has-feedback"
+          :class="{
+            'has-success': password2.isValid,
+            'has-error': password2.isValid == false || password2.hasError
+            }">
+          <label for="passwor2dInput" class='control-label'>Retype New Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="password2Input"
+            placeholder="Retype your new password"
+            v-model='password2.data'
             >
-            <label for="username" class="control-label">Username</label>
-            <input
-              type="text"
-              class="form-control"
-              id="username"
-              placeholder="Type in a new username"
-              v-model='username.data'
-              >
-            <span v-if='username.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-            <span v-else-if='username.isTaken || username.hasError || username.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-            <span
-              v-if='username.isValid == false'
-              class="help-block"
-              >Enter a valid username. This value may contain only English letters, numbers, and @/./+/-/_ characters
-            </span>
-            <span
-              v-else-if='username.isTaken'
-              class="help-block"
-              >This username has already been taken, please choose another
-            </span>
-            <span
-              v-else-if='username.hasError'
-              class="help-block"
-              > {{username.error}}
-            </span>
-          </div>
-          <button class='btn btn-danger btn-sm' @click.prevent='changeUsername'>
-            Change Username
-          </button>
-        </form>
-      </div>
+          <span v-if='password2.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+          <span v-else-if='password2.hasError || password2.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+         <span
+           v-if='password2.isValid == false'
+           class="help-block"
+           >Password must contain at least 8 characters and include at least one number and one letter
+         </span>
+         <span
+           v-else-if='password2.hasError'
+           class="help-block"
+           > {{password2.error}}
+         </span>
+        </div>
+        <button class='ui button' @click.prevent='changePassword'>
+          Change Password
+        </button>
+        <br><br>
+      </form>
+      <hr>
+      <h4>Change your account username</h4>
+      <form class='ui form'>
+        <div
+          class="field has-feedback"
+          :class="{
+            'has-success': username.isValid,
+            'has-error': username.isValid == false || username.isTaken || username.hasError
+            }"
+          >
+          <label for="username" class="control-label">Username</label>
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            placeholder="Type in a new username"
+            v-model='username.data'
+            >
+          <span v-if='username.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+          <span v-else-if='username.isTaken || username.hasError || username.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+          <span
+            v-if='username.isValid == false'
+            class="help-block"
+            >Enter a valid username. This value may contain only English letters, numbers, and @/./+/-/_ characters
+          </span>
+          <span
+            v-else-if='username.isTaken'
+            class="help-block"
+            >This username has already been taken, please choose another
+          </span>
+          <span
+            v-else-if='username.hasError'
+            class="help-block"
+            > {{username.error}}
+          </span>
+        </div>
+        <button class='ui button' @click.prevent='changeUsername'>
+          Change Username
+        </button>
+      </form>
     </div>
   </div><!-- /.tab-pane fade in  -->
 </template>
@@ -250,6 +250,7 @@ export default {
   },
   methods: {
     changeUsername: function () {
+      this.username.data = this.username.data.trim()
       console.log('Validating Username')
       let test = /^[a-zA-Z0-9@.+-_]+$/.test(this.username.data)
       this.username.isValid = null
@@ -290,6 +291,7 @@ export default {
       }
     },
     changeEmail: function () {
+      this.email.data = this.email.data.trim()
       console.log('Validating email')
       let test = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(this.email.data)
       this.email.isValid = null
@@ -329,6 +331,8 @@ export default {
       }
     },
     changePassword: function () {
+      this.password1.data = this.password1.data.trim()
+      this.password2.data = this.password2.data.trim()
       console.log('Validating password')
       let test = /^(?=.*[A-Za-z]).{8,}/.test(this.password1.data)
       this.password1.isValid = null

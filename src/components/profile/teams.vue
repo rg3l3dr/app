@@ -1,15 +1,15 @@
 <template lang="html">
-  <div class="tab-pane active fade in " id='teams'>
-    <div class='panel panel-default'>
-      <div class="panel-heading">
-        <i class="fa fa-users text-primary" aria-hidden="true"></i>
+  <div id='teams'>
+    <div class="ui small top attached header">
+      <i class="fa fa-users text-primary" aria-hidden="true"></i>
+      <div class="content">
         &nbsp
         Teams Leading
       </div>
-      <div class="panel-body">
-        Team Info
-        <br><br>
-      </div>
+    </div>
+    <div class="ui bottom attached segment">
+      Team Info
+      <br><br>
     </div>
   </div><!-- /.tab-pane fade in  -->
 </template>
