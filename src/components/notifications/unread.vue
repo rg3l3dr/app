@@ -34,16 +34,18 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
-  created: function() {
-    this.$store.commit('getProfile')
-  },
   data() {
     return {
       notifications: []
     }
   },
   computed: {
+    ...mapGetters([
+      'session',
+      'profile',
+    ]),
     unread_notifications: function() {
       return this.notifications.filter(function (notification) {
         return notification.unread === true

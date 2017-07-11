@@ -26,16 +26,16 @@
                 <i class="fa fa-credit-card"></i> &nbsp; Plans & Billing
               </a>
             </router-link>
-            <router-link tag='a' class='item' to='/profile/projects'>
+            <router-link tag='a' class='item' to='/profile/designs'>
               <a>
                 <i class="fa fa-folder-open-o"></i> &nbsp; Projects Owned
               </a>
             </router-link>
-            <router-link tag='a' class='item' to='/profile/teams'>
+            <!-- <router-link tag='a' class='item' to='/profile/teams'>
               <a>
                 <i class="fa fa-users"></i> &nbsp; Teams Leading
               </a>
-            </router-link>
+            </router-link> -->
           </div>
         </div>
       </div><!-- /.col-xs-3 -->

@@ -149,7 +149,6 @@ import { mapGetters } from 'vuex'
 
 export default {
   created: function() {
-    this.$store.commit('getProfile')
     this.errors.profile.updated = null
   },
   data() {
@@ -308,6 +307,13 @@ export default {
           console.log('Error updating profile')
         } else {
           console.log('Update profile successful')
+          this.$store.dispatch('getProfile').then(response => {
+            console.log('Got profile after updating public profile')
+            // redirect to dashboard
+            this.$router.push({ path: '/home' })
+          }, error => {
+            console.log('Error getting profile after updating public profile')
+          })
           this.$router.push('/home')
         }
 

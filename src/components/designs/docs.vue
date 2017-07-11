@@ -1,7 +1,6 @@
 <template lang="html">
   <div>
-    This is a retrieved profile
-
+    Docs Content
   </div>
 
 </template>

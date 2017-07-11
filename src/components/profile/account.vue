@@ -313,7 +313,7 @@ export default {
           }
           this.$http.put('users/' + this.session.user_id + '/', payload).then(response => {
             console.log('Email updated')
-            this.$store.commit('getProfile')
+            this.$store.dispatch('getProfile')
             }, response => {
               console.log('Error updating email')
               console.log(response)

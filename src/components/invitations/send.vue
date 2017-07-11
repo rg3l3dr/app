@@ -119,11 +119,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
-
 export default {
-  created: function() {
-    this.$store.commit('getProfile')
-  },
+  created: function() {},
   data() {
     return {
       hasErrors: null,
@@ -182,6 +179,7 @@ export default {
   methods: {
     toggleSuccessModal: function() {
       $('#successModal').modal('toggle')
+      this.$router.push({ path: '/home' })
     },
     toggleFailureModal: function() {
       $('#failureModal').modal('toggle')
@@ -256,10 +254,15 @@ export default {
       vue.$http.post('custom_invites/', payload).then(response => {
         console.log('Invitations sent')
         console.log(response)
-        $('#successModal').modal('show')
-        $('#successModal').on('hidden.bs.modal', function (e) {
-          vue.$router.push('/')
+        this.$store.dispatch('getProfile').then(success => {
+          $('#successModal').modal('show')
+          $('#successModal').on('hidden.bs.modal', function (e) {
+            vue.$router.push('/')
+          })
+        }, error => {
+          
         })
+
       }, response => {
         console.log('Error sending invitations')
         console.log(response)

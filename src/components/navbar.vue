@@ -1,12 +1,12 @@
 <template lang="html">
   <div class="ui large secondary text menu" style='margin-bottom: 0px'>
-    <router-link v-if='session.active' class='item' to='/home' style="font-family:Exo, sans-serif;font-size: 26px; padding: 5px 3rem 5px 10px">
+    <router-link v-if='session.active' class='item' to='/home' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
       <i class="fa fa-cogs" style='font-size:26px; color:#555'></i>
       &nbsp
       <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
     </router-link>
-    <router-link  v-else class='item' to='/' style="font-family:Exo, sans-serif;font-size: 26px; padding: 5px 3rem 5px 10px">
-      <i class="fa fa-cogs" style='font-size:26px; color:#555'></i>
+    <router-link  v-else class='item' to='/' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
+      <i class="fa fa-cogs" style='font-size:30px; color:#555'></i>
       &nbsp
       <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
     </router-link>
@@ -15,11 +15,27 @@
     <a href="#" class="item">Pricing</a> -->
     <div class="right menu">
       <div class="item" style='padding-right: 5rem'>
-        <div class="ui action left icon input small">
+
+        <div class="ui fluid search" v-if='session.active'>
+          <div class="ui icon input">
+            <input
+              class="prompt"
+              type="text"
+              size='35'
+              placeholder=" Search for designs..."
+              v-model='inputQuery'
+              @keydown.enter='getResult'
+            >
+            <i class="search icon"></i>
+          </div>
+          <div class="results" @click='getResult'></div>
+        </div>
+
+        <!-- <div class="ui action left icon input small">
           <i class="search icon"></i>
           <input type="text" placeholder="Search projects..." size='35'>
           <button class="ui button small">Submit</button>
-        </div>
+        </div> -->
       </div>
       <router-link class='item' id='nav-inbox' to='/notify/unread' v-if='session.active===true'>
         <span v-if='unread_count > 0' class="fa-stack fa-lg has-badge" :data-count='unread_count'>
@@ -33,7 +49,7 @@
       </router-link>
       <div class="ui top right pointing dropdown" id='nav-profile' v-if='session.active===true'>
         <span v-if='profile.picture'>
-          <img :src='profile.picture' style='height:25px'>
+          <img :src='profile.picture' style='height:33px'>
         </span>
         <span v-else>
           <i class='fa fa-user fa-2x'></i>
@@ -41,11 +57,12 @@
         <i class="dropdown icon"></i>
         <div class="menu">
           <router-link class='item' to='/home'><i class='fa fa-home fa-fw'></i>&nbsp {{session.username}}</router-link>
-          <router-link class='item' to='#'><i class='fa fa-folder-o fa-fw'></i>&nbsp Create Project</router-link>
-          <router-link class='item' to='#'><i class='fa fa-users fa-fw'></i>&nbsp Create Team</router-link>
+          <router-link class='item' to='/create_design'><i class='fa fa-folder-o fa-fw'></i>&nbsp Create Design</router-link>
+          <!-- <router-link class='item' to='#'><i class='fa fa-users fa-fw'></i>&nbsp Create Team</router-link> -->
           <router-link class='item' to='/profile/public'><i class='fa fa-gear fa-fw'></i>&nbsp My Account</router-link>
           <div class="divider"></div>
-          <a class='item' href='http://www.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a></li>
+          <a class='item' v-if='sub == "app"' href='http://www.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
+          <a class='item' v-else href='http://stage.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
         </div>
       </div>
       <router-link to="/accounts/login" class="item" v-if='session.active===false'>Login</router-link>
@@ -55,39 +72,111 @@
 </template>
 
 <script>
+
+let my_host = window.location.host
+let parts = my_host.split('.')
+let sub = parts[0]
+
 $(document).ready(function() {
-  $('.ui.dropdown').dropdown();
-  // $('.ui.menu .item').tab();
-  // $('table').tablesort()
-  // $('.ui.checkbox').checkbox();
-;
+  $('.ui.dropdown').dropdown({ 'silent': true })
 });
 import { mapGetters } from 'vuex'
 export default {
   name: 'app',
   data () {
     return {
-      unread_count: null
+      unread_count: null,
+      checkUnread: false,
+      results: [],
+      resultSelected: false,
+      inputQuery: null,
+      result: {}
     }
   },
   computed: {
     ...mapGetters([
       'session',
-      'profile'
+      'profile',
+      'query'
     ]),
     activeSession() {
       return this.session.active
+    },
+    sub() {
+      let my_host = window.location.host
+      let parts = my_host.split('.')
+      sub = parts[0]
+      return sub
     }
   },
   watch: {
     activeSession() {
       console.log('Session state changed')
-      $('.ui.dropdown').dropdown();
+      $('.ui.dropdown').dropdown({ 'silent': true });
     }
   },
   methods: {
+    // getDesigns () {
+    //   this.$http.get('designs/').then(success => {
+    //     console.log(success)
+    //     let designs = success.body.results
+    //     for (let design of designs) {
+    //       let result = {
+    //         title: design.name,
+    //         id: design.id,
+    //         slug: design.slug,
+    //         profile: design.creator.slug
+    //       }
+    //       this.results.push(result)
+    //
+    //       $('.ui.search').search(
+    //         { source: this.results }
+    //       )
+    //     }
+    //   }, error => {
+    //     console.log(error)
+    //   })
+    // },
+    getResult() {
+      let vue = this
+      setTimeout(function() {
+          if (vue.resultSelected) {
+            console.log('Result selected, redirecting to result detail page')
+            let path = vue.result.creator + '/' + vue.result.slug + '/primary/latest/home'
+            vue.inputQuery = null
+            vue.resultSelected = false
+            vue.result = {}
+            $('.ui.search').search('hide results')
+            vue.$router.push('/' + path)
+          } else {
+            console.log('No result selected, redirecting to results list page')
+            vue.$store.commit('setQuery', vue.inputQuery)
+            console.log(vue.inputQuery)
+            vue.inputQuery = null
+            vue.resultSelected = false
+            vue.result = {}
+            $('.ui.search').search('hide results')
+            vue.$router.push('/search')
+          }
+
+
+      }, 0);
+    },
+    getResults() {
+      console.log('Search query submitted')
+    },
     getUnreadCount() {
       var self = this
+
+      self.$http.get('notifications/get-unread-count/').then(response => {
+        console.log('Got unread count')
+        console.log(response)
+        self.unread_count = response.body.unread_count
+      }, response => {
+        console.log('Error getting unread count')
+        console.log(response)
+      })
+
       setInterval( function () {
         self.$http.get('notifications/get-unread-count/').then(response => {
           console.log('Got unread count')
@@ -112,28 +201,39 @@ export default {
       })
     }
   },
-  created: function() {
-    console.log('vue mounted')
+  mounted() {
     if (this.session.active) {
-      this.$http.get('notifications/get-unread-count/').then(response => {
-        console.log('Got unread count')
-        console.log(response)
-        this.unread_count = response.body.unread_count
-      }, response => {
-        console.log('Error getting unread count')
-        console.log(response)
-      })
-      console.log('should have gotten unread count')
-      this.getUnreadCount()
+      // this.getUnreadCount()
+      console.log('should have gotten unread count at created')
     } else (
-      console.log('No active session detected')
+      console.log('No active session detected at created')
+    )
+    let vue = this
+    $('.ui.search').search(
+      {
+        apiSettings: {
+            url: 'https://stage.omnibuilds.com/designquery/?q={query}'
+          },
+        fields: {
+          title: 'name'
+        },
+        onSelect: function(result, response) {
+          console.log(result)
+          vue.resultSelected = true
+          console.log('Result selected, set resultSelected to true')
+          vue.result = result
+        }
+      }
     )
   },
-  updated: function() {
+  updated() {
     console.log('Vue instance updated')
     if (this.session.active == true) {
-      console.log('active session detected')
-      $('.ui.dropdown').dropdown();
+      $('.ui.dropdown').dropdown({ 'silent': true });
+      if (this.checkUnread == false) {
+        this.getUnreadCount()
+        this.checkUnread = true
+      }
     }
   }
 }

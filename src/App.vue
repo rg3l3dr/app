@@ -2,7 +2,7 @@
   <div class='ui container'>
     <app-navbar></app-navbar>
     <hr style='margin-top: 0px'>
-    <router-view></router-view>
+    <router-view style='min-height:85vh'></router-view>
     <app-footer></app-footer>
   </div>
 </template>

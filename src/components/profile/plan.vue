@@ -10,14 +10,14 @@
     </div>
     <div class="ui attached segment">
       <strong>Current Plan:</strong> {{ profile.plan.name }} &nbsp;
-      <button class="ui tiny button" v-if='profile.plan.id == 1' @click="togglePaymentModal">Upgrade to Freelancer</button>
+      <button class="ui tiny button" v-if='profile.plan.id == 1' @click="openPaymentModal">Upgrade to Freelancer</button>
     </div>
     <div class="ui attached segment" :class="{ bottom : profile.planid == 1 }">
         <strong>Private Storage</strong> &nbsp; {{ data_cap_fmt }} &nbsp;
     </div><!-- /.list-group-item -->
     <div v-if='profile.plan.id != 1' class="ui bottom attached segment">
       <strong>Billing Info: </strong> &nbsp;
-      <button class="ui small button" @click='togglePaymentModal'>Update Payment Method</button>
+      <button class="ui small button" @click='openPaymentModal'>Update Payment Method</button>
       <br><br>
       {{profile.customer_set[0].card_brand}} **** **** **** {{profile.customer_set[0].card_last4 }} Expiration: {{profile.customer_set[0].card_exp_month}}/{{profile.customer_set[0].card_exp_year}}<br>
       Next payment due: {{profile.customer_set[0].next_payment | moment("MMMM Do YYYY")}} <br>
@@ -36,7 +36,7 @@
           You can downgrade at anytime, but you will no longer be able to access your private repositories created under this plan and your private storage will be adjusted.
         </div>
         <div class="four wide column">
-          <button class="ui small red button" @click='toggleCancelModal'>
+          <button class="ui small red button" @click='openCancelModal'>
             <i class="minus square icon"></i>
             Downgrade
           </button>
@@ -143,7 +143,7 @@
         </form>
        </div>
       <div class="actions">
-         <button id='closeModal' type="button" class="ui button" @click='togglePaymentModal'>Cancel</button>
+         <button id='closeModal' type="button" class="ui button" @click='hidePaymentModal'>Cancel</button>
           <button v-if='is_active_customer' type="submit" class="ui button" id='submit-card' @click='submitPayment("update")' data-dismiss="modal">Update Payment Info</button>
           <button v-else type="submit" class="ui button" id='submit-card' @click='submitPayment("create")' data-dismiss="modal">Submit Payment</button>
        </div>
@@ -166,7 +166,7 @@
         </div>
       </div>
       <div class="actions">
-        <button type="button" class="ui small green button" @click='toggleCancelModal'>Close</button>
+        <button type="button" class="ui small green button" @click='hideCancelModal'>Close</button>
         <button class="ui red small button" @click='downgradePlan' data-dismiss="modal">Cancel Plan</button>
       </div>
     </div>
@@ -189,7 +189,7 @@ import { mapGetters } from 'vuex'
 
 export default {
   created: function() {
-    this.$store.commit('getProfile')
+    // this.$store.commit('getProfile')
     // $('.ui.modal').modal('show')
   },
   data() {
@@ -242,12 +242,24 @@ export default {
     }
 	},
 	methods: {
-    togglePaymentModal: function() {
-      $('#paymentModal').modal('toggle')
+    openPaymentModal: function() {
+      $('#paymentModal').modal('show')
     },
-    toggleCancelModal: function() {
-      $('#cancelModal').modal('toggle')
+    hidePaymentModal: function() {
+      $('#paymentModal').modal('hide')
     },
+    openCancelModal: function() {
+      $('#cancelModal').modal('show')
+    },
+    hideCancelModal: function() {
+      $('#cancelModal').modal('hide')
+    },
+    // togglePaymentModal: function() {
+    //   $('#paymentModal').modal('toggle')
+    // },
+    // toggleCancelModal: function() {
+    //   $('#cancelModal').modal('toggle')
+    // },
 		downgradePlan: function() {
 			console.log('Downgrading plan')
       // change the profile plan
@@ -256,11 +268,19 @@ export default {
       let payload = {action: 'downgrade'}
 			this.$http.put('customers/' + this.profile.customer_set[0].id + '/', payload).then(function(response) {
 				// on success
-        this.$router.push('/profile/plan')
-        this.$store.commit('getProfile')
+        console.log('downgrade succeeded')
+        $('#cancelModal').modal('hide')
+
+        this.$store.dispatch('getProfile').then(success => {
+          this.$router.push('/profile/plan')
+        }, error => {
+
+        })
+
 
       }, function(response) {
 				// on error
+        console.log('downgrade failed')
 				console.log(response)
 			})
 		},
@@ -292,17 +312,24 @@ export default {
             vue.$http.post('customers/', formData).then(function(response) {
               // on success
               console.log(response)
-              $('#paymentModal').modal('hide')
-              vue.$router.push('/profile/plan')
-              this.$store.commit('getProfile')
-              $modal.find('#submit-card').prop('disabled', false) // Re-enable submission
-              vue.card = {
-          			number: '',
-          			cvc: '',
-          			exp_month: '',
-          			exp_year: '',
-          			address_zip: '',
-          		}
+
+
+              this.$store.dispatch('getProfile').then(success => {
+                // $modal.find('#submit-card').prop('disabled', false) // Re-enable submission
+                $('#paymentModal').modal('hide')
+
+                vue.card = {
+            			number: '',
+            			cvc: '',
+            			exp_month: '',
+            			exp_year: '',
+            			address_zip: '',
+            		}
+                vue.$router.push('/profile/plan')
+              }, error => {
+
+              })
+
             }, function(response) {
               console.log(response)
               // on error
@@ -313,18 +340,20 @@ export default {
             formData.append('action', 'update_card')
             vue.$http.put('customers/' + vue.profile.customer_set[0].id + '/', formData).then(function(response) {
                 console.log(response)
-                $('#paymentModal').modal('hide')
-                vue.$router.push('/profile/plan')
-                this.$store.commit('getProfile')
-                $modal.find('#submit-card').prop('disabled', false) // Re-enable submission
-                vue.card = {
-            			number: '',
-            			cvc: '',
-            			exp_month: '',
-            			exp_year: '',
-            			address_zip: '',
-            		}
+                this.$store.dispatch('getProfile').then(success => {
+                  // $modal.find('#submit-card').prop('disabled', false) // Re-enable submission
+                  $('#paymentModal').modal('hide')
+                  vue.card = {
+                    number: '',
+                    cvc: '',
+                    exp_month: '',
+                    exp_year: '',
+                    address_zip: '',
+                  }
+                  vue.$router.push('/profile/plan')
+                }, error => {
 
+                })
             }, function(response) {
               //on error
               console.log('error')

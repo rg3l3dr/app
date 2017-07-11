@@ -44,10 +44,9 @@
 // create new notifications for specific events
 // billing action (new subscription, invoice, or card declined)
 
-
+import { mapGetters } from 'vuex'
 export default {
   created: function() {
-    this.$store.commit('getProfile')
     this.getNotifications()
   },
   data() {
@@ -56,6 +55,10 @@ export default {
     }
   },
   computed: {
+    ...mapGetters([
+      'session',
+      'profile',
+    ]),
     unread_notifications: function() {
       return this.notifications.filter(function (notification) {
         return notification.unread === true

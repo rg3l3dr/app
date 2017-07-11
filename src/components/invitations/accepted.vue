@@ -24,7 +24,7 @@
               <td>{{ invite.sent | moment("MMMM Do YYYY")}}</td>
               <td>{{ invite.created | moment("MMMM Do YYYY") }}</td>
               <td>
-                <span v-if='invite.accepted'>
+                <span v-if='invite.joined'>
                   Yes
                 </span>
                 <span v-else>
@@ -46,9 +46,7 @@
 <script>
 import { mapGetters } from 'vuex'
 export default {
-  created: function() {
-    this.$store.commit('getProfile')
-  },
+  created: function() {},
   computed: {
     ...mapGetters([
       'session',

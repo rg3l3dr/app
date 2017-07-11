@@ -52,12 +52,9 @@
 </template>
 
 <script>
-
 import { mapGetters } from 'vuex'
 export default {
-  created: function() {
-    this.$store.commit('getProfile')
-  },
+  created: function() { },
   computed: {
     ...mapGetters([
       'session',

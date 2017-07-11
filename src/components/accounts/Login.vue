@@ -58,7 +58,7 @@
                 </button>
             </form>
             <br>
-            <router-link to='/accounts/reset'>Forgot Password</router-link>
+            <router-link to='/accounts/request_reset'>Forgot Password</router-link>
           </div>
         </div>
       </div>
@@ -68,6 +68,7 @@
 </template>
 
 <script>
+import { EventBus } from '../../event-bus.js'
 export default {
   name: 'Login',
   data () {
@@ -113,27 +114,30 @@ export default {
           username: this.username.data,
           password: this.password.data
         }
-        this.$http.post('rest-auth/login/', login).then(response => {
+        this.$http.post('rest-auth/login/', login).then(success => {
           console.log('Login successful')
-          console.log(response)
+          console.log(success)
           // get the token and user
           let payload = {
-            user_id: response.body.user.pk,
-            username: response.body.user.username,
-            token: response.body.token,
+            user_id: success.body.user.pk,
+            username: success.body.user.username,
+            token: success.body.token,
             active: true
           }
           // store user in vuex store
           this.$store.commit('startSession', payload)
-          // redirect to dashboard
-          this.$router.push({ path: '/home' })
+          this.$store.dispatch('getProfile').then(success => {
+            console.log('Got profile at login')
+            this.$router.push({ path: '/home' })
+          }, error => {
 
-        }, response => {
+          })
+        }, error => {
           console.log('Error logging in user')
-          console.log(response)
-          if (typeof response.body.non_field_errors !== 'undefined') {
+          console.log(error)
+          if (typeof error.body.non_field_errors !== 'undefined') {
             this.password.hasError = true
-            this.password.error = response.body.non_field_errors[0]
+            this.password.error = error.body.non_field_errors[0]
           }
         })
       }

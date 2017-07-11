@@ -4,8 +4,8 @@
     <div class='ui grid'>
   		<div class='row'>
   			<div class='four wide column' id='plan'>
-  				Plan:  {{profile.plan.name}} &nbsp
-          <router-link v-if='profile.plan.name=="Free" || profile.plan.name=="Individual (free)"' to='profile/plan'>
+  				Plan:  {{ profile.plan.name }} &nbsp
+          <router-link v-if='profile.plan.name=="Starter"' to='profile/plan'>
             Upgrade
           </router-link>
   			</div>
@@ -14,24 +14,10 @@
            <router-link to='invite/send'>
              Invite friends to add storage
            </router-link>
-  				 <!-- <div class="ui progress" id='privateStorage'>
-  				   <div class="bar"></div>
-  				               <div class="progress"></div>
-  				   <div class="label">{{data_percent}} %</div>
-  				 </div> -->
-
-           <!-- <template>
-             <progress-bar :type="'success'" :size="'large'" :value="20" :max="100" :show-label="false"></progress-bar>
-           </template> -->
-
-
            <div id="myProgress">
              <div id="myBar" :style="{width: data_percent + '%'  }">
-
              </div>
            </div>
-
-
   			</div>
   		</div>
   		<div class='row'>
@@ -47,16 +33,15 @@
               <div class="ui bottom attached clearing segment">
                 <p id='profile-summary'>
                   <div class="ui grid">
-                    <div class='row'>
+                    <div class='row' style='padding: 0px 0px 0px 0px'>
                       <div class='four wide column'>
-                        <img v-if='profile.picture' :src='profile.picture' style='height:50px'/>
+                        <img class='ui right floated image' v-if='profile.picture' :src='profile.picture' style='height:40px'/>
                         <i v-else class="fa fa-user fa-2x" aria-hidden="true"></i>
                       </div>
                       <div class='twelve wide column'>
-                        <h1 style='margin:auto'>{{ profile.name }}</h1>
+                        <h2 style='margin:auto'>{{ profile.name }}</h2>
                       </div>
                     </div>
-                    <br>
                     <div class='row'>
                       <div class='sixteen wide column'>
                         <span v-if='profile.public_name'>
@@ -68,7 +53,7 @@
                           &nbsp Lives in {{ profile.location }}<br>
                         </span>
                         <i class="fa fa-calendar"></i>
-                        &nbsp Joined on {{ profile.date_joined | moment("MMMM Do YYYY") }}<br>
+                        &nbsp Joined on {{ profile.created_at | moment("MMMM Do YYYY") }}<br>
                         <span v-if='profile.website'>
                           <i class="fa fa-link"></i>
                           &nbsp <a :href='profile.website'> {{ profile.website }}</a><br>
@@ -77,7 +62,6 @@
                           <i class="fa fa-envelope-o"></i>
                           &nbsp <a :href='"mailto:" + profile.public_email'> {{profile.public_email}}</a><br>
                         </span>
-                        <br>
                         <router-link to='/profile/public'>
                           <button class='ui right floated mini button'>
                             <i class="fa fa-gear" aria-hidden="true"></i>
@@ -98,41 +82,52 @@
   								<i class="fa fa-folder-open-o text-primary" aria-hidden="true"></i>
                   <div class="content">
                     &nbsp
-    								My Projects
+    								My Designs
                   </div>
   						</div>
   						<div class="ui bottom attached clearing segment">
-  								You are not a team member for any projects.
-  								<br><br>
-                  <router-link to='/project'>
-    								<button class='ui right floated mini button'>
-    									<i class="fa fa-plus" aria-hidden="true"> </i>
-    									&nbsp New Project
-    								</button>
-                  </router-link>
-  							</div>
+                <div class="ui relaxed divided list">
+                  <div class="item" v-if='designs.length == 0'>
+                    You have not created any designs yet
+                  </div>
+                  <div v-else class="item" v-for='design in designs'>
+                    <i class="folder icon"></i>
+                    <div class="content">
+                      <router-link tag='a' :to=' "/" + session.username + "/" + design.slug + "/primary/latest/home" '>
+                        {{ design.name }}
+                      </router-link>
+                    </div>
+                  </div>
+                </div>
+                <router-link to='/create_design'>
+  								<button class='ui right floated mini button'>
+  									<i class="fa fa-plus" aria-hidden="true"> </i>
+  									&nbsp New Design
+  								</button>
+                </router-link>
+							</div>
   					</div>
   				</div>
           <br>
-  				<div class='row'>
-  					<div class='sixteen wide column' id='organizations'>
-  						<div class='ui small top attached header'>
-								<i class="fa fa-users text-primary" aria-hidden="true"></i>
-                <div class="content">
-                  &nbsp
-  								My Teams
-                </div>
-              </div>
-              <div class="ui bottom attached clearing segment">
-								You are not a member of any organizations.
-								<br><br>
-                <button class='ui right floated mini button'>
-									<i class="fa fa-plus" aria-hidden="true"> </i>
-									New Team
-								</button>
-  						</div>
-  					</div>
-  				</div>
+  				<!-- <div class='row'>
+  				  <div class='sixteen wide column' id='organizations'>
+  				    <div class='ui small top attached header'>
+  				                <i class="fa fa-users text-primary" aria-hidden="true"></i>
+  				                <div class="content">
+  				                  &nbsp
+  				        My Teams
+  				                </div>
+  				              </div>
+  				              <div class="ui bottom attached clearing segment">
+  				                You are not a member of any organizations.
+  				                <br><br>
+  				                <button class='ui right floated mini button'>
+  				                  <i class="fa fa-plus" aria-hidden="true"> </i>
+  				                  New Team
+  				                </button>
+  				    </div>
+  				  </div>
+  				</div> -->
         </div>
   			<div class='eleven wide column'>
   				<div class='row'>
@@ -172,6 +167,69 @@
   </div>
 </template>
 
+<script>
+import { mapGetters } from 'vuex'
+export default {
+  name: 'dashboard',
+  data() {
+    return {
+      designs: []
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'session',
+      'profile',
+    ]),
+    data_fmt: function() {
+			return this.formatBytes(this.profile.data)
+		},
+    data_percent: function() {
+			return (this.profile.data / this.profile.data_cap) * 100
+		},
+		data_cap_fmt: function() {
+			return this.formatBytes(this.profile.data_cap)
+		},
+  },
+  methods: {
+    getDesigns() {
+      this.$http.get('designlist/').then(success => {
+        console.log(success)
+        this.designs = success.body.results
+        this.startCalHeatMap()
+      }, error => {
+        console.log(error)
+      })
+    },
+    startCalHeatMap() {
+      let cal = new CalHeatMap()
+      cal.init({
+        start: new Date(2017, 7),
+        range: 1,
+        domain: 'year',
+        subDomain: 'day',
+      })
+    },
+    formatBytes(bytes,decimals) {
+       if(bytes == 0) return '0 Bytes'
+       var k = 1000
+       var dm = decimals + 1 || 3
+       var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+       var i = Math.floor(Math.log(bytes) / Math.log(k))
+       return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+    }
+  },
+  created() {
+    $('.ui.dropdown').dropdown({ 'silent': true })
+    this.$store.dispatch('getProfile')
+  },
+  mounted() {
+    this.getDesigns()
+  },
+}
+
+</script>
+
 <style>
   #myProgress {
       width: 100%;
@@ -184,60 +242,3 @@
       border-radius: 5px 0px 0px 5px;
   }
 </style>
-
-
-<script>
-function formatBytes(bytes,decimals) {
-   if(bytes == 0) return '0 Bytes'
-   var k = 1000
-   var dm = decimals + 1 || 3
-   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-   var i = Math.floor(Math.log(bytes) / Math.log(k))
-   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
-}
-
-$(document).ready(function() {
-  $('.ui.dropdown').dropdown();
-  // $('#privateStorage').progress();
-
-  // $('.ui.menu .item').tab();
-  // $('table').tablesort()
-  // $('.ui.checkbox').checkbox();
-;
-});
-
-import { mapGetters } from 'vuex'
-export default {
-  name: 'dashboard',
-  computed: {
-    ...mapGetters([
-      'session',
-      'profile'
-    ]),
-    data_fmt: function() {
-			return formatBytes(this.profile.data)
-		},
-    data_percent: function() {
-			return (this.profile.data / this.profile.data_cap) * 100
-		},
-		data_cap_fmt: function() {
-			return formatBytes(this.profile.data_cap)
-		},
-  },
-  created: function() {
-    this.$store.commit('getProfile')
-
-
-  },
-  mounted: function() {
-    let cal = new CalHeatMap()
-    cal.init({
-      start: new Date(2017, 3),
-      range: 1,
-      domain: 'year',
-      subDomain: 'day',
-    })
-  }
-}
-
-</script>
