@@ -108,7 +108,7 @@
           <input class="form-control" id="picture" name="picture" type="file">
         </div>
 
-        <div class="field has-feedback"
+        <!-- <div class="field has-feedback"
           :class="{
             'has-success': errors.profile.about.isValid,
             'error': errors.profile.about.isValid == false || errors.profile.about.hasError
@@ -127,7 +127,7 @@
             class="help-block"
             > {{errors.profile.about.error}}
           </span>
-        </div>
+        </div> -->
 
         <h4 v-if='errors.profile.updated===true' style='color:#468847;'>
           Successfully updated profile

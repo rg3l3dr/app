@@ -1,29 +1,29 @@
 <template lang="html">
-  <div class='ui grid'>
-    <div class="row">
-      <div class="eight wide column">
-        <h3>
+  <div>
+    <div class='ui grid'>
+      <div class="row">
+        <div class="eight wide column">
           Your search for {{ query }} returned {{ results.length }} results
-        </h3>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="twelve wide column">
-        <div class="ui relaxed divided list">
-          <div class="item" v-for='(result, index) in results'>
-            <i class="big folder open middle aligned icon"></i>
-            <div class="content">
-              <a class='header' @click='viewResult(index)'>
-                <h3>
-                  {{ result.name }}
-                </h3>
+      <div class="row">
+        <div class="twelve wide column">
+          <div class="ui relaxed divided list">
+            <div class="item" v-for='(result, index) in results'>
+              <i class="big folder open middle aligned icon"></i>
+              <div class="content">
+                <a class='header' @click='viewResult(index)'>
+                  <h3>
+                    {{ result.name }}
+                  </h3>
 
-              </a>
-              <div class="description" >
-                <h4>
-                  {{ result.description }}
-                </h4>
+                </a>
+                <div class="description" >
+                  <h4>
+                    {{ result.description }}
+                  </h4>
 
+                </div>
               </div>
             </div>
           </div>
@@ -31,6 +31,7 @@
       </div>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -67,7 +68,7 @@ export default {
     },
     viewResult: function(index) {
       let result = this.results[index]
-      let path = '/' + result.creator + '/' + result.slug + '/primary/latest/home'
+      let path = '/' + result.creator + '/' + result.slug + '/primary/latest/specs'
       this.$router.push(path)
     }
   },

@@ -16,15 +16,24 @@
           <th>Change</th>
           <th></th>
         </thead>
-        <tbody>
-          <tr v-for='rev in currentConfig[0].rev_set'>
+        <tbody name='fade' is='transition-group'>
+          <tr v-for='rev in currentConfig[0].rev_set' :key='rev'>
             <td>{{ rev.name }}</td>
             <td> {{rev.owner}} </td>
             <td>{{ rev.created_at | moment("MMMM Do YYYY") }}</td>
             <td></td>
             <td></td>
             <td>
-              <button class="ui mini red button" @click='deleteModal(rev)' v-if='rev.name != "Latest"'>X</button>
+              <span v-if='$route.params.rev_slug=="latest"'>
+                <button
+                  class="ui red circular basic icon button"
+                  @click='deleteModal(rev)'
+                  v-if='rev.slug!="latest"'
+                >
+                  <i class="remove icon"></i>
+                </button>
+              </span>
+
             </td>
           </tr>
         </tbody>
@@ -48,7 +57,13 @@
       </div>
       <div class="actions">
         <button type="button" class="ui small green button" @click='hideDeleteModal'>Close</button>
-        <button class="ui red small button" @click='deleteRev' data-dismiss="modal">Delete Rev</button>
+        <button
+          class="ui red small button"
+          @click='deleteRev'
+          data-dismiss="modal"
+        >
+          Delete Rev
+        </button>
       </div>
     </div>
   </div>
@@ -70,11 +85,11 @@ export default {
       'session',
       'profile',
       'design',
-      'refs'
+      'designRefs'
     ]),
     currentConfig: function() {
       return this.design.config_set.filter(
-        config => config.slug == this.refs.config
+        config => config.slug == this.$route.params.config_slug
       )
     }
   },
@@ -103,15 +118,19 @@ export default {
         $('#revs').dropdown('set text', 'Latest')
         $('#revs').dropdown('set selected', 'Latest')
 
-        let refs_payload = {
-          config: this.refs.config,
-          rev: 'latest',
-          change: null
-        }
-        this.$store.commit('setRefs', refs_payload)
+        // this.$route.params.config_slug = config.slug
+        this.$route.params.rev_slug = 'latest'
+        this.$route.params.change_slug = null
+
+        // let refs_payload = {
+        //   config: this.refs.config,
+        //   rev: 'latest',
+        //   change: null
+        // }
+        // this.$store.commit('setRefs', refs_payload)
         let design_payload = { design_slug: this.$route.params.design_slug }
         this.$store.dispatch('getDesign', design_payload).then(success => {
-          this.$router.push(this.refs.path + '/settings/revs')
+          this.$router.push(this.designRefs.path + '/settings/revs')
 
 
 
@@ -135,4 +154,16 @@ export default {
 </script>
 
 <style lang="css">
+.fade-enter-active, .fade-leave-active {
+  transition-property: opacity;
+  transition-duration: .25s;
+}
+
+.fade-enter-active {
+  transition-delay: .25s;
+}
+
+.fade-enter, .fade-leave-active {
+  opacity: 0
+}
 </style>

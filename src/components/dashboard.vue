@@ -93,7 +93,7 @@
                   <div v-else class="item" v-for='design in designs'>
                     <i class="folder icon"></i>
                     <div class="content">
-                      <router-link tag='a' :to=' "/" + session.username + "/" + design.slug + "/primary/latest/home" '>
+                      <router-link tag='a' :to=' "/" + session.username + "/" + design.slug + "/primary/latest/specs" '>
                         {{ design.name }}
                       </router-link>
                     </div>
@@ -135,7 +135,7 @@
 							<i class="fa fa-random text-primary" aria-hidden="true"></i>
               <div class="content">
                 &nbsp
-								My Contributions
+								My Contributions (wip)
               </div>
 						</div>
 						<div class="ui bottom attached clearing segment">
@@ -154,9 +154,7 @@
   						</div>
   						<div class="ui bottom attached clearing segment">
 								<div id='app'>
-									<ul >
-									<!-- 	<li :class="{ 'completed': task.completed }" v-cloak v-for='task in tasks' @click="task.completed = ! task.completed">[[ task.body ]]</li> -->
-									</ul>
+									Coming Soon!
 								</div>
 								<br><br>
   						</div>
@@ -169,8 +167,18 @@
 
 <script>
 import { mapGetters } from 'vuex'
+var gotProfile
 export default {
   name: 'dashboard',
+  beforeRouteEnter (to, from, next) {
+    // prevent getting profile twice if coming from login page, else we want to refresh the profile when navigating to dashboard
+    if (from.path == '/accounts/login') {
+      gotProfile = true
+    } else {
+      gotProfile = false
+    }
+    next()
+  },
   data() {
     return {
       designs: []
@@ -193,16 +201,19 @@ export default {
   },
   methods: {
     getDesigns() {
-      this.$http.get('designlist/').then(success => {
-        console.log(success)
-        this.designs = success.body.results
-        this.startCalHeatMap()
-      }, error => {
-        console.log(error)
+      return new Promise ((resolve, reject) => {
+        this.$http.get('designlist/').then(success => {
+          console.log(success)
+          this.designs = success.body.results
+          resolve()
+        }, error => {
+          console.log(error)
+          reject()
+        })
       })
     },
     startCalHeatMap() {
-      let cal = new CalHeatMap()
+      var cal = new CalHeatMap()
       cal.init({
         start: new Date(2017, 7),
         range: 1,
@@ -220,11 +231,14 @@ export default {
     }
   },
   created() {
-    $('.ui.dropdown').dropdown({ 'silent': true })
-    this.$store.dispatch('getProfile')
+    if (!gotProfile) {
+      this.$store.dispatch('getProfile')
+    }
   },
   mounted() {
-    this.getDesigns()
+    this.getDesigns().then( () => {
+      this.startCalHeatMap()
+    })
   },
 }
 

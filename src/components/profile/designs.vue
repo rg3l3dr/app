@@ -9,13 +9,92 @@
     </div>
     <div class="ui bottom attached segment">
       Project Info
+      <table class="ui striped small selectable table">
+        <thead>
+          <td>Project Name</td>
+          <td>Last Updated</td>
+          <td>Parts</td>
+          <td>Files</td>
+          <td>Configs</td>
+          <td>Revs</td>
+          <td>Changes</td>
+          <td>Total Data</td>
+        </thead>
+        <tbody>
+          <tr v-for='design in designs'>
+            <td id='project-name'>
+              {{ design.name }}
+            </td>
+
+            <td id='project-last-updated'>
+              {{ design.last_updated | moment("from", "now") }}
+            </td>
+
+            <td id='project-parts'>
+              {{ design.bom.data.length }}
+            </td>
+
+            <td id='project-files'>
+              {{ design.files.data.length }}
+            </td>
+
+            <td id='project-configs'>
+              {{ design.config_set.length }}
+            </td>
+
+            <td id='project-revs'>
+              {{ design.rev_set.length }}
+            </td>
+
+            <td id='project-changes'>
+              {{ design.change_set.length }}
+            </td>
+
+            <td id='project-dat'>
+              {{  }}
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
+  name: 'designs',
+  data() {
+    return {
+      designs: [],
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'session',
+      'profile'
+    ]),
+  },
+  watch: {},
+  methods: {
+    getDesigns() {
+      this.$http.get('designs').then(success => {
+        console.log('Got designs')
+        console.log(success)
+        this.designs = success.body.results
+      }, error => {
+        console.log('Error getting designs')
+        console.log(error)
+      })
+    }
+  },
+  created() {
+    this.getDesigns()
+  },
+  mounted() {},
+  updated() {}
 }
 </script>
 

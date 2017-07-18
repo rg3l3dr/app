@@ -14,7 +14,30 @@
           <input v-model='design.name' type='text' maxlength='50'>
           <div v-if='design_errors.name.hasError' class="has-error"> {{design_errors.name.error}} </div>
         </div>
-        <div class="field" :class="{ 'error': design_errors.description.hasError}">
+        <div class="field" id='design-visbility'>
+          <label>Visibility Level</label>
+          <div class="ui selection dropdown visibility">
+            <input type="hidden" name="visibility">
+            <i class="dropdown icon"></i>
+            <div class="default text">
+              <i class="lock icon"></i>
+              Choose a Visibility Level
+            </div>
+            <div class="menu">
+              <div class="item" data-value="1">Private</div>
+              <div class="disabled item" data-value="2">Public (coming soon)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" id='design-license'>
+          <label> Optional License </label>
+          <select class="ui dropdown license" v-model='license'>
+            <option disabled value=""> <i class="file text icon"></i> Choose a License (optional)</option>
+            <option v-for='license in licenses' :value='license.id'> {{ license.long_name }} </option>
+          </select>
+        </div>
+        <!-- <div class="field" :class="{ 'error': design_errors.description.hasError}">
           <label>Description</label>
           <textarea name='description' cols="8" rows="5" maxlength='250' v-model='design.description'></textarea>
           <div v-if='design_errors.description.hasError' class="has-error"> {{design_errors.description.error}} </div>
@@ -33,8 +56,8 @@
           <select class="ui dropdown" v-model='design.visibility'>
             <option value=''>Choose Visibility Level</option>
             <option value='1'>Private</option>
-            <!-- <option value='2'>Protected</option>
-            <option value='3'>Public</option> -->
+            <option value='2'>Protected</option>
+            <option value='3'>Public</option>
           </select>
         </div>
         <div class="field">
@@ -42,10 +65,10 @@
           <select class="ui dropdown" v-model='design.license'>
             <option value=''>Choose License Type</option>
             <option value='1'>None</option>
-            <!-- <option value='2'>Protected</option>
-            <option value='3'>Public</option> -->
+            <option value='2'>Protected</option>
+            <option value='3'>Public</option>
           </select>
-        </div>
+        </div> -->
         <button class='ui button' @click='submit'>
           Update Design
         </button>
@@ -55,6 +78,7 @@
 </template>
 
 <script>
+import { EventBus } from '../../../event-bus.js'
 import { mapGetters } from 'vuex'
 export default {
   name: 'home',
@@ -72,8 +96,11 @@ export default {
         picture: {
           hasError: null,
           error: ''
-        }
-      }
+        },
+      },
+      visibility: 'private',
+      license: 1,
+      licenses: [],
     }
   },
   computed: {
@@ -81,22 +108,34 @@ export default {
       'session',
       'profile',
       'design',
-      'refs'
+      'designRefs'
     ]),
     name_slug: function() {
       return this.design.name.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
     }
   },
   methods: {
-    submit: function() {
+    getLicenses() {
+      return new Promise((resolve, reject) => {
+        this.$http.get('licenses/').then(success => {
+          console.log('Got licenses')
+          console.log(success)
+          this.licenses = success.body.results
+          resolve()
+        }, error => {
+          console.log('Error getting licenses')
+          console.log(error)
+          reject()
+        })
+      })
+    },
+    submit() {
 
       this.design_errors.name.hasError = null
       this.design_errors.description.hasError = null
 
       this.design.name = this.design.name.trim()
       this.design.description = this.design.description.trim()
-
-
 
       if(this.design.name == '') {
         console.log("Error: did not enter design name")
@@ -110,7 +149,7 @@ export default {
           // check if this design name is already in use by this user
           this.$http.get('designs/' + this.name_slug + '/').then(response => {
             console.log(response)
-            if (response.body.id !=  this.design.id) {
+            if (response.body.id != this.design.id) {
               console.log('Design name is already taken')
               this.design_errors.name.hasError = true
               this.design_errors.name.error = "You already have a design with the same name"
@@ -131,8 +170,10 @@ export default {
         let payload = {
           name: this.design.name,
           creator: this.design.creator,
-          description: this.design.description
+          license: this.license,
+          visibility: 'PRIVATE'
         }
+        console.log(payload)
         this.$http.put('designs/' + this.design.slug + '/', payload).then(response => {
           console.log(response)
           if (typeof response.body.non_field_errors !== 'undefined') {
@@ -141,7 +182,8 @@ export default {
             this.design_errors.name.error = response.body.non_field_errors[0]
           } else {
             console.log('Design info updated')
-            this.$router.push( this.refs.path + '/home')
+            console.log(response)
+            this.$router.push(this.designRefs.design_path + '/specs')
           }
         }, response => {
           console.log('Error creating new design')
@@ -149,12 +191,47 @@ export default {
         })
       }
     },
-    created: function() {
-      $('select.dropdown').dropdown()
-    },
-    mounted: function() {
 
-    }
+  },
+  created() {
+    this.getLicenses().then(success => {
+      console.log('Got licenses at created')
+      EventBus.$emit('got-licenses')
+    }, error => {
+      console.log('Error getting licenses at created')
+    })
+  },
+  mounted() {
+    $('.ui.dropdown.visibility').dropdown({'silent': true})
+    $('.visibility').dropdown('set text', 'Private')
+    $('.visibility').dropdown('set selected', 1)
+
+    let vue = this
+    EventBus.$once('got-licenses', function() {
+      console.log('Filtering through licenses for design license')
+
+      let selectedLicense = vue.licenses.filter(license => {
+        return license.id == vue.design.license
+      })[0]
+
+      $('.ui.dropdown.license').dropdown({'silent': true})
+      $('.license').dropdown('set text', selectedLicense.long_name)
+      $('.license').dropdown('set selected', selectedLicense.id)
+
+      this.$nextTick(() => {
+        let vue = this
+        $('.ui.dropdown.license').dropdown(
+          {
+            'silent': true,
+            onChange(value, text, $choice) {
+              console.log('Value is:')
+              console.log(value)
+              vue.license = value
+            }
+          }
+        )
+      })
+    })
   }
 }
 </script>

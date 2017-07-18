@@ -44,7 +44,9 @@
   		</div><!-- /.col-xs-3 -->
   		<div class="twelve wide column">
         <div class="tab-content">
-          <router-view name='inviteContent'></router-view>
+          <transition name='fade'>
+            <router-view name='inviteContent'></router-view>
+          </transition>
         </div>
   		</div><!-- /.col-xs-9 -->
   	</div>
@@ -85,4 +87,16 @@ export default {
 </script>
 
 <style lang="css">
+.fade-enter-active, .fade-leave-active {
+  transition-property: opacity;
+  transition-duration: .25s;
+}
+
+.fade-enter-active {
+  transition-delay: .25s;
+}
+
+.fade-enter, .fade-leave-active {
+  opacity: 0
+}
 </style>

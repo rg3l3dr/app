@@ -9,7 +9,7 @@
     </div>
     <div class="ui bottom attached clearing segment">
       <div class="ui form">
-        <div class="inline field" v-for='(prop, index) in propsArray'>
+        <div class="inline field" v-for='(prop, index) in specsArray'>
           <div class="ui grid">
             <div class="four wide column" style='padding: 0px 0px 0px 25px'>
               <label  :contenteditable='prop.key == "Custom (click to edit)"' @blur='changePropName(index)'>
@@ -28,7 +28,7 @@
           </div>
         </div>
         <button class="ui button" style='margin-left: 15px' @click='addEmptyProp'>Add Spec</button>
-        <button class="ui button" style='margin-left: 15px' @click='dispatchUpdateProps'>Update Specs</button>
+        <button class="ui button" style='margin-left: 15px' @click='dispatchUpdateSpecs'>Update Specs</button>
       </div>
     </div>
   </div>
@@ -42,8 +42,8 @@ export default {
   name: 'home',
   data () {
     return {
-      propsObject: {},
-      propsArray: []
+      specsObject: {},
+      specsArray: []
     }
   },
   computed: {
@@ -51,56 +51,56 @@ export default {
       'session',
       'profile',
       'design',
-      'refs',
-      'props'
+      'designRefs',
+      'specs'
     ])
   },
   watch: {
-    refs: function () {
-      console.log('Refs watcher has been called in specs.vue')
-      this.dispatchGetProps()
+    designRefs: function () {
+      console.log('designRefs watcher has been called in specs.vue')
+      this.dispatchGetSpecs()
     }
   },
   methods: {
-    dispatchGetProps: function() {
+    dispatchGetSpecs: function() {
       let payload = {
-        id: this.design.props.id,
-        ref: this.refs.ref,
-        ref_type: this.refs.ref_type
+        id: this.design.specs.id,
+        ref: this.designRefs.ref,
+        ref_type: this.designRefs.ref_type
       }
-      this.$store.dispatch('getProps', payload).then(succes => {
-        this.getPropsArray()
+      this.$store.dispatch('getSpecs', payload).then(succes => {
+        this.getSpecsArray()
       }, error => {
 
       })
     },
-    getPropsArray: function() {
-      this.propsArray = []
-      for (let propsKey in this.props.data) {
-        let propsObject = {
-          key: propsKey,
-          value: this.props.data[propsKey]
+    getSpecsArray: function() {
+      this.specsArray = []
+      for (let specsKey in this.specs.data) {
+        let specsObject = {
+          key: specsKey,
+          value: this.specs.data[specsKey]
         }
-        this.propsArray.push(propsObject)
+        this.specsArray.push(specsObject)
       }
     },
-    dispatchUpdateProps: function() {
-      // convert props array back to props object (python dict)
-      this.propsObject = {}
-      for (let prop of this.propsArray) {
-        this.propsObject[prop.key] = prop.value
+    dispatchUpdateSpecs: function() {
+      // convert specs array back to specs object (python dict)
+      this.specsObject = {}
+      for (let prop of this.specsArray) {
+        this.specsObject[prop.key] = prop.value
       }
 
       let payload = {
-        params: this.design.props.id + '/?ref=' + this.refs.config,
+        params: this.design.specs.id + '/?ref=' + this.$route.params.config_slug,
         data: {
           editor: this.profile.id,
-          data: this.propsObject
+          data: this.specsObject
         }
       }
 
-      this.$store.dispatch('updateProps', payload).then(succes => {
-        this.$router.push(this.refs.path + '/home')
+      this.$store.dispatch('updateSpecs', payload).then(succes => {
+        this.$router.push(this.designRefs.path + '/home')
       }, error => {
 
       })
@@ -110,23 +110,23 @@ export default {
         key: 'Custom (click to edit)',
         value: ''
       }
-      this.propsArray.push(newProp)
+      this.specsArray.push(newProp)
     },
     changePropName: function(index) {
       console.log('Changing property name at index: ' + index)
       let newKey = $('#spec-' + index).text().trim()
       if (newKey != 'Custom (click to edit)') {
-        this.propsArray[index]['key'] = newKey
+        this.specsArray[index]['key'] = newKey
       }
     },
     removeProp: function(index) {
-      this.propsArray.splice(index, 1)
+      this.specsArray.splice(index, 1)
     }
   },
   created: function() {
-    if (this.design.props) {
-      console.log('Specs.vue created, design data already loaded, getting props')
-      this.dispatchGetProps()
+    if (this.design.specs) {
+      console.log('Specs.vue created, design data already loaded, getting specs')
+      this.dispatchGetSpecs()
     } else {
       console.log('Specs.vue created, no design data present, waiting on watcher')
     }

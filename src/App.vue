@@ -1,9 +1,16 @@
 <template>
+
   <div class='ui container'>
-    <app-navbar></app-navbar>
+    <transition appear name='fade'>
+      <app-navbar></app-navbar>
+    </transition>
     <hr style='margin-top: 0px'>
-    <router-view style='min-height:85vh'></router-view>
-    <app-footer></app-footer>
+    <transition appear name='fade'>
+      <router-view style='min-height:85vh'></router-view>
+    </transition>
+    <transition appear name='fade'>
+      <app-footer></app-footer>
+    </transition>
   </div>
 </template>
 <script>
@@ -26,5 +33,18 @@ a {
 
 .omni {
   color: #337ab7;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition-property: opacity;
+  transition-duration: .25s;
+}
+
+.fade-enter-active {
+  transition-delay: .25s;
+}
+
+.fade-enter, .fade-leave-active {
+  opacity: 0
 }
 </style>

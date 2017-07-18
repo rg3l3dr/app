@@ -79,8 +79,8 @@
             </div>
             <div class="divider"></div>
             <div v-if='new_rev.hasError' class="header" style='color: red'> {{new_rev.error}} </div>
-            <div  v-else-if='refs.rev == "latest"' class="header">Create a new Rev</div>
-            <div class="ui input" :class="{'error': new_rev.hasError}" v-if='refs.rev == "latest"'>
+            <div  v-else-if='$route.params.rev_slug == "latest"' class="header">Create a new Rev</div>
+            <div class="ui input" :class="{'error': new_rev.hasError}" v-if='$route.params.rev_slug == "latest"'>
               <input type="text" placeholder='Choose a name...' @keydown.enter.prevent='testRev' v-model='new_rev.data'>
             </div>
           </div>
@@ -117,22 +117,28 @@
         </div>
       </div> -->
     </div>
-    <br>
-    <div class="ui top attached fuild four item small tabular menu">
-      <router-link tag='a' class='item' :to='this.refs.path  + "/home"'>
+    <div class="ui top attached fuild four item small tabular menu" style='padding: 8px 0px 0px 0px'>
+      <!-- <router-link tag='a' class='item' :to='this.designRefs.design_path  + "/home"'>
         <a>
           <i class="home icon"></i>
           Home
         </a>
+      </router-link> -->
+      <router-link tag='a' class='item' :to='this.designRefs.design_path + "/specs"'>
+        <a>
+          <i class="list icon"></i>
+          Specs
+          <!-- <div class="ui circular mini label"></div> -->
+        </a>
       </router-link>
-      <router-link tag='a' class='item' :to='this.refs.path + "/parts"'>
+      <router-link tag='a' class='item' :to='this.designRefs.design_path + "/parts"'>
         <a>
           <i class="cubes icon"></i>
           Parts
           <!-- <div class="ui circular mini label"></div> -->
         </a>
       </router-link>
-      <router-link tag='a' class='item' :to='this.refs.path + "/files"'>
+      <router-link tag='a' class='item' :to='this.designRefs.design_path + "/files"'>
         <a>
           <i class="fa-files-o icon"></i>
           Files
@@ -146,20 +152,23 @@
           <div class="ui circular mini label"></div>
         </a>
       </router-link> -->
-      <router-link v-if='this.refs.pre_endpoint == "settings"' tag='a' class='item' :to='this.refs.path + "/settings/" + this.refs.endpoint'>
+      <router-link v-if='this.endpoints.pre_endpoint == "settings"' tag='a' class='item' :to='this.designRefs.design_path + "/settings/" + this.endpoints.endpoint'>
         <a>
           <i class="fa-cog icon"></i>
           Settings
         </a>
       </router-link>
-      <router-link v-else tag='a' class='item' :to='this.refs.path + "/settings/basic"'>
+      <router-link v-else tag='a' class='item' :to='this.designRefs.design_path + "/settings/basic"'>
         <a>
           <i class="fa-cog icon"></i>
           Settings
         </a>
       </router-link>
     </div>
-    <router-view name='designContent'></router-view>
+    <transition name='fade'>
+      <router-view name='designContent'></router-view>
+    </transition>
+
   </div>
 </template>
 
@@ -192,8 +201,9 @@ export default {
       'session',
       'profile',
       'design',
-      'refs',
-      'params'
+      'designRefs',
+      'params',
+      'path'
     ]),
     new_config_slug: function() {
       if (this.new_config.data != null) {
@@ -204,59 +214,91 @@ export default {
       if (this.new_rev.data != null) {
         return this.new_rev.data.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
       }
+    },
+    endpoints() {
+      let splits = this.$store.state.route.fullPath.split('/')
+      let endpoint = splits[splits.length - 1]
+      let pre_endpoint = splits[splits.length - 2]
+      let endpoints_object = {
+        endpoint: endpoint,
+        pre_endpoint: pre_endpoint
+      }
+      return endpoints_object
+
     }
   },
   watch: {
+    path() {
+      console.log('Path has changed in store')
+      this.$store.commit('setDesignRefs')
+    },
     params: function () {
       console.log('Params watcher has been called in design.vue')
       if (this.params.design_slug != this.design.slug) {
+        this.$store.commit('clearDesign')
+        console.log('Design slug has changed, getting new design')
+        // this.$store.commit('setDesignRefs')
         let design_payload = { design_slug: this.$route.params.design_slug }
         this.$store.dispatch('getDesign', design_payload).then(success => {
           this.updateDesignRefs()
+          this.$store.commit('setDesignRefs')
         }, error => {
 
         })
-      }
+      } else { console.log('No change to design slug, passing...') }
     }
   },
   methods: {
     updateDesignRefs: function() {
       this.current_config = this.design.config_set.filter(
-        config => config.slug == this.refs.config
+        config => config.slug == this.$route.params.config_slug
       )[0]
       this.current_rev_set = this.current_config.rev_set
       this.current_rev = this.current_rev_set.filter(
-        rev => rev.slug == this.refs.rev
+        rev => rev.slug == this.$route.params.rev_slug
       )[0]
       this.current_change_set = this.current_config.change_set
       this.current_change = this.current_change_set.filter(
-        change => change.sha1 == this.refs.change
+        change => change.sha1 == this.$route.params.change_slug
       )[0]
-
+      console.log('Design Refs have been updated in design.vue')
+      console.log(this.current_config.name)
+      console.log(this.current_rev.name);
     },
     updateRefSelectors() {
       $('#configs').dropdown('set text', this.current_config.name)
       $('#configs').dropdown('set selected', this.current_config.name)
       $('#revs').dropdown('set text', this.current_rev.name)
       $('#revs').dropdown('set selected', this.current_rev.name)
+      console.log('Ref selectors have been updated in design.vue')
     },
     selectConfig: function(config) {
       this.$route.params.config_slug = config.slug
       this.$route.params.rev_slug = 'latest'
       this.$route.params.change_slug = null
-      this.$store.commit('setRefs')
+      this.$store.commit('setDesignRefs')
       this.updateDesignRefs()
       this.updateRefSelectors()
-      this.$router.push(this.refs.path + '/' + this.refs.endpoint)
+      // this.$router.push(this.designRefs.design_path + '/' + this.designRefs.endpoint)
+      let settings_ref
+      if (this.designRefs.pre_endpoint == 'settings') {
+        settings_ref = 'settings/'
+      } else { settings_ref = ''}
+      this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
     },
     selectRev: function(rev) {
       this.$route.params.config_slug = rev.config.slug
       this.$route.params.rev_slug = rev.slug
       this.$route.params.change_slug = null
-      this.$store.commit('setRefs')
+      this.$store.commit('setDesignRefs')
       this.updateDesignRefs()
       this.updateRefSelectors()
-      this.$router.push(this.refs.path + '/' + this.refs.endpoint)
+      // this.$router.push(this.designRefs.design_path + '/' + this.designRefs.endpoint)
+      let settings_ref
+      if (this.designRefs.pre_endpoint == 'settings') {
+        settings_ref = 'settings/'
+      } else { settings_ref = ''}
+      this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
     },
     testConfig: function() {
       if (this.new_config.data == '') {
@@ -383,7 +425,12 @@ export default {
             error: '',
           }
           // reload the page at new path with new config
-          this.$router.push(this.refs.path + '/' + this.refs.endpoint)
+          // this.$router.push(this.designRefs.design_path + '/' + this.designRefs.endpoint)
+          let settings_ref
+          if (this.designRefs.pre_endpoint == 'settings') {
+            settings_ref = 'settings/'
+          } else { settings_ref = ''}
+          this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
         }, error => {
 
         })
@@ -405,7 +452,9 @@ export default {
         console.log(success)
 
         // set new route params and reset the refs
-        this.$route.params.config_slug = this.refs.config
+        // this.$route.params.config_slug = this.designRefs.params.config_slug
+        console.log('Config slug after creating new rev is:')
+        console.log(this.$route.params.config_slug)
         this.$route.params.rev_slug = this.new_rev_slug
         this.$route.params.change_slug = null
 
@@ -422,7 +471,12 @@ export default {
             hasError: null,
             error: '',
           }
-          this.$router.push(this.refs.path + '/' + this.refs.endpoint)
+          // this.$router.push(this.designRefs.design_path + '/' + this.designRefs.endpoint)
+          let settings_ref
+          if (this.designRefs.pre_endpoint == 'settings') {
+            settings_ref = 'settings/'
+          } else { settings_ref = ''}
+          this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
         }, error => {
 
         })
@@ -434,18 +488,20 @@ export default {
   },
   created: function() {
     console.log('Design.vue has been created')
-    // ??? conditionally check if design already exists (page entry vs transition)
-    // initialize the ref selector dropdowns
-    $('.ui.dropdown').dropdown({'silent': true})
 
     // clear the design context, in case coming from another design
-    this.$store.commit('clearRefs')
+    this.$store.commit('clearDesignRefs')
     this.$store.commit('clearDesign')
+
+    // set the new design refs based on the $route
+    // this.$store.commit('setDesignRefs')
+    $('.ui.dropdown').dropdown({'silent': true})
 
     // get the design instance from route params
     let design_payload = { design_slug: this.$route.params.design_slug }
     this.$store.dispatch('getDesign', design_payload).then(success => {
       this.updateDesignRefs()
+      this.$store.commit('setDesignRefs')
       EventBus.$emit('design-refs-updated')
     }, error => {
 
@@ -457,8 +513,21 @@ export default {
       vue.updateRefSelectors()
     })
   },
+  updated() {}
 }
 </script>
 
 <style lang="css">
+.fade-enter-active, .fade-leave-active {
+  transition-property: opacity;
+  transition-duration: .25s;
+}
+
+.fade-enter-active {
+  transition-delay: .25s;
+}
+
+.fade-enter, .fade-leave-active {
+  opacity: 0
+}
 </style>

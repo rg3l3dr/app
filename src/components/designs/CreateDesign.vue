@@ -9,11 +9,11 @@
           <div class="create_design">
             <div class="ui form">
               <h1 class="ui dividing header">Start a New Design Project</h1>
-              <div class="field" :class="{ 'error': name.hasError}">
+              <div class="field" :class="{ 'error': name.hasError}" id='design-name'>
                 <label>Name</label>
                 <input
                   type="text"
-                  placeholder="Input a name for your design"
+                  placeholder="Input a name for your design project"
                   v-model='name.data'
                 >
                 <div
@@ -22,7 +22,31 @@
                   > {{name.error}}
                 </div>
               </div>
-              <div class="field" :class="{ 'error': description.hasError}">
+
+              <div class="field" id='design-visbility'>
+                <label>Visibility Level</label>
+                <div class="ui selection dropdown visibility">
+                  <input type="hidden" name="visibility">
+                  <i class="dropdown icon"></i>
+                  <div class="default text">
+                    <i class="lock icon"></i>
+                    Choose a Visibility Level
+                  </div>
+                  <div class="menu">
+                    <div class="item" data-value="1">Private</div>
+                    <div class="disabled item" data-value="2">Public (coming soon)</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field" id='design-license'>
+                <label> Optional License </label>
+                <select class="ui dropdown license" v-model='license'>
+                  <option disabled value=""> <i class="file text icon"></i> Choose a License (optional)</option>
+                  <option v-for='license in licenses' :value='license.id'> {{ license.long_name }} </option>
+                </select>
+              </div>
+              <!-- <div class="field" :class="{ 'error': description.hasError}">
                 <label>Description</label>
                 <textarea
                   name="name"
@@ -38,7 +62,7 @@
                   class="has-error"
                   > {{description.error}}
                 </div>
-              </div>
+              </div> -->
               <button class='ui button primary' @click='submit'>Create Design</button>
             </div>
           </div>
@@ -60,6 +84,10 @@ export default {
         hasError: null,
         error: ''
       },
+      visibility: 'private',
+      license: null,
+      selectedLicense: null,
+      licenses: [],
       description: {
         data: '',
         hasError: null,
@@ -77,7 +105,17 @@ export default {
     }
   },
   methods: {
-    submit: function () {
+    getLicenses() {
+      this.$http.get('licenses/').then(success => {
+        console.log('Got licenses')
+        console.log(success)
+        this.licenses = success.body.results
+      }, error => {
+        console.log('Error getting licenses')
+        console.log(error)
+      })
+    },
+    submit() {
 
       // reset the form
       this.name.hasError = null
@@ -110,7 +148,8 @@ export default {
               description: this.description.data,
               active: true,
               creator: this.profile.id,
-              project: true
+              project: true,
+              license: this.license
             }
 
             console.log('payload is')
@@ -124,7 +163,7 @@ export default {
                 this.name.error = response.body.non_field_errors[0]
               } else {
                 console.log('New design created')
-                this.$router.push({ path: '/' + this.session.username + '/' + this.name_slug + '/primary/latest/home' })
+                this.$router.push({ path: '/' + this.session.username + '/' + this.name_slug + '/primary/latest/specs' })
               }
             }, response => {
               console.log('Error creating new design')
@@ -142,6 +181,27 @@ export default {
       // use dismissable alerts for error messages
 
     }
+  },
+  created() {
+    this.getLicenses()
+  },
+  mounted() {
+    $('.ui.dropdown.visibility').dropdown({'silent': true})
+    $('.ui.dropdown.license').dropdown({'silent': true})
+    this.$nextTick(() => {
+      let vue = this
+      $('.ui.dropdown.license').dropdown(
+        {
+          'silent': true,
+          onChange(value, text, $choice) {
+            console.log('Value is:')
+            console.log(value)
+            vue.license = value
+          }
+        }
+      )
+    })
+
   }
 }
 </script>

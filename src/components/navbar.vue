@@ -16,7 +16,7 @@
     <div class="right menu">
       <div class="item" style='padding-right: 5rem'>
 
-        <div class="ui fluid search" v-if='session.active'>
+        <div class="ui fluid search" v-show='session.active'>
           <div class="ui icon input">
             <input
               class="prompt"
@@ -61,7 +61,7 @@
           <!-- <router-link class='item' to='#'><i class='fa fa-users fa-fw'></i>&nbsp Create Team</router-link> -->
           <router-link class='item' to='/profile/public'><i class='fa fa-gear fa-fw'></i>&nbsp My Account</router-link>
           <div class="divider"></div>
-          <a class='item' v-if='sub == "app"' href='http://www.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
+          <a class='item' v-if='subDomain == "app"' href='http://www.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
           <a class='item' v-else href='http://stage.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
         </div>
       </div>
@@ -73,76 +73,39 @@
 
 <script>
 
-let my_host = window.location.host
-let parts = my_host.split('.')
-let sub = parts[0]
-
-$(document).ready(function() {
-  $('.ui.dropdown').dropdown({ 'silent': true })
-});
 import { mapGetters } from 'vuex'
 export default {
-  name: 'app',
+  name: 'navbar',
   data () {
     return {
       unread_count: null,
       checkUnread: false,
-      results: [],
       resultSelected: false,
       inputQuery: null,
-      result: {}
+      result: {},
     }
   },
   computed: {
     ...mapGetters([
       'session',
       'profile',
-      'query'
+      'query',
+      'path',
     ]),
-    activeSession() {
-      return this.session.active
-    },
-    sub() {
+    subDomain() {
       let my_host = window.location.host
       let parts = my_host.split('.')
-      sub = parts[0]
+      let sub = parts[0]
       return sub
     }
   },
-  watch: {
-    activeSession() {
-      console.log('Session state changed')
-      $('.ui.dropdown').dropdown({ 'silent': true });
-    }
-  },
   methods: {
-    // getDesigns () {
-    //   this.$http.get('designs/').then(success => {
-    //     console.log(success)
-    //     let designs = success.body.results
-    //     for (let design of designs) {
-    //       let result = {
-    //         title: design.name,
-    //         id: design.id,
-    //         slug: design.slug,
-    //         profile: design.creator.slug
-    //       }
-    //       this.results.push(result)
-    //
-    //       $('.ui.search').search(
-    //         { source: this.results }
-    //       )
-    //     }
-    //   }, error => {
-    //     console.log(error)
-    //   })
-    // },
     getResult() {
       let vue = this
       setTimeout(function() {
           if (vue.resultSelected) {
             console.log('Result selected, redirecting to result detail page')
-            let path = vue.result.creator + '/' + vue.result.slug + '/primary/latest/home'
+            let path = vue.result.creator + '/' + vue.result.slug + '/primary/latest/specs'
             vue.inputQuery = null
             vue.resultSelected = false
             vue.result = {}
@@ -161,9 +124,6 @@ export default {
 
 
       }, 0);
-    },
-    getResults() {
-      console.log('Search query submitted')
     },
     getUnreadCount() {
       var self = this
@@ -199,37 +159,36 @@ export default {
         console.log('Error logging out user')
         console.log(response)
       })
+    },
+    setSearch() {
+      console.log('Set search has been called')
+      let vue = this
+      $('.ui.search').search(
+        {
+          apiSettings: {
+              url: 'https://stage.omnibuilds.com/designquery/?q={query}'
+            },
+          fields: {
+            title: 'name'
+          },
+          onSelect: function(result, response) {
+            console.log(result)
+            vue.resultSelected = true
+            console.log('Result selected, set resultSelected to true')
+            vue.result = result
+          }
+        }
+      )
     }
   },
+  created() {},
   mounted() {
-    if (this.session.active) {
-      // this.getUnreadCount()
-      console.log('should have gotten unread count at created')
-    } else (
-      console.log('No active session detected at created')
-    )
-    let vue = this
-    $('.ui.search').search(
-      {
-        apiSettings: {
-            url: 'https://stage.omnibuilds.com/designquery/?q={query}'
-          },
-        fields: {
-          title: 'name'
-        },
-        onSelect: function(result, response) {
-          console.log(result)
-          vue.resultSelected = true
-          console.log('Result selected, set resultSelected to true')
-          vue.result = result
-        }
-      }
-    )
+    $('.ui.dropdown').dropdown({ 'silent': true })
+    this.setSearch()
   },
   updated() {
-    console.log('Vue instance updated')
+    $('.ui.dropdown').dropdown({ 'silent': true })
     if (this.session.active == true) {
-      $('.ui.dropdown').dropdown({ 'silent': true });
       if (this.checkUnread == false) {
         this.getUnreadCount()
         this.checkUnread = true

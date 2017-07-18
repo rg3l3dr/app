@@ -26,6 +26,7 @@ import Accepted from './components/invitations/accepted.vue'
 import Pending from './components/invitations/pending.vue'
 import Design from './components/designs/design.vue'
 import Home from './components/designs/home.vue'
+import NewSpecs from './components/designs/newspecs.vue'
 import Parts from './components/designs/parts.vue'
 import Files from './components/designs/files.vue'
 import Docs from './components/designs/docs.vue'
@@ -44,6 +45,12 @@ let DesignChildren =
     path: 'home',
     components: {
       designContent: Home
+    }
+  },
+  {
+    path: 'specs',
+    components: {
+      designContent: NewSpecs
     }
   },
   {
@@ -112,6 +119,7 @@ export const routes = [
   {
     path: '/search',
     component: Search,
+    meta: { requiresAuth: true },
   },
   {
     path: '/profile',
@@ -219,15 +227,15 @@ export const routes = [
   },
   {
     path: '/:profile_slug/:design_slug',
-    redirect: '/:profile_slug/:design_slug/primary/latest/home'
+    redirect: '/:profile_slug/:design_slug/primary/latest/specs'
   },
   {
     path: '/:profile_slug/:design_slug/:config_slug',
-    redirect: '/:profile_slug/:design_slug/:config_slug/latest/home'
+    redirect: '/:profile_slug/:design_slug/:config_slug/latest/specs'
   },
   {
     path: '/:profile_slug/:design_slug/:config_slug/:rev_slug',
-    redirect: '/:profile_slug/:design_slug/:config_slug/:rev_slug/home'
+    redirect: '/:profile_slug/:design_slug/:config_slug/:rev_slug/specs'
   },
   {
     path: '/:profile_slug/:design_slug/:config_slug/:rev_slug?',

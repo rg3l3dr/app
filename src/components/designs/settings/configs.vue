@@ -17,15 +17,24 @@
           <th>Changes</th>
           <th></th>
         </thead>
-        <tbody>
-          <tr v-for='config in this.design.config_set'>
+        <tbody name='fade' is='transition-group'>
+          <tr v-for='config in this.design.config_set' :key='config'>
             <td>{{ config.name }}</td>
             <td> {{config.owner}} </td>
             <td>{{ config.created_at | moment("MMMM Do YYYY") }}</td>
             <td>{{ config.rev_set.length }}</td>
             <td>{{ config.change_set.length }}</td>
             <td>
-              <button class="ui mini red button" @click='deleteModal(config)' v-if='config.name != "Primary"'>X</button>
+              <span v-if='$route.params.config_slug=="primary" && $route.params.rev_slug=="latest"'>
+                <button
+                  class="ui red circular basic icon button"
+                  @click='deleteModal(config)'
+                  v-if='config.name != "Primary"'
+                >
+                  <i class="remove icon"></i>
+                </button>
+              </span>
+
             </td>
           </tr>
         </tbody>
@@ -71,7 +80,7 @@ export default {
       'session',
       'profile',
       'design',
-      'refs'
+      'designRefs'
     ])
   },
   methods: {
@@ -102,15 +111,18 @@ export default {
         $('#revs').dropdown('set text', 'Latest')
         $('#revs').dropdown('set selected', 'Latest')
 
-        let refs_payload = {
-          config: 'primary',
-          rev: 'latest',
-          change: null
-        }
-        this.$store.commit('setRefs', refs_payload)
+        // let refs_payload = {
+        //   config: 'primary',
+        //   rev: 'latest',
+        //   change: null
+        // }
+        // this.$store.commit('setRefs', refs_payload)
+        this.$route.params.config_slug = 'primary'
+        this.$route.params.rev_slug = 'latest'
+        this.$route.params.change_slug = null
         let design_payload = { design_slug: this.$route.params.design_slug }
         this.$store.dispatch('getDesign', design_payload).then(success => {
-          this.$router.push(this.refs.path + '/settings/configs')
+          this.$router.push(this.designRefs.path + '/settings/configs')
         }, error => {
 
         })
@@ -130,4 +142,16 @@ export default {
 </script>
 
 <style lang="css">
+.fade-enter-active, .fade-leave-active {
+  transition-property: opacity;
+  transition-duration: .25s;
+}
+
+.fade-enter-active {
+  transition-delay: .25s;
+}
+
+.fade-enter, .fade-leave-active {
+  opacity: 0
+}
 </style>

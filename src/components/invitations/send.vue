@@ -9,16 +9,17 @@
     </div>
     <div class="ui bottom attached segment">
       <div class='twelve wide column' id='invites'>
-          <h2> Invite friends via email</h2>
-          <p> Get 100 MB of private storage for each friend who joins </p>
-          <form class='ui form'>
+        <h2> Invite friends via email</h2>
+        <p> Get 100 MB of private storage for each friend who joins </p>
+        <form class='ui form'>
+          <transition-group name='fade'>
             <div
               class='field has-feedback'
               :class="{
                 'has-success': invite.isValid,
                 'error': invite.isValid == false || invite.hasError
                 }"
-              v-for='(invite, index) in invites'>
+              v-for='(invite, index) in invites' :key='invite'>
               <input
                 v-model='invite.email'
                 type='email'
@@ -47,72 +48,76 @@
                 >{{ invite.error }}
               </span>
             </div>
-            <input type='button' id='addAnother' value='Add Another' class='ui small button' @click.prevent='addInvite'>
-            &nbsp;
-            <input
-              type='submit'
-              value='Send Invites'
-              id='sendInvites'
-              class='ui small button'
-              @click.prevent='submitInvites'
-              :disabled='valid_invites.length === 0 || invalid_invites.length > 0'>
-            <p v-if='hasErrors' style='color:#a94442'><br>
-              One or more of your invitations has errors, please correct and resubmit
-            </p>
-          </form>
+          </transition-group>
+          <br>
+          <input type='button' id='addAnother' value='Add Another' class='ui small button' @click.prevent='addInvite'>
+          &nbsp;
+          <input
+            type='submit'
+            value='Send Invites'
+            id='sendInvites'
+            class='ui small button'
+            @click.prevent='submitInvites'
+            :disabled='valid_invites.length === 0 || invalid_invites.length > 0'>
 
-          <div class="ui small modal" id="successModal">
-            <div class="header">
-              <h4>Invitations Successful!</h4>
-            </div>
-            <div class="content">
-              <p>
+
+          <p v-if='hasErrors' style='color:#a94442'><br>
+            One or more of your invitations has errors, please correct and resubmit
+          </p>
+        </form>
+
+        <div class="ui small modal" id="successModal">
+          <div class="header">
+            <h4>Invitations Successful!</h4>
+          </div>
+          <div class="content">
+            <p>
+            The following friends have been sent invites to OmniBuilds:
+            <br><br>
+            <span v-for='invite in valid_invites'>
+              <a :href="'mailto:' + invite.email"> {{invite.email}} </a> <br>
+            </span>
+            <hr>
+            For each friend who accepts an invite and creates an account on OmniBuilds, you will receive 100 MB of private storage! <br>
+            <p>
+          </div>
+          <div class="actions">
+            <button type="button" class="ui small button" @click='toggleSuccessModal'>Close</button>
+          </div>
+        </div>
+
+        <div class="ui small modal" id='failureModal'>
+          <div class="header">
+            <h4>There was a problem...</h4>
+          </div>
+          <div class="content">
+            <p v-if='valid_invites.length > 0'>
               The following friends have been sent invites to OmniBuilds:
               <br><br>
               <span v-for='invite in valid_invites'>
                 <a :href="'mailto:' + invite.email"> {{invite.email}} </a> <br>
               </span>
               <hr>
-              For each friend who accepts an invite and creates an account on OmniBuilds, you will receive 100 MB of private storage! <br>
-              <p>
-            </div>
-            <div class="actions">
-              <button type="button" class="ui small button" @click='toggleSuccessModal'>Close</button>
-            </div>
+            </p>
+
+            <p v-if='invalid_invites.length > 0'>
+              The following friends could not be invited to OmniBuilds:
+              <br><br>
+              <span v-for='invite in valid_invites'>
+                <a :href="'mailto:' + invite.email"> {{invite.email}} </a> <br>
+              </span>
+              <hr>
+            </p>
+
+            <p>
+            For each friend who accepts an invite and creates an account on OmniBuilds, you will receive 100 MB of private storage! <br>
+            <p>
           </div>
-
-          <div class="ui small modal" id='failureModal'>
-            <div class="header">
-              <h4>There was a problem...</h4>
-            </div>
-            <div class="content">
-              <p v-if='valid_invites.length > 0'>
-                The following friends have been sent invites to OmniBuilds:
-                <br><br>
-                <span v-for='invite in valid_invites'>
-                  <a :href="'mailto:' + invite.email"> {{invite.email}} </a> <br>
-                </span>
-                <hr>
-              </p>
-
-              <p v-if='invalid_invites.length > 0'>
-                The following friends could not be invited to OmniBuilds:
-                <br><br>
-                <span v-for='invite in valid_invites'>
-                  <a :href="'mailto:' + invite.email"> {{invite.email}} </a> <br>
-                </span>
-                <hr>
-              </p>
-
-              <p>
-              For each friend who accepts an invite and creates an account on OmniBuilds, you will receive 100 MB of private storage! <br>
-              <p>
-            </div>
-            <div class="actions">
-              <button type="button" class="ui small button" @click='toggleFailureModal'>Close</button>
-            </div>
+          <div class="actions">
+            <button type="button" class="ui small button" @click='toggleFailureModal'>Close</button>
           </div>
         </div>
+      </div>
     </div>
   </div>
 </template>
@@ -260,7 +265,7 @@ export default {
             vue.$router.push('/')
           })
         }, error => {
-          
+
         })
 
       }, response => {
@@ -292,4 +297,16 @@ export default {
 </script>
 
 <style lang="css">
+.fade-enter-active, .fade-leave-active {
+  transition-property: opacity;
+  transition-duration: .25s;
+}
+
+.fade-enter-active {
+  transition-delay: .25s;
+}
+
+.fade-enter, .fade-leave-active {
+  opacity: 0
+}
 </style>

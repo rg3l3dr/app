@@ -142,7 +142,7 @@
         </button>
         <br><br>
       </form>
-      <hr>
+      <!-- <hr>
       <h4>Change your account username</h4>
       <form class='ui form'>
         <div
@@ -181,7 +181,7 @@
         <button class='ui button' @click.prevent='changeUsername'>
           Change Username
         </button>
-      </form>
+      </form> -->
     </div>
   </div><!-- /.tab-pane fade in  -->
 </template>

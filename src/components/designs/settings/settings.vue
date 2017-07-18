@@ -11,32 +11,32 @@
         </div>
         <div class="ui bottom attached clearing segment">
           <div class="ui secondary vertical menu">
-            <router-link tag='a' class='item' :to=' this.refs.path + "/settings/basic"'>
+            <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/basic"'>
               <a id='basic'>
                 <i class="fa fa-info-circle"></i> &nbsp; Info
               </a>
             </router-link>
-            <router-link tag='a' class='item' :to=' this.refs.path + "/settings/specs"'>
+            <!-- <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/specs"'>
               <a>
                 <i class="fa fa-list-ul"></i> &nbsp; Specs
               </a>
-            </router-link>
-            <router-link tag='a' class='item' :to=' this.refs.path + "/settings/configs"'>
+            </router-link> -->
+            <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/configs"'>
               <a>
                 <i class="fa fa-code-fork"></i> &nbsp; Configs
               </a>
             </router-link>
-            <router-link tag='a' class='item' :to=' this.refs.path + "/settings/revs"'>
+            <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/revs"'>
               <a>
                 <i class="fa fa-tags"></i> &nbsp; Revs
               </a>
             </router-link>
-            <router-link tag='a' class='item' :to=' this.refs.path + "/settings/collaborators"'>
+            <!-- <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/collaborators"'>
               <a>
                 <i class="fa fa-users"></i> &nbsp; Collaborators
               </a>
-            </router-link>
-            <router-link tag='a' class='item' :to='this.refs.path + "/settings/advanced"'>
+            </router-link> -->
+            <router-link tag='a' class='item' :to='this.designRefs.design_path + "/settings/advanced"'>
               <a>
                 <i class="warning sign icon"></i> &nbsp; Advanced
               </a>
@@ -46,7 +46,9 @@
       </div><!-- /.col-xs-3 -->
       <div class="twelve wide column">
         <div class="tab-content">
-          <router-view name='settingsContent'></router-view>
+          <transition name='fade'>
+            <router-view name='settingsContent'></router-view>
+          </transition>
         </div><!-- /.tab-content -->
       </div><!-- /.col-xs-9 -->
     </div>
@@ -68,19 +70,19 @@ export default {
       'session',
       'profile',
       'design',
-      'refs'
+      'designRefs'
     ])
   },
   methods: {
 
   },
   created: function() {
-    let refs_payload = {
-      config: this.$route.params.config_slug ? this.$route.params.config_slug : null,
-      rev: this.$route.params.rev_slug ? this.$route.params.rev_slug : null,
-      change: this.$route.params.change ? this.$route.params.change : null,
-    }
-    this.$store.commit('setRefs', refs_payload)
+    // let refs_payload = {
+    //   config: this.$route.params.config_slug ? this.$route.params.config_slug : null,
+    //   rev: this.$route.params.rev_slug ? this.$route.params.rev_slug : null,
+    //   change: this.$route.params.change ? this.$route.params.change : null,
+    // }
+    // this.$store.commit('setRefs', refs_payload)
   },
   mounted: function() {
   }
@@ -88,4 +90,16 @@ export default {
 </script>
 
 <style lang="css">
+  .fade-enter-active, .fade-leave-active {
+    transition-property: opacity;
+    transition-duration: .25s;
+  }
+
+  .fade-enter-active {
+    transition-delay: .25s;
+  }
+
+  .fade-enter, .fade-leave-active {
+    opacity: 0
+  }
 </style>

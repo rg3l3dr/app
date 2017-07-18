@@ -2,6 +2,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import VueResource from 'vue-resource'
+import VueRouter from 'vue-router'
+
 import createPersistedState from 'vuex-persistedstate'
 import { EventBus } from '../event-bus.js'
 
@@ -12,6 +14,7 @@ import { EventBus } from '../event-bus.js'
 
 Vue.use(Vuex)
 Vue.use(VueResource)
+Vue.use(VueRouter)
 
 export const store = new Vuex.Store({
   plugins: [createPersistedState()],
@@ -20,24 +23,27 @@ export const store = new Vuex.Store({
       active: false,
       token: null,
       username: null,
-      user_id: null
+      user_id: null,
+      time_left: null,
     },
     query: null,
     profile: {},
     design: null,
-    refs: {
-      config: '',
-      rev: '',
-      change: '',
+    designRefs: {
       ref: '',
-      type: '',
-      path: ''
+      ref_type: '',
+      design_path: '',
+      endpoint: '',
+      pre_endpoint: ''
     },
-    props: {},
+    specs: {},
     bom: {},
     files: null
   },
   getters: {
+    path: state => {
+      return state.route.path
+    },
     params: state => {
       return state.route.params
     },
@@ -53,11 +59,11 @@ export const store = new Vuex.Store({
     design: state => {
       return state.design
     },
-    refs: state => {
-      return state.refs
+    designRefs: state => {
+      return state.designRefs
     },
-    props: state => {
-      return state.props
+    specs: state => {
+      return state.specs
     },
     bom: state => {
       return state.bom
@@ -73,6 +79,17 @@ export const store = new Vuex.Store({
       state.session.username = payload.username
       state.session.user_id = payload.user_id
       console.log('Session opened in store')
+
+      // Set a timer and assign to new session variable
+
+    },
+    refreshSession(state) {
+      // call refresh token API endpoint with current token
+      // set new token in store
+      // reset the timer
+    },
+    expireSession(state) {
+      // set token to 'expired'
     },
     endSession (state) {
       state.session = {
@@ -84,15 +101,8 @@ export const store = new Vuex.Store({
       state.profile = {},
       state.designs = {},
       state.design = {},
-      state.refs = {
-        config: null,
-        rev: null,
-        change: null,
-        ref: null,
-        type: null,
-        path: null
-      },
-      state.props = {},
+      state.designRefs = {},
+      state.specs = {},
       state.bom = {},
       state.files = {}
       console.log('Session closed in store')
@@ -100,12 +110,13 @@ export const store = new Vuex.Store({
     setQuery (state, data) {
       state.query = data
     },
-    setRefs (state) {
+    setDesignRefs (state) {
+      console.log('Set Design refs has been called in store')
       let config = store.state.route.params.config_slug ? store.state.route.params.config_slug : null
       let rev = store.state.route.params.rev_slug ? store.state.route.params.rev_slug : null
       let change = store.state.route.params.change_slug ? store.staee.route.params.change_slug : null
 
-      let ref, ref_type, path, splits, endpoint, pre_endpoint
+      let ref, ref_type, design_path, splits, endpoint, pre_endpoint
 
       if (change) {
         ref = change
@@ -125,41 +136,37 @@ export const store = new Vuex.Store({
         console.log('set ref to Primary (default)')
       }
       if (ref_type == 'config' || ref_type == 'rev') {
-         path =
-          '/' + state.profile.slug
-          + '/' + state.design.slug
+         design_path =
+          '/' + state.route.params.profile_slug
+          + '/' + state.route.params.design_slug
           + '/' + config
           + '/' + rev
       } else {
-        path =
-          '/' + state.profile.slug
-          + '/' + state.design.slug
+        design_path =
+          '/' + state.route.params.profile_slug
+          + '/' + state.route.params.design_slug
           + '/' + change
       }
       splits = store.state.route.fullPath.split('/')
       endpoint = splits[splits.length - 1]
       pre_endpoint = splits[splits.length - 2]
 
-      state.refs = {
-        config: config,
-        rev: rev,
-        change: change,
+      state.designRefs = {
         ref: ref,
         ref_type: ref_type,
-        endpoint: endpoint,
+        design_path: design_path,
         pre_endpoint: pre_endpoint,
-        path: path
+        endpoint: endpoint,
       }
-      console.log('Refs set in store')
+      console.log('Design Refs set in store')
     },
-    clearRefs (state) {
-      state.refs = {
-        config: null,
-        rev: null,
-        change: null,
+    clearDesignRefs (state) {
+      state.designRefs = {
         ref: null,
-        type: null,
-        path: null
+        ref_type: null,
+        design_path: null,
+        pre_endpoint: null,
+        endpoint: null
       }
       console.log('refs cleared in store')
     },
@@ -175,9 +182,9 @@ export const store = new Vuex.Store({
       state.design = data
       console.log('design set in store')
     },
-    setProps(state, data) {
-      state.props = data
-      console.log('props set in store')
+    setSpecs(state, data) {
+      state.specs = data
+      console.log('specs set in store')
     },
     setBom(state, data) {
       state.bom = data
@@ -190,11 +197,15 @@ export const store = new Vuex.Store({
   },
   actions: {
     getProfile ({commit, state}) {
-      Vue.http.get('profiles/' + state.session.username + '/').then(success => {
-        console.log(success)
-        commit('setProfile', success.data)
-      }, error => {
-        console.log(error)
+      return new Promise((resolve, reject) => {
+        Vue.http.get('profiles/' + state.session.username + '/').then(success => {
+          console.log(success)
+          commit('setProfile', success.data)
+          resolve(success)
+        }, error => {
+          console.log(error)
+          reject(error)
+        })
       })
     },
     getDesign ({commit}, payload) {
@@ -203,7 +214,7 @@ export const store = new Vuex.Store({
           console.log('Got design')
           console.log(success)
           commit('setDesign', success.data)
-          commit('setRefs')
+          // commit('setDesignRefs')
           resolve(success)
         }, error => {
           console.log('Error getting design')
@@ -213,33 +224,45 @@ export const store = new Vuex.Store({
       })
     },
     updateDesign ({commit}, payload) {
-      Vue.http.put('designs/' + payload.params, payload.data).then(success => {
-        console.log('updated design')
-        console.log(success)
-        commit('setDesign', success.data)
-      }, error => {
-        console.log('error updating design')
-        console.log(error)
+      return new Promise((resolve, reject) => {
+        Vue.http.put('designs/' + payload.params, payload.data).then(success => {
+          console.log('updated design')
+          console.log(success)
+          commit('setDesign', success.data)
+          resolve(success)
+        }, error => {
+          console.log('error updating design')
+          console.log(error)
+          reject(error)
+        })
       })
     },
-    getProps ({commit}, payload) {
-      Vue.http.get('props/' + payload.id + '/?ref=' + payload.ref + '&type=' + payload.ref_type).then(success => {
-        console.log('got props')
-        console.log(success)
-        commit('setProps', success.data)
-      }, error => {
-        console.log('error getting props')
-        console.log(error)
+    getSpecs ({commit}, payload) {
+      return new Promise((resolve, reject) => {
+        Vue.http.get('specs/' + payload.id + '/?ref=' + payload.ref + '&type=' + payload.ref_type).then(success => {
+          console.log('got specs')
+          console.log(success)
+          commit('setSpecs', success.data)
+          resolve(success)
+        }, error => {
+          console.log('error getting specs')
+          console.log(error)
+          reject(error)
+        })
       })
     },
-    updateProps ({commit}, payload) {
-      Vue.http.put('props/' + payload.params, payload.data).then(success => {
-        console.log('Props updated')
-        console.log(success)
-        commit('setProps', success.data)
-      }, error => {
-        console.log('Error updating props')
-        console.log(error)
+    updateSpecs ({commit}, payload) {
+      return new Promise((resolve, reject) => {
+        Vue.http.put('specs/' + payload.params, payload.data).then(success => {
+          console.log('Specs updated')
+          console.log(success)
+          commit('setSpecs', success.data)
+          resolve(success)
+        }, error => {
+          console.log('Error updating specs')
+          console.log(error)
+          reject(error)
+        })
       })
     },
     getBom ({commit}, payload) {

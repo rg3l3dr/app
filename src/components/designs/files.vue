@@ -1,25 +1,12 @@
 <template lang="html">
   <div>
+    <div></div>
     <div class="ui top attached grey header">
       DESIGN FILES &#8212; Upload any CAD files, renderings, or drawings and retain the full version history
     </div>
     <div class="ui bottom attached segment" v-if='!selectedFile'>
-      <div class="ui success message" v-if='status.ready'>
-        <i class="close icon"></i>
-        <div class="header">
-          File Upload Complete
-        </div>
-        <ul class="list">
-          <li v-if='status.new == 1'> {{ status.new }} new file has been uploaded </li>
-          <li v-if='status.new > 1'> {{ status.new }} new files have been uploaded </li>
-          <li v-if='status.updated == 1'> {{ status.updated }} existing file has been updated to a new version </li>
-          <li v-if='status.updated > 1'> {{ status.updated }} existing files have been updated to a new version </li>
-          <li v-if='status.empty == 1'> {{ status.empty }} file has not changed and was not updated </li>
-          <li v-if='status.empty > 1'> {{ status.empty }} files have not changed and were not updated </li>
-        </ul>
-
-      </div>
-      <table class="ui striped selectable table" id='files-table'>
+      <div v-if='files.data && files.data.length > 0'>
+        <table class="ui striped selectable table" id='files-table' >
           <thead>
             <tr>
               <th>File Name</th>
@@ -38,8 +25,8 @@
               <td></td>
             </tr>
           </tfoot>
-          <tbody>
-            <tr v-for='(file, index) in this.files.data'>
+          <tbody name='fade' is='transition-group'>
+            <tr v-for='(file, index) in this.files.data' :key='file'>
 
               <td id='file-name'>
                 <a href='#' @click='getFileFromS3(index)'>
@@ -88,7 +75,7 @@
               </td>
 
               <td id='file-menu'>
-                <div class="ui icon top left pointing mini basic dropdown button">
+                <div class="ui icon top left pointing mini basic dropdown button options">
                   <i class="caret down icon"></i>
                   <div class="menu">
                     <div class="item">File Options</div>
@@ -97,7 +84,7 @@
                       Download File
                     </div>
                     <div
-                      v-if='refs.rev == "latest"'
+                      v-if='$route.params.rev_slug == "latest"'
                       class="item"
                       @click='selectFilesForUpload'
                     >
@@ -109,7 +96,7 @@
                       See Version History
                     </div>
                     <div
-                      v-if='refs.rev == "latest"'
+                      v-if='$route.params.rev_slug == "latest"'
                       class="item"
                       @click='deleteFileAndFileRecord(index)'
                     >
@@ -122,17 +109,54 @@
             </tr>
           </tbody>
         </table>
+        <div class="ui success message" v-if='status.ready'>
+          <i class="close icon"></i>
+          <div class="header">
+            File Upload Complete
+          </div>
+          <ul class="list">
+            <li v-if='status.new == 1'> {{ status.new }} new file has been uploaded </li>
+            <li v-if='status.new > 1'> {{ status.new }} new files have been uploaded </li>
+            <li v-if='status.updated == 1'> {{ status.updated }} existing file has been updated to a new version </li>
+            <li v-if='status.updated > 1'> {{ status.updated }} existing files have been updated to a new version </li>
+            <li v-if='status.empty == 1'> {{ status.empty }} file has not changed and was not updated </li>
+            <li v-if='status.empty > 1'> {{ status.empty }} files have not changed and were not updated </li>
+          </ul>
 
-      <br>
+        </div>
+        <br>
+        <button
+          v-if='$route.params.rev_slug == "latest"'
+          class="ui small primary button"
+          @click='selectFilesForUpload'
+          id='upload-file-button'
+        >
+          Upload New Files or Versions
+        </button>
+      </div>
 
-      <button
-        v-if='refs.rev == "latest"'
-        class="ui small primary button"
-        @click='selectFilesForUpload'
-        id='upload-file-button'
-      >
-        Upload New Files or Versions
-      </button>
+      <div class="row" v-else>
+        <div class="six wide column"></div>
+        <div class="four wide column" style='text-align:center' @click='selectFilesForUpload'>
+          <br>
+          <h2 class="ui icon header" >
+            <i class="fa-files-o icon"></i>
+            <br>
+            <div class="content">
+              Click here to add files
+              <div class="sub header">
+                <br>
+                You have not added any files yet
+                <span v-if='$route.params.rev_slug!="latest"'>
+                  <br>
+                  Switch rev back to latest to exit read-only mode
+                </span>
+              </div>
+            </div>
+          </h2>
+        </div>
+        <div class="six wide column"></div>
+      </div>
 
       <br> <br>
 
@@ -205,7 +229,7 @@
               </td>
 
               <td id='version-menu'>
-                <div class="ui icon top left pointing mini basic dropdown button">
+                <div class="ui icon top left pointing mini basic dropdown button versions">
                   <i class="caret down icon"></i>
                   <div class="menu">
                     <div class="item">Version Options</div>
@@ -216,13 +240,13 @@
                     <div
                       class="item"
                       @click='selectFilesForUpload'
-                      v-if='refs.rev == "latest"'
+                      v-if='$route.params.rev_slug == "latest"'
                     >
                       <i class="upload icon"></i>
                       Upload New Version
                     </div>
                     <div
-                      v-if='refs.rev == "latest"'
+                      v-if='$route.params.rev_slug == "latest"'
                       class="item"
                       @click='deleteVersionAndVersionRecord(index)'
                     >
@@ -239,7 +263,7 @@
       <br>
 
       <button
-        v-if='refs.rev == "latest"'
+        v-if='$route.params.rev_slug == "latest"'
         class="ui small primary button"
         @click='selectFilesForUpload'
         id='upload-file-button'
@@ -286,10 +310,14 @@ export default {
       'session',
       'profile',
       'design',
-      'refs',
+      'designRefs',
     ]),
     file_names() {
-      return this.files.data.map((file) => {return file.name})
+      if (this.files) {
+        return this.files.data.map((file) => {return file.name})
+      } else {
+        return null
+      }
     },
     total_size() {
       let total = 0
@@ -302,10 +330,11 @@ export default {
     }
   },
   watch: {
-    refs: function () {
-      console.log('Refs watcher has been called in files.vue')
+    designRefs () {
+      console.log('designRefs watcher has been called in files.vue')
       this.getFilesRecord()
       this.getToken()
+
     }
   },
   methods: {
@@ -333,14 +362,14 @@ export default {
       })
     },
     getFilesRecord() {
-      this.$http.get('files/' + this.design.files.id + '/?ref=' + this.refs.ref + '&type=' + this.refs.ref_type).then(success => {
+      this.$http.get('files/' + this.design.files.id + '/?ref=' + this.designRefs.ref + '&type=' + this.designRefs.ref_type).then(success => {
         console.log('got files')
         console.log(success)
         this.files = success.data
 
         setTimeout(function() {
           console.log('trying to activate drodpdown on files')
-          $('.ui.dropdown').dropdown(
+          $('.ui.dropdown.options').dropdown(
             { 'silent': true }
             );
         }, 0);
@@ -357,6 +386,11 @@ export default {
         console.log('Error updating files')
         console.log(error)
       })
+    },
+    selectFilesForUpload() {
+      // click the hidden files input button
+      let fileElem = document.getElementById("upload-file-input")
+      fileElem.click()
     },
     readFile(index) {
       return new Promise((resolve,reject) => {
@@ -375,29 +409,6 @@ export default {
         }
 
         reader.readAsArrayBuffer(file)
-      })
-    },
-    selectFilesForUpload() {
-      // click the hidden files input button
-      let fileElem = document.getElementById("upload-file-input")
-      fileElem.click()
-    },
-    putFileToS3(array_buffer, s3_key) {
-      return new Promise((resolve, rejec) => {
-        let s3 = new AWS.S3()
-        let params = {
-          Body: array_buffer,
-          Bucket: "omni-stage-designs",
-          Key: s3_key
-         }
-         s3.putObject(params, function(err, data) {
-           if (err) {
-             console.log(err, err.stack); // an error occurred
-           } else {
-             console.log(data)
-             resolve(data)
-           }
-        })
       })
     },
     uploadFiles: async function(event) {
@@ -525,7 +536,7 @@ export default {
 
       setTimeout(function() {
         console.log('trying to activate drodpdown on files')
-        $('.ui.dropdown').dropdown(
+        $('.ui.dropdown.options').dropdown(
           { 'silent': true }
           );
       }, 0);
@@ -541,7 +552,7 @@ export default {
 
       // put new file record to S3
       let payload = {
-        params: this.design.files.id + '/?ref=' + this.refs.config,
+        params: this.design.files.id + '/?ref=' + this.$route.params.config_slug,
         data: {
           editor: this.profile.id,
           data: this.files.data
@@ -568,6 +579,24 @@ export default {
           }
         })
       }, 0);
+    },
+    putFileToS3(array_buffer, s3_key) {
+      return new Promise((resolve, rejec) => {
+        let s3 = new AWS.S3()
+        let params = {
+          Body: array_buffer,
+          Bucket: "omni-stage-designs",
+          Key: s3_key
+         }
+         s3.putObject(params, function(err, data) {
+           if (err) {
+             console.log(err, err.stack); // an error occurred
+           } else {
+             console.log(data)
+             resolve(data)
+           }
+        })
+      })
     },
     getFileFromS3(index) {
 
@@ -629,7 +658,7 @@ export default {
 
       // update the files and POST to API
       let payload = {
-        params: this.design.files.id + '/?ref=' + this.refs.config,
+        params: this.design.files.id + '/?ref=' + this.$route.params.config_slug,
         data: {
           editor: this.profile.id,
           data: this.files.data
@@ -648,7 +677,7 @@ export default {
 
       // update the files and POST to API
       let payload = {
-        params: this.design.files.id + '/?ref=' + this.refs.config,
+        params: this.design.files.id + '/?ref=' + this.$route.params.config_slug,
         data: {
           editor: this.profile.id,
           data: this.files.data
@@ -661,15 +690,21 @@ export default {
     showVersions(index) {
       this.selectedFile = this.files.data[index]
       this.mode = 'versions'
+      this.$nextTick(() => {
+        $('.ui.dropdown.versions').dropdown(
+          { 'silent': true }
+          );
+      })
       console.log('Show versions has been selected')
 
     }
   },
-  created: function() {
+  created() {
     if (this.design.files) {
       console.log('Files.vue created, design data already loaded, getting files')
       this.getFilesRecord()
       this.getToken()
+
     } else {
       console.log('Files.vue created, no design data present, waiting on watcher')
     }
@@ -679,5 +714,27 @@ export default {
 
 
 
+
 <style lang="css">
+.fade-enter-active, .fade-leave-active {
+  transition-property: opacity;
+  transition-duration: .25s;
+}
+
+.fade-enter-active {
+  transition-delay: .25s;
+}
+
+.fade-enter, .fade-leave-active {
+  opacity: 0
+}
+
+.files {
+  padding: 1.5rem;
+  margin-right: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  border-width: .2rem;
+  border: solid #f7f7f9;
+}
 </style>
