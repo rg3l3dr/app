@@ -16,26 +16,41 @@
                 <i class="fa fa-info-circle"></i> &nbsp; Info
               </a>
             </router-link>
-            <!-- <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/specs"'>
+            <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/collaborators"'>
               <a>
-                <i class="fa fa-list-ul"></i> &nbsp; Specs
+                <i class="fa fa-users"></i> &nbsp; Collaborators
               </a>
-            </router-link> -->
-            <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/configs"'>
+            </router-link>
+            <router-link
+              v-if='!$route.params.change_slug'
+              tag='a'
+              class='item'
+              :to=' this.designRefs.design_path + "/settings/configs"'
+            >
               <a>
                 <i class="fa fa-code-fork"></i> &nbsp; Configs
               </a>
             </router-link>
-            <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/revs"'>
+            <router-link
+            v-if='!$route.params.change_slug'
+              tag='a'
+              class='item'
+              :to=' this.designRefs.design_path + "/settings/revs"'
+            >
               <a>
                 <i class="fa fa-tags"></i> &nbsp; Revs
               </a>
             </router-link>
-            <!-- <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/collaborators"'>
+            <router-link
+              v-if='!$route.params.change_slug'
+              tag='a'
+              class='item'
+              :to=' this.designRefs.design_path + "/settings/changes"'
+            >
               <a>
-                <i class="fa fa-users"></i> &nbsp; Collaborators
+                <i class="fa fa-history"></i> &nbsp; Changes
               </a>
-            </router-link> -->
+            </router-link>
             <router-link tag='a' class='item' :to='this.designRefs.design_path + "/settings/advanced"'>
               <a>
                 <i class="warning sign icon"></i> &nbsp; Advanced

@@ -124,13 +124,7 @@
           Home
         </a>
       </router-link> -->
-      <router-link tag='a' class='item' :to='this.designRefs.design_path + "/specs"'>
-        <a>
-          <i class="list icon"></i>
-          Specs
-          <!-- <div class="ui circular mini label"></div> -->
-        </a>
-      </router-link>
+
       <router-link tag='a' class='item' :to='this.designRefs.design_path + "/parts"'>
         <a>
           <i class="cubes icon"></i>
@@ -152,6 +146,13 @@
           <div class="ui circular mini label"></div>
         </a>
       </router-link> -->
+      <router-link tag='a' class='item' :to='this.designRefs.design_path + "/specs"'>
+        <a>
+          <i class="list icon"></i>
+          Specs
+          <!-- <div class="ui circular mini label"></div> -->
+        </a>
+      </router-link>
       <router-link v-if='this.endpoints.pre_endpoint == "settings"' tag='a' class='item' :to='this.designRefs.design_path + "/settings/" + this.endpoints.endpoint'>
         <a>
           <i class="fa-cog icon"></i>
@@ -242,34 +243,54 @@ export default {
         this.$store.dispatch('getDesign', design_payload).then(success => {
           this.updateDesignRefs()
           this.$store.commit('setDesignRefs')
+          this.updateRefSelectors()
         }, error => {
 
         })
-      } else { console.log('No change to design slug, passing...') }
+      } else if (this.params.change_slug) {
+        this.updateDesignRefs()
+        this.$store.commit('setDesignRefs')
+        this.updateRefSelectors()
+      }
+      else { console.log('No change to design slug, passing...') }
     }
   },
   methods: {
     updateDesignRefs: function() {
-      this.current_config = this.design.config_set.filter(
-        config => config.slug == this.$route.params.config_slug
-      )[0]
-      this.current_rev_set = this.current_config.rev_set
-      this.current_rev = this.current_rev_set.filter(
-        rev => rev.slug == this.$route.params.rev_slug
-      )[0]
-      this.current_change_set = this.current_config.change_set
-      this.current_change = this.current_change_set.filter(
-        change => change.sha1 == this.$route.params.change_slug
-      )[0]
+      if (this.$route.params.config_slug) {
+        console.log('Design refs being set at config or rev');
+        this.current_config = this.design.config_set.filter(
+          config => config.slug == this.$route.params.config_slug
+        )[0]
+        this.current_rev_set = this.current_config.rev_set
+        this.current_rev = this.current_rev_set.filter(
+          rev => rev.slug == this.$route.params.rev_slug
+        )[0]
+        this.current_change_set = this.current_config.change_set
+        this.current_change = this.current_change_set.filter(
+          change => change.sha1 == this.$route.params.change_slug
+        )[0]
+        EventBus.$emit('design-refs-updated')
+      } else {
+        console.log('Design refs being set at a change')
+        this.current_change = this.$route.params.change_slug
+        this.current_config = null
+        this.current_rev = null
+        this.current_rev_set = null
+        this.current_change_set = null
+      }
       console.log('Design Refs have been updated in design.vue')
-      console.log(this.current_config.name)
-      console.log(this.current_rev.name);
     },
     updateRefSelectors() {
-      $('#configs').dropdown('set text', this.current_config.name)
-      $('#configs').dropdown('set selected', this.current_config.name)
-      $('#revs').dropdown('set text', this.current_rev.name)
-      $('#revs').dropdown('set selected', this.current_rev.name)
+      if (this.current_config != null) {
+        $('#configs').dropdown('set text', this.current_config.name)
+        $('#configs').dropdown('set selected', this.current_config.name)
+        $('#revs').dropdown('set text', this.current_rev.name)
+        $('#revs').dropdown('set selected', this.current_rev.name)
+      } else {
+        $('#configs').dropdown('set text', 'None')
+        $('#revs').dropdown('set text', 'None')
+      }
       console.log('Ref selectors have been updated in design.vue')
     },
     selectConfig: function(config) {
@@ -412,6 +433,7 @@ export default {
 
         // get the updated design with new config_set
         let design_payload = { design_slug: this.design.slug}
+        this.$store.commit('setDesignRefs')
         this.$store.dispatch('getDesign', design_payload).then(success => {
 
           $('#configs').dropdown('hide')
@@ -460,6 +482,7 @@ export default {
 
         // set payload and get updated design with new rev_set
         let design_payload = { design_slug: this.design.slug }
+        this.$store.commit('setDesignRefs')
         this.$store.dispatch('getDesign', design_payload).then(success => {
           $('#revs').dropdown('hide')
           this.updateDesignRefs()

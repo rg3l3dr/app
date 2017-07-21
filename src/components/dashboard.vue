@@ -63,7 +63,7 @@
                           &nbsp <a :href='"mailto:" + profile.public_email'> {{profile.public_email}}</a><br>
                         </span>
                         <router-link to='/profile/public'>
-                          <button class='ui right floated mini button'>
+                          <button class='ui right floated small compact basic black button'>
                             <i class="fa fa-gear" aria-hidden="true"></i>
                             Manage
                           </button>
@@ -93,14 +93,14 @@
                   <div v-else class="item" v-for='design in designs'>
                     <i class="folder icon"></i>
                     <div class="content">
-                      <router-link tag='a' :to=' "/" + session.username + "/" + design.slug + "/primary/latest/specs" '>
+                      <router-link tag='a' :to=' "/" + session.username + "/" + design.slug + "/primary/latest/parts" '>
                         {{ design.name }}
                       </router-link>
                     </div>
                   </div>
                 </div>
                 <router-link to='/create_design'>
-  								<button class='ui right floated mini button'>
+  								<button class='ui right floated small compact basic black button'>
   									<i class="fa fa-plus" aria-hidden="true"> </i>
   									&nbsp New Design
   								</button>

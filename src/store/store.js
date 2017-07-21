@@ -114,7 +114,7 @@ export const store = new Vuex.Store({
       console.log('Set Design refs has been called in store')
       let config = store.state.route.params.config_slug ? store.state.route.params.config_slug : null
       let rev = store.state.route.params.rev_slug ? store.state.route.params.rev_slug : null
-      let change = store.state.route.params.change_slug ? store.staee.route.params.change_slug : null
+      let change = store.state.route.params.change_slug ? store.state.route.params.change_slug : null
 
       let ref, ref_type, design_path, splits, endpoint, pre_endpoint
 

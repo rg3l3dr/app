@@ -5,355 +5,370 @@
       BILL OF MATERIALS &#8212; Add parts and create nested assemblies
     </div>
     <div class="ui bottom attached segment">
-      <div class="ui grid">
-        <div class="row">
-          <div class="ten wide column">
-            <div class="ui large breadcrumb" style='padding: 0px'>
-              <span v-for='(breadcrumb, index) in trail'>
-                <span v-if='(trail.length - 1) != index'>
-                  <router-link tag='a' to='' @click.native='changeBomLevel(index)'>
-                    {{ breadcrumb.name }}
+      <transition name='fade'>
+        <div class="ui grid" v-if='parts.length > 0 || trail.length != 1'>
+          <div class="row">
+            <div class="ten wide column">
+              <div class="ui large breadcrumb" style='padding: 0px'>
+                <span v-for='(breadcrumb, index) in trail'>
+                  <span v-if='(trail.length - 1) != index'>
+                    <router-link tag='a' to='' @click.native='changeBomLevel(index)'>
+                      {{ breadcrumb.name }}
+                    </router-link>
+                    <span  class='divider'>/</span>
+                  </span>
+                  <span v-else>
+                    <div class="active section">{{ breadcrumb.name }}</div>
+                    <!-- <div v-if='index != 0' class="ui icon top left pointing mini basic dropdown button part">
+                      <i class="caret down icon"></i>
+                      <div class="menu">
+                        <div class="item">Assembly Options</div>
+                        <div class="item" @click='viewPart(index)'>
+                          <i class="home icon"></i>
+                          View Homepage
+                        </div>
+                        <div class="item">
+                          <i class="edit icon"></i>
+                          Edit Assembly
+                        </div>
+                        <div class="item">
+                          <i class="compress icon"></i>
+                          Collapse Assembly
+                        </div>
+                        <div class="item">
+                          <i class="level up icon"></i>
+                          Move Up in BOM
+                        </div>
+                        <div v-if='$route.params.rev_slug == "latest"' class="item" @click='removePart(index)'>
+                          <i class="trash icon"></i>
+                          Remove from BOM
+                        </div>
+                      </div>
+                    </div> -->
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+
+      <transition name='fade'>
+        <table class="ui striped selectable table" id='bomTable' v-if='parts.length > 0 || trail.length != 1'>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Part Name</th>
+              <th>Latest Change</th>
+              <th>Quantity</th>
+              <th>Cost</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <td></td>
+              <td>
+                <button
+                  v-if='$route.params.rev_slug == "latest"'
+                  class="ui small basic blue button"
+                  @click='addEmptyPart'
+                  id='add-part-button'
+                >
+                  Add Another Part
+                </button>
+              </td>
+              <td></td>
+              <td></td>
+              <td>Total</td>
+              <td> $ {{ sumTotal.toFixed(2) }} </td>
+            </tr>
+          </tfoot>
+          <tbody name='fade' is="transition-group">
+            <tr v-for='(part, index) in parts' :key='part'>
+
+              <!-- Part Type Icon & Modal Link -->
+              <td>
+                <a href="#" @click='showModal(index)'>
+                  <i v-if='part.bom.data.length > 0' class="cubes icon"></i>
+                  <i v-else-if='part.files.data.length > 0' class="fa-files-o icon"></i>
+                  <i v-else class="fa-list-ul icon"></i>
+                </a>
+              </td>
+
+              <td v-if='!part.meta.created && $route.params.rev_slug == "latest"'>
+                  <div class="ui transparent search input" id='part-name-editable-div'>
+                    <input
+                      class="prompt"
+                      type="text"
+                      v-model='newPartName.data'
+                      id='part-name-editable'
+                      placeholder=" Search parts library..."
+                      @keydown.enter='getSearchResult(index)'
+                      @blur='result ? null : newPartBlurTest(index, $event)'
+                      @keydown.tab.prevent='tabOver($event)'
+                      @keydown.esc='removePart(index)'
+                      @keydown.delete='newPartName.data ? null : removePart(index)'
+                    >
+                    <div
+                      v-if='!newPartName.hasError'
+                      class="results"
+                      @click='getSearchResult(index)'
+                    ></div>
+                  </div>
+              </td>
+
+              <td v-else-if='part.meta.created && part.meta.editable && $route.params.rev_slug == "latest" '>
+                <div class="ui transparent input" id='part-name-editable-div'>
+                  <input
+                    type="text"
+                    v-model='part.design.name'
+                    id='part-name-editable'
+                    size='25'
+                    @keyup.enter='part.design.name ? testEditedPartDesign(index) : partNameError(index)'
+                    @keyup.delete='part.design.name ? null : removePart(index)'
+                    @keydown.tab.prevent='tabOver($event)'
+                    @blur='part.design.name ? updateBlurTest(index, $event) : partNameError(index)'
+                  >
+                </div>
+              </td>
+
+              <td v-else id='part-name'>
+                <span v-if='part.bom.data.length == 0'>
+                  <router-link tag='a' to='' @click.native.prevent='showModal(index)'>
+                    {{ part.design.name }}
                   </router-link>
-                  <span  class='divider'>/</span>
                 </span>
                 <span v-else>
-                  <div class="active section">{{ breadcrumb.name }}</div>
-                  &nbsp
-                  <div v-if='index != 0' class="ui icon top left pointing mini basic dropdown button part">
-                    <i class="caret down icon"></i>
-                    <div class="menu">
-                      <div class="item">Assembly Options</div>
-                      <div class="item" @click='viewPart(index)'>
-                        <i class="home icon"></i>
-                        View Homepage
-                      </div>
-                      <div class="item">
-                        <i class="edit icon"></i>
-                        Edit Assembly
-                      </div>
-                      <!-- <div class="item">
-                        <i class="compress icon"></i>
-                        Collapse Assembly
-                      </div>
-                      <div class="item">
-                        <i class="level up icon"></i>
-                        Move Up in BOM
-                      </div> -->
-                      <div v-if='$route.params.rev_slug == "latest"' class="item" @click='removePart(index)'>
-                        <i class="trash icon"></i>
-                        Remove from BOM
-                      </div>
-                    </div>
-                  </div>
+                  <router-link tag='a' to='' @click.native.prevent='openAssembly(index)'>
+                    {{ part.design.name }}
+                  </router-link>
                 </span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="six wide column">
-          <!-- <div class="ui transparent search input">
-            <input class="prompt" type="text" placeholder=" Search parts library...">
-            <div class="results"></div>
-          </div> -->
-          </div>
-        </div>
-      </div>
-      <table class="ui striped selectable table" id='bomTable' v-if='parts.length'>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Part Name</th>
-            <th>Latest Change</th>
-            <th>Quantity</th>
-            <th>Cost</th>
-            <th>Total</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tfoot>
-          <tr>
-            <td></td>
-            <td>
-              <button
-                v-if='$route.params.rev_slug == "latest"'
-                class="ui small primary button"
-                @click='addEmptyPart'
-                id='add-part-button'
+              </td>
+
+              <!-- Last Change for Part -->
+              <td>
+                <!-- <div v-if='!part.meta.created'>
+                  <a href="#">{{ part.changes[-1].owner }}</a> <a href="#">{{ part.changes[-1].message }}</a>  {{ part.changes[-1].created_at }}
+                </div> -->
+              </td>
+
+              <!-- Part Quantity -->
+              <td
+                v-if='!part.meta.created && $route.params.rev_slug == "latest"'
+                class='ui transparent input'
               >
-                Add a New Part
-              </button>
-            </td>
-            <td></td>
-            <td></td>
-            <td>Total</td>
-            <td> $ {{ sumTotal.toFixed(2) }} </td>
-          </tr>
-        </tfoot>
-        <tbody name='fade' is="transition-group">
-          <tr v-for='(part, index) in parts' :key='part'>
-
-            <!-- Part Type Icon & Modal Link -->
-            <td>
-              <a href="#" @click='showModal(index)'>
-                <i v-if='part.bom.data.length > 0' class="cubes icon"></i>
-                <i v-else-if='part.files.data.length > 0' class="fa-files-o icon"></i>
-                <i v-else class="fa-list-ul icon"></i>
-              </a>
-            </td>
-
-            <td v-if='!part.meta.created && $route.params.rev_slug == "latest"'>
-                <div class="ui transparent search input" id='part-name-editable-div'>
-                  <input
-                    class="prompt"
-                    type="text"
-                    v-model='newPartName.data'
-                    id='part-name-editable'
-                    placeholder=" Search parts library..."
-                    @keydown.enter='getSearchResult(index)'
-                    @blur='result ? null : newPartBlurTest(index, $event)'
-                    @keydown.tab.prevent='tabOver($event)'
-                    @keydown.esc='removePart(index)'
-                    @keydown.delete='newPartName.data ? null : removePart(index)'
-                  >
-                  <div
-                    v-if='!newPartName.hasError'
-                    class="results"
-                    @click='getSearchResult(index)'
-                  ></div>
-                </div>
-            </td>
-
-            <td v-else-if='part.meta.created && part.meta.editable && $route.params.rev_slug == "latest" '>
-              <div class="ui transparent input" id='part-name-editable-div'>
-                <input
-                  type="text"
-                  v-model='part.design.name'
-                  id='part-name-editable'
-                  size='25'
-                  @keyup.enter='part.design.name ? testEditedPartDesign(index) : partNameError(index)'
-                  @keyup.delete='part.design.name ? null : removePart(index)'
-                  @keydown.tab.prevent='tabOver($event)'
-                  @blur='part.design.name ? updateBlurTest(index, $event) : partNameError(index)'
-                >
-              </div>
-            </td>
-
-            <td v-else id='part-name'>
-              <span v-if='part.bom.data.length == 0'>
-                <router-link tag='a' to='' @click.native.prevent='showModal(index)'>
-                  {{ part.design.name }}
-                </router-link>
-              </span>
-              <span v-else>
-                <router-link tag='a' to='' @click.native.prevent='openAssembly(index)'>
-                  {{ part.design.name }}
-                </router-link>
-              </span>
-            </td>
-
-            <!-- Last Change for Part -->
-            <td>
-              <!-- <div v-if='!part.meta.created'>
-                <a href="#">{{ part.changes[-1].owner }}</a> <a href="#">{{ part.changes[-1].message }}</a>  {{ part.changes[-1].created_at }}
-              </div> -->
-            </td>
-
-            <!-- Part Quantity -->
-            <td
-              v-if='!part.meta.created && $route.params.rev_slug == "latest"'
-              class='ui transparent input'
-            >
-              <input
-                type="number"
-                min='1'
-                v-model='part.meta.quantity'
-                id='part-quantity-editable'
-                @keyup.enter='checkNewPartNameOnEnter(index, $event)'
-                @blur='newPartBlurTest(index, $event)'
-              >
-            </td>
-
-            <td
-              v-else-if='part.meta.created && part.meta.editable && $route.params.rev_slug == "latest"'
-              class='ui transparent input'
-            >
-              <input
-                type="number"
-                id='part-quantity-editable'
-                v-model='part.meta.quantity'
-                min='1'
-                @keyup.enter='part.design.name ? testEditedPartDesign(index) : partNameError(index)'
-                @blur='part.design.name ? updateBlurTest(index, $event) : partNameError(index)'
-              >
-            </td>
-
-            <td
-              v-else
-              id='part-quantity'
-              @click='makePartEditable(index, "quantity")'
-            >
-              {{ part.meta.quantity }}
-            </td>
-
-            <!-- Part Cost -->
-            <td v-if='!part.meta.created && $route.params.rev_slug == "latest"'>
-              <div class="ui transparent input">
                 <input
                   type="number"
-                  id='part-cost-editable'
-                  min='0'
-                  step='.01'
-                  v-model='part.specs.data.suppliers[0].partSchedules[0].unitCost'
-                  @keydown.enter='checkNewPartNameOnEnter(index, $event)'
+                  min='1'
+                  v-model='part.meta.quantity'
+                  id='part-quantity-editable'
+                  @keyup.enter='checkNewPartNameOnEnter(index, $event)'
                   @blur='newPartBlurTest(index, $event)'
                 >
-              </div>
-            </td>
+              </td>
 
-            <td v-else-if='part.meta.created && part.meta.editable && $route.params.rev_slug == "latest"'>
-              <div class="ui transparent input">
+              <td
+                v-else-if='part.meta.created && part.meta.editable && $route.params.rev_slug == "latest"'
+                class='ui transparent input'
+              >
                 <input
-                  id='part-cost-editable'
                   type="number"
-                  min='0'
-                  step='.01'
-                  v-model='part.specs.data.suppliers[0].partSchedules[0].unitCost'
-                  @keydown.enter='part.design.name ? testEditedPartDesign(index) : partNameError(index)'
-                  @keydown.tab.prevent='part.design.name ? testEditedPartDesign(index) : partNameError(index)'
+                  id='part-quantity-editable'
+                  v-model='part.meta.quantity'
+                  min='1'
+                  @keyup.enter='part.design.name ? testEditedPartDesign(index) : partNameError(index)'
                   @blur='part.design.name ? updateBlurTest(index, $event) : partNameError(index)'
                 >
-              </div>
-            </td>
+              </td>
 
-            <td
-              v-else
-              id='part-cost'
-              @click='makePartEditable(index, "cost")'
-            >
-              <span v-if='part.specs.data.suppliers[0].partSchedules[0].unitCost'>
-                $ {{ part.specs.data.suppliers[0].partSchedules[0].unitCost.toFixed(2) }}
-              </span>
-              <span v-else>
-                $ 0.00
-              </span>
-            </td>
-
-            <!-- Part Total -->
-            <td v-if='part.specs.data.suppliers[0].partSchedules[0].unitCost'>
-              $ {{ (part.meta.quantity * part.specs.data.suppliers[0].partSchedules[0].unitCost).toFixed(2) }}
-            </td>
-            <td v-else>
-              $ 0.00
-            </td>
-
-            <!-- Part Menu Options -->
-            <td v-if='!part.meta.created'>
-              <button
-                class="circular ui mini basic icon button"
-                @click='removePart(index)'
+              <td
+                v-else
+                id='part-quantity'
+                @click='makePartEditable(index, "quantity")'
               >
-                <i class="icon close"></i>
-              </button>
-            </td>
-            <td v-else >
-              <div
-                class="ui icon top left pointing mini basic dropdown button part"
-                v-if='part.bom.data.length > 0'
-              >
-                <i class="caret down icon"></i>
-                <div class="menu">
-                  <div class="item">Assembly Options</div>
-                  <div class="item" @click='viewPart(index)'>
-                    <i class="home icon"></i>
-                    View Homepage
-                  </div>
-                  <div class="item" @click='showModal(index)'>
-                    <i class="edit icon"></i>
-                    Edit Assembly
-                  </div>
-                  <!-- <div class="item">
-                    <i class="compress icon"></i>
-                    Collapse Assembly
-                  </div>
-                  <div class="item">
-                    <i class="level up icon"></i>
-                    Move Up in BOM
-                  </div> -->
-                  <div
-                    v-if='$route.params.rev_slug == "latest"'
-                    class="item"
-                    @click='removePart(index)'
+                {{ part.meta.quantity }}
+              </td>
+
+              <!-- Part Cost -->
+              <td v-if='!part.meta.created && $route.params.rev_slug == "latest"'>
+                <div class="ui transparent input">
+                  <input
+                    type="number"
+                    id='part-cost-editable'
+                    min='0'
+                    step='.01'
+                    v-model='part.specs.data.suppliers[0].partSchedules[0].unitCost'
+                    @keydown.enter='checkNewPartNameOnEnter(index, $event)'
+                    @blur='newPartBlurTest(index, $event)'
                   >
-                    <i class="trash icon"></i>
-                    Remove from BOM
-                  </div>
                 </div>
-              </div>
-              <div class="ui icon top left pointing mini basic dropdown button part" v-else>
-                <i class="caret down icon"></i>
-                <div class="menu">
-                  <div class="item">
-                    Part Options
-                  </div>
-                  <div class="divider"></div>
-                  <div class="item" @click='viewPart(index)'>
-                    <i class="home icon"></i>
-                    View Homepage
-                  </div>
-                  <div class="item" @click='showModal(index)'>
-                    <i class="edit icon"></i>
-                    Edit Part
-                  </div>
-                  <!-- <div class="item" v-if='$route.params.rev_slug == "latest"'>
-                    <i class="level up icon"></i>
-                    Move Up in BOM
-                  </div> -->
-                  <div v-if='$route.params.rev_slug == "latest"' class="item" @click='openAssembly(index)'>
-                    <i class="level down icon"></i>
-                    Make Assembly
-                  </div>
-                  <div v-if='$route.params.rev_slug == "latest"' class="item" @click='removePart(index)'>
-                    <i class="trash icon"></i>
-                    Remove from BOM
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
 
-      <div style='text-align:center' v-else>
-        <br>
-        <h2 class="ui icon header" >
-          <i class="cubes icon"></i>
+              <td v-else-if='part.meta.created && part.meta.editable && $route.params.rev_slug == "latest"'>
+                <div class="ui transparent input">
+                  <input
+                    id='part-cost-editable'
+                    type="number"
+                    min='0'
+                    step='.01'
+                    v-model='part.specs.data.suppliers[0].partSchedules[0].unitCost'
+                    @keydown.enter='part.design.name ? testEditedPartDesign(index) : partNameError(index)'
+                    @keydown.tab.prevent='part.design.name ? testEditedPartDesign(index) : partNameError(index)'
+                    @blur='part.design.name ? updateBlurTest(index, $event) : partNameError(index)'
+                  >
+                </div>
+              </td>
+
+              <td
+                v-else
+                id='part-cost'
+                @click='makePartEditable(index, "cost")'
+              >
+                <span v-if='part.specs.data.suppliers[0].partSchedules[0].unitCost'>
+                  $ {{ part.specs.data.suppliers[0].partSchedules[0].unitCost.toFixed(2) }}
+                </span>
+                <span v-else>
+                  $ 0.00
+                </span>
+              </td>
+
+              <!-- Part Total -->
+              <td v-if='part.specs.data.suppliers[0].partSchedules[0].unitCost'>
+                $ {{ (part.meta.quantity * part.specs.data.suppliers[0].partSchedules[0].unitCost).toFixed(2) }}
+              </td>
+              <td v-else>
+                $ 0.00
+              </td>
+
+              <!-- Part Menu Options -->
+              <td v-if='!part.meta.created'>
+                <button
+                  class="circular ui mini basic icon button"
+                  @click='removePart(index)'
+                >
+                  <i class="icon close"></i>
+                </button>
+              </td>
+              <td v-else >
+                <div
+                  class="ui icon top left pointing mini basic dropdown button part"
+                  v-if='part.bom.data.length > 0'
+                >
+                  <i class="caret down icon"></i>
+                  <div class="menu">
+                    <div class="item">Assembly Options</div>
+                    <div class="item" @click='viewPart(index)'>
+                      <i class="home icon"></i>
+                      View Homepage
+                    </div>
+                    <div class="item" @click='showModal(index)'>
+                      <i class="edit icon"></i>
+                      Edit Assembly
+                    </div>
+                    <!-- <div class="item">
+                      <i class="compress icon"></i>
+                      Collapse Assembly
+                    </div>
+                    <div class="item">
+                      <i class="level up icon"></i>
+                      Move Up in BOM
+                    </div> -->
+                    <div
+                      v-if='$route.params.rev_slug == "latest"'
+                      class="item"
+                      @click='removePart(index)'
+                    >
+                      <i class="trash icon"></i>
+                      Remove from BOM
+                    </div>
+                  </div>
+                </div>
+                <div class="ui icon top left pointing mini basic dropdown button part" v-else>
+                  <i class="caret down icon"></i>
+                  <div class="menu">
+                    <div class="item">
+                      Part Options
+                    </div>
+                    <div class="divider"></div>
+                    <div class="item" @click='viewPart(index)'>
+                      <i class="home icon"></i>
+                      View Homepage
+                    </div>
+                    <div class="item" @click='showModal(index)'>
+                      <i class="edit icon"></i>
+                      Edit Part
+                    </div>
+                    <!-- <div class="item" v-if='$route.params.rev_slug == "latest"'>
+                      <i class="level up icon"></i>
+                      Move Up in BOM
+                    </div> -->
+                    <div v-if='$route.params.rev_slug == "latest"' class="item" @click='openAssembly(index)'>
+                      <i class="level down icon"></i>
+                      Make Assembly
+                    </div>
+                    <div v-if='$route.params.rev_slug == "latest"' class="item" @click='removePart(index)'>
+                      <i class="trash icon"></i>
+                      Remove from BOM
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div style='text-align:center' v-else-if='$route.params.rev_slug=="latest"' @click='showBomTable'>
           <br>
-          <div class="content">
-            Add Parts
-            <div class="sub header">
-              <br>
-              You have not added any parts yet.<br>
-              Switch rev back to latest to exit read-only mode.
+          <h2 class="ui icon header" >
+            <i class="cubes icon"></i>
+            <br>
+            <div class="content">
+              Click here to add parts
+              <div class="sub header">
+                <br>
+                You have not added any parts yet<br>
+              </div>
             </div>
-          </div>
-        </h2>
-      </div>
-
-
-      <div class="ui success message" v-if='message.active'>
-        <i class="close icon"></i>
-        <div class="header">
-          {{ message.title }}
+          </h2>
         </div>
-        <p> {{ message.body }} </p>
-      </div>
+        <div style='text-align:center' v-else>
+          <br>
+          <h2 class="ui icon header" >
+            <i class="cubes icon"></i>
+            <br>
+            <div class="content">
+              Change rev back to latest to add parts
+              <div class="sub header">
+                <br>
+                You have not added any parts yet<br>
+                Your project is read only when rev is not latest
+              </div>
+            </div>
+          </h2>
+        </div>
+      </transition>
+
+      <transition name='fade'>
+        <div class="ui success message" v-if='message.active'>
+          <i class="close icon"></i>
+          <div class="header">
+            {{ message.title }}
+          </div>
+          <p> {{ message.body }} </p>
+        </div>
+      </transition>
+
     </div>
       <div class="ui modal" v-if='modalPart' style='width: 80em; margin: -24em -38em'>
         <div class="header">
           <div class="ui grid">
             <div class="six wide column">
-              <div class="ui large fluid transparent input" style='margin: -5px 0px 0px 0px'>
+              <div
+                class="ui large fluid transparent input"
+                style='margin: -5px 0px 0px 0px'
+                :class='$route.params.rev_slug == "latest" ? null : "disabled"'
+              >
                 <input
                   type="text"
                   v-model='modalPart.design.name'
@@ -361,7 +376,11 @@
                   @blur='editDesignNameInModal(modalIndex)'
                 >
               </div>
-              <div class="ui mini fluid transparent input" style='font-size: 15px'>
+              <div
+                class="ui mini fluid transparent input"
+                style='font-size: 15px'
+                :class='$route.params.rev_slug == "latest" ? null : "disabled"'
+              >
                 <input
                   type="text"
                   placeholder='Add a short description'
@@ -372,8 +391,16 @@
             </div>
             <div class="three wide column">
               <div class="ui basic icon buttons">
-                <button class="ui button" data-tooltip='Add an Image'><i class="image icon"></i></button>
-                <button class="ui button" data-tooltip='Add Design Files'><i class="fa fa-paperclip"></i></button>
+                <button
+                  class="ui button"
+                  data-tooltip='Add an Image'
+                  :class='$route.params.rev_slug == "latest" ? null : "disabled"'
+                ><i class="image icon"></i></button>
+                <button
+                  class="ui button"
+                  data-tooltip='Add Design Files'
+                  :class='$route.params.rev_slug == "latest" ? null : "disabled"'
+                ><i class="fa fa-paperclip"></i></button>
                 <!-- <button class="ui button"><i class="clone icon"></i></button>
                 <button class="ui button"><i class="plus square icon"></i></button>
                 <button class="ui button"><i class="balance scales icon"></i></button> -->
@@ -384,15 +411,15 @@
                       <i class="home icon"></i>
                       Visit homepage
                     </div>
-                    <div class="item">
+                    <div class="item" :class='$route.params.rev_slug == "latest" ? null : "disabled"'>
                       <i class="level down icon"></i>
                       Make Assembly
                     </div>
-                    <div class="item">
+                    <div class="item" :class='$route.params.rev_slug == "latest" ? null : "disabled"'>
                       <i class="level up icon"></i>
                       Move Up in BOM
                     </div>
-                    <div class="item">
+                    <div class="item" :class='$route.params.rev_slug == "latest" ? null : "disabled"'>
                       <i class="trash icon"></i>
                       Remove from BOM
                     </div>
@@ -401,7 +428,11 @@
               </div>
             </div>
             <div class="six wide column">
-              <div class="ui basic labeled input" style='font-size: 13.5px'>
+              <div
+                class="ui basic labeled input"
+                style='font-size: 13.5px'
+                :class='$route.params.rev_slug == "latest" ? null : "disabled"'
+              >
                 <div class="ui label"> Quantity </div>
                 <input
                   type="number"
@@ -412,7 +443,10 @@
                   @blur='editDesignBomInModal(modalIndex)'
                 > &nbsp &nbsp
               </div>
-              <div class="ui basic dropdown labeled icon button tracking">
+              <div
+                class="ui basic dropdown labeled icon button tracking"
+                :class='$route.params.rev_slug == "latest" ? null : "disabled"'
+              >
                 <i class="crosshairs icon"></i>
                 <span class="text">Current Ref</span>
                 <div class="menu">
@@ -588,9 +622,13 @@
                     </tr>
                   </tbody>
                 </table>
-                <button class="ui small blue basic button" @click='editModalPartSpecs'>Edit Specs</button>
+                <button
+                  v-if='$route.params.rev_slug=="latest"'
+                  class="ui small blue basic button"
+                  @click='editModalPartSpecs'
+                >Edit Specs</button>
               </div>
-              <div class="ui bottom attached tab segment" data-tab='part-bom'>
+              <div class="ui bottom attached tab segment scorlling content" data-tab='part-bom' style='max-height: 33em'>
                 <table class="ui small striped selectable table">
                   <thead>
                     <th>Name</th>
@@ -610,9 +648,15 @@
                     </tr>
                   </tbody>
                 </table>
-                <button class="ui small blue basic button" @click='editModalPartBom'>Edit BOM</button>
+                <button
+                  v-if='$route.params.rev_slug=="latest"'
+                  class="ui small blue basic button"
+                  @click='editModalPartBom'
+                >
+                  Edit BOM
+                </button>
               </div>
-              <div class="ui bottom attached tab segment" data-tab='part-files'>
+              <div class="ui bottom attached tab segment scrolling content" data-tab='part-files' style='max-height: 33em'>
                 <table class="ui basic table">
                   <thead>
                     <th>File Name</th>
@@ -670,9 +714,13 @@
                     </tr>
                   </tbody>
                 </table>
-                <button class="ui small blue basic button" @click='editModalPartFiles'>Upload new file or version</button>
+                <button
+                  v-if='$route.params.rev_slug=="latest"'
+                  class="ui small blue basic button"
+                  @click='editModalPartFiles'
+                >Upload new file or version</button>
               </div>
-              <div class="ui bottom attached tab segment" data-tab='part-changes'>
+              <div class="ui bottom attached tab segment scrolling content" data-tab='part-changes' style='max-height: 33em'>
                 <table class="ui basic table">
                   <thead>
                     <th>Editor</th>
@@ -728,7 +776,7 @@
                 <div
                   v-if='modalIndex != 0'
                   class="ui left labeled basic icon button"
-                  @click='modalIndex -= 1'
+                  @click='switchModalPart(-1)'
                 >
                   Previous Part
                   <i class="left arrow icon"></i>
@@ -743,7 +791,7 @@
                 <div
                   v-if='modalIndex != (partsLength - 1)'
                   class="ui right labeled basic icon button"
-                  @click='modalIndex += 1'
+                  @click='switchModalPart(1)'
                 >
                   Next Part
                   <i class="right arrow icon"></i>
@@ -755,13 +803,9 @@
                   Next Part
                   <i class="right arrow icon"></i>
                 </div>
-
               </div>
             </div>
           </div>
-
-
-
         </div>
       </div>
   </div>
@@ -801,7 +845,8 @@ export default {
         descEditable: false
       },
       modalBom: [],
-      enterPressed: false
+      enterPressed: false,
+      modalPart: null
     }
   },
   computed: {
@@ -828,26 +873,6 @@ export default {
       }
       return total
     },
-    modalPart() {
-      return this.parts[this.modalIndex]
-    },
-    // modalBom() {
-    //   console.log('Getting Modal BOM')
-    //   let design_id = this.modalPart.design.id
-    //   let ref_slug = this.modalPart.meta.ref_slug
-    //   let ref_type = this.modalPart.meta.ref_type
-    //
-    //   this.$http.get(`bom_parts/?design_id=${design_id}&ref_slug=${ref_slug}&ref_type=${ref_type}`).then(success => {
-    //     console.log('Got BOM for modal part')
-    //     console.log(success)
-    //     return success.body.bom
-    //   }, error => {
-    //     console.log('Error getting BOM')
-    //     console.log(error)
-    //     return []
-    //   })
-    //
-    // },
     partsLength() {
       return this.parts.length
     },
@@ -865,23 +890,6 @@ export default {
         this.getBomParts(bom_payload)
       }
     },
-    modalPart() {
-      console.log('Modal part has changed')
-      console.log(this.modalPart)
-      let design_id = this.modalPart.design.id
-      let ref_slug = this.modalPart.meta.ref_slug
-      let ref_type = this.modalPart.meta.ref_type
-
-      this.$http.get(`bom_parts/?design_id=${design_id}&ref_slug=${ref_slug}&ref_type=${ref_type}`).then(success => {
-        console.log('Got BOM for modal part')
-        console.log(success)
-        this.modalBom = success.body.parts
-      }, error => {
-        console.log('Error getting BOM')
-        console.log(error)
-        this.modalBom = []
-      })
-    }
   },
   methods: {
     formatBytes(bytes, decimals) {
@@ -941,36 +949,79 @@ export default {
         this.$http.get('bom_parts/?design_id=' + payload.design_id + '&ref_slug=' + payload.ref_slug + '&ref_type=' + payload.ref_type).then(success => {
           console.log('Got bom and parts')
           console.log(success)
-          this.bom = success.body.bom
-          this.parts = success.body.parts
-
           this.$nextTick(() => {
-            console.log('trying to activate drodpdown on parts')
-            $('.ui.dropdown.part').dropdown(
-              { 'silent': true }
-            );
+            console.log('setting bom');
+            this.bom = success.body.bom
+            console.log('set bom');
+            this.$nextTick(() => {
+              console.log('setting parts');
+              this.parts = success.body.parts
+              console.log('set parts');
+
+              this.$nextTick(() => {
+                console.log('trying to activate drodpdown on parts')
+                var dropdown = document.getElementsByClassName('.ui.dropdown.part')
+                if (dropdown) {
+                  $('.ui.dropdown.part').dropdown(
+                    { 'silent': true }
+                  )
+                }
+                this.$nextTick(() => {
+                  if (this.trail.length == 0) {
+                    let breadcrumb = {
+                      name: this.design.name,
+                      design_id: this.design.id,
+                      ref_slug: this.designRefs.ref,
+                      ref_type: this.designRefs.ref_type,
+                      path: this.designRefs.path
+                    }
+                    this.trail.push(breadcrumb)
+                  }
+                  this.$nextTick(() => {
+                    if (this.parts.length == 0 && this.$route.params.rev_slug == 'latest' && this.trail.length > 1) {
+                      this.addEmptyPart()
+                      resolve()
+                    } else {
+                      resolve()
+                    }
+                })
+                })
+              })
+            })
           })
-
-          if (this.trail.length == 0) {
-            let breadcrumb = {
-              name: this.design.name,
-              design_id: this.design.id,
-              ref_slug: this.designRefs.ref,
-              ref_type: this.designRefs.ref_type,
-              path: this.designRefs.path
-            }
-            this.trail.push(breadcrumb)
-          }
-
-          if (this.parts.length == 0 && this.$route.params.rev_slug == 'latest') {
-            this.addEmptyPart()
-          }
-
         }, error => {
           console.log('Errror getting bom and parts')
           console.log(error)
+          reject()
         })
       })
+    },
+    getModalPartandBom(index) {
+      return new Promise((resolve, reject) => {
+        this.modalPart = this.parts[index]
+
+        let design_id = this.modalPart.design.id
+        let ref_slug = this.modalPart.meta.ref_slug
+        let ref_type = this.modalPart.meta.ref_type
+
+        this.$http.get(`bom_parts/?design_id=${design_id}&ref_slug=${ref_slug}&ref_type=${ref_type}`).then(success => {
+          console.log('Got BOM for modal part')
+          console.log(success)
+          this.modalBom = success.body.parts
+          resolve(success)
+        }, error => {
+          console.log('Error getting BOM')
+          console.log(error)
+          this.modalBom = []
+          reject(error)
+        })
+
+      })
+
+    },
+
+    showBomTable() {
+      this.addEmptyPart()
     },
 
     checkNewPartNameOnEnter(index, $event) {
@@ -1053,6 +1104,28 @@ export default {
                   }
                 })
               }, 0);
+
+              this.newPartName = {
+                data: null,
+                hasError: null,
+                error: null
+              }
+
+              this.resultSelected = false
+              this.result = {}
+              $('.ui.search').search('hide results')
+
+              // add another empty part to the bom and set focus there
+              this.addEmptyPart()
+              this.$nextTick( function() {
+                $('.ui.dropdown.part').dropdown(
+                  { 'silent': true }
+                );
+              })
+
+
+
+
               return
             }
             // test if it is an exisiting name,
@@ -1290,11 +1363,6 @@ export default {
 
           // add another empty part to the bom and set focus there
           vue.addEmptyPart()
-          // vue.$nextTick( function() {
-          //   $('.ui.dropdown').dropdown(
-          //     { 'silent': true }
-          //   );
-          // })
 
           // create a new bom item and insert into the bom.data
           let new_item = {
@@ -1365,11 +1433,18 @@ export default {
 
       this.$nextTick(() => {
         $('.ui.dropdown.part').dropdown({ 'silent': true })
+        if (this.parts.length == 1) {
+          document.getElementById('add-part-button').disabled=true
+        }
         let vue = this
         $('.ui.search').search(
           {
             apiSettings: {
                 url: 'https://stage.omnibuilds.com/designquery/?q={query}' + design_ids,
+                beforeXHR: function(xhr) {
+                  xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                  return xhr;
+                }
               },
             fields: {
               title: 'name'
@@ -1382,7 +1457,6 @@ export default {
             }
           }
         )
-
         console.log('focusing')
         $('#part-name-editable').focus()
       })
@@ -1420,8 +1494,9 @@ export default {
         ref_slug: selectedPart.meta.ref_slug,
         ref_type: selectedPart.meta.ref_type
       }
-
-      this.getBomParts(bom_payload)
+      this.$nextTick(() => {
+        this.getBomParts(bom_payload)
+      })
     },
     changeBomLevel(index) {
       console.log('Change BOM level clicked')
@@ -1435,7 +1510,6 @@ export default {
         ref_type: breadcrumb.ref_type
       }
       this.getBomParts(bom_payload)
-
     },
     viewModalPartHome() {
       this.hideModal()
@@ -1657,7 +1731,12 @@ export default {
     },
     editModalPartBom() {
       this.hideModal()
-      this.$router.push(`/${this.modalPart.meta.path}/parts`)
+      // how does the app know we have a new design context
+        // design will not be recreated
+        // parts will not be recreated
+      this.$router.push(`/${this.modalPart.meta.path}/parts`, onComplete => {
+        this.$store.commit('setDesignRefs')
+      }, onAbort => {})
     },
     editModalPartFiles() {
       this.hideModal()
@@ -1745,9 +1824,14 @@ export default {
 
       } else {
         this.parts.splice(index, 1)
-        this.bom.data.splice(index, 1)
-        this.updateBOM()
-        console.log('Existing part has been removed from the BOM')
+        this.$nextTick(() => {
+          this.bom.data.splice(index, 1)
+          this.$nextTick(() => {
+            this.updateBOM()
+            console.log('Existing part has been removed from the BOM')
+            // if last part in an assembly, remove the assembly from the bom
+          })
+        })
       }
     },
     tabOver() {
@@ -1762,78 +1846,91 @@ export default {
       $('#part-name-editable').parent().parent().next().next().children().focus()
       console.log('Part name is: ' + partName)
     },
-    showModal(index) {
-      console.log('show modal clicked')
+    showModal: async function(index) {
       this.modalIndex = index
-      if (this.parts[this.parts.length - 1].meta.created == false) {
-        this.parts.pop()
-        document.getElementById('add-part-button').disabled=false
-      }
-      $('.ui.modal').modal('show', {
-        autofocus: false
-      })
+      this.modalPart = this.parts[this.modalIndex]
+      console.log('show modal clicked')
+      // this.modalIndex = index
+      await this.getModalPartandBom(index)
       this.$nextTick(() => {
-        $('.ui.modal').modal('setting', {
-          'autofocus': false
+        if (this.parts[this.parts.length - 1].meta.created == false) {
+          this.parts.pop()
+          document.getElementById('add-part-button').disabled=false
+        }
+        $('.ui.modal').modal('show', {
+          autofocus: false
         })
-        $('.ui.modal').modal('show')
-        // $('.ui.modal').modal({
-        //    transition: 'slide left',
-        // }).modal('show');
         this.$nextTick(() => {
-          $('.ui.dropdown.tracking').dropdown(
-            { 'silent': true }
-          )
-
-          let vue = this
-          $('.ui.dropdown.tracking').dropdown(
-            {
-              'silent': true,
-              onChange(value, text, $choice) {
-                vue.editTrackingPointInModal(value)
+          $('.ui.modal').modal('setting', {
+            'autofocus': false
+          })
+          $('.ui.modal').modal('show')
+          // $('.ui.modal').modal({
+          //    transition: 'slide left',
+          // }).modal('show');
+          this.$nextTick(() => {
+            $('.ui.dropdown.tracking').dropdown(
+              { 'silent': true }
+            )
+            let vue = this
+            $('.ui.dropdown.tracking').dropdown(
+              {
+                'silent': true,
+                onChange(value, text, $choice) {
+                  vue.editTrackingPointInModal(value)
+                }
               }
-            }
-          )
+            )
+            // set ref for for trakcing dropdown to current value of bom
+            let ref = null
 
-          // set ref for for trakcing dropdown to current value of bom
-          let ref = null
-
-          if (this.modalPart.meta.ref_type == 'config') {
-            for (let config of this.modalPart.configs) {
-              if (config.slug == this.modalPart.meta.ref_slug) {
-                ref = config
-                console.log('Modal tracking point set to config')
+            if (this.modalPart.meta.ref_type == 'config') {
+              for (let config of this.modalPart.configs) {
+                if (config.slug == this.modalPart.meta.ref_slug) {
+                  ref = config
+                  console.log('Modal tracking point set to config')
+                }
               }
-            }
-          } else if (this.modalPart.meta.ref_tye == 'rev') {
-            for (let rev of this.modalPart.revs) {
-              if (rev.slug == this.modalPart.meta.ref_slug) {
-                ref = rev
-                console.log('Modal tracking point set to rev')
+            } else if (this.modalPart.meta.ref_tye == 'rev') {
+              for (let rev of this.modalPart.revs) {
+                if (rev.slug == this.modalPart.meta.ref_slug) {
+                  ref = rev
+                  console.log('Modal tracking point set to rev')
+                }
               }
+            } else {
+              console.log('Modal tracking point is a change, not setting tracking point')
             }
-          } else {
-            console.log('Modal tracking point is a change, not setting tracking point')
-          }
 
-          if (ref) {
-            $('.tracking').dropdown('set text', ref.name)
-            $('.tracking').dropdown('set selected', ref.slug)
-          }
+            if (ref) {
+              $('.tracking').dropdown('set text', ref.name)
+              $('.tracking').dropdown('set selected', ref.slug)
+            }
 
-
-
-
-
-          $('.ui.dropdown.options').dropdown(
-            { 'silent': true }
-          )
-          $('.menu .item').tab()
+            $('.ui.dropdown.options').dropdown(
+              { 'silent': true }
+            )
+            $('.menu .item').tab()
+          })
         })
+
       })
+
     },
     hideModal() {
+      // this.modalPart = null
+      this.modalBom = null
+
       $('.ui.modal').modal('toggle')
+      // this.$nextTick(() => {
+      //   // this.modalIndex = null
+      //   this.modalPart = null
+      //   this.modalBom = null
+      // })
+    },
+    switchModalPart(value) {
+      this.modalIndex += value
+      this.modalPart = this.parts[this.modalIndex]
     },
 
     getFullBom() {

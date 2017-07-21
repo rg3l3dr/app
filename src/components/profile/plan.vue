@@ -10,7 +10,7 @@
     </div>
     <div class="ui attached segment">
       <strong>Current Plan:</strong> {{ profile.plan.name }} &nbsp;
-      <button class="ui tiny button" v-if='profile.plan.id == 1' @click="openPaymentModal">Upgrade to Freelancer</button>
+      <button class="ui tiny basic blue button" v-if='profile.plan.id == 1' @click="openPaymentModal">Upgrade to Freelancer</button>
     </div>
     <div class="ui attached segment" :class="{ bottom : profile.planid == 1 }">
         <strong>Private Storage</strong> &nbsp; {{ data_cap_fmt }} &nbsp;
@@ -36,7 +36,7 @@
           You can downgrade at anytime, but you will no longer be able to access your private repositories created under this plan and your private storage will be adjusted.
         </div>
         <div class="four wide column">
-          <button class="ui small red button" @click='openCancelModal'>
+          <button class="ui small basic red button" @click='openCancelModal'>
             <i class="minus square icon"></i>
             Downgrade
           </button>
@@ -143,9 +143,9 @@
         </form>
        </div>
       <div class="actions">
-         <button id='closeModal' type="button" class="ui button" @click='hidePaymentModal'>Cancel</button>
+         <button id='closeModal' type="button" class="ui small basic red button" @click='hidePaymentModal'>Cancel</button>
           <button v-if='is_active_customer' type="submit" class="ui button" id='submit-card' @click='submitPayment("update")' data-dismiss="modal">Update Payment Info</button>
-          <button v-else type="submit" class="ui button" id='submit-card' @click='submitPayment("create")' data-dismiss="modal">Submit Payment</button>
+          <button v-else type="submit" class="ui small basic blue button" id='submit-card' @click='submitPayment("create")' data-dismiss="modal">Submit Payment</button>
        </div>
     </div>
 
@@ -166,8 +166,8 @@
         </div>
       </div>
       <div class="actions">
-        <button type="button" class="ui small green button" @click='hideCancelModal'>Close</button>
-        <button class="ui red small button" @click='downgradePlan' data-dismiss="modal">Cancel Plan</button>
+        <button type="button" class="ui small basic blue button" @click='hideCancelModal'>Close</button>
+        <button class="ui red small basic button" @click='downgradePlan' data-dismiss="modal">Cancel Plan</button>
       </div>
     </div>
   </div><!-- /.tab-pane fade in  -->

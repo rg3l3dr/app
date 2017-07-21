@@ -57,8 +57,8 @@
         </div>
       </div>
       <div class="actions">
-        <button type="button" class="ui small green button" @click='hideDeleteModal'>Close</button>
-        <button class="ui red small button" @click='deleteConfig' data-dismiss="modal">Delete Config</button>
+        <button type="button" class="ui small basic blue button" @click='hideDeleteModal'>Close</button>
+        <button class="ui red small basic button" @click='deleteConfig' data-dismiss="modal">Delete Config</button>
       </div>
     </div>
   </div>

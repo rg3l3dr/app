@@ -105,7 +105,7 @@ export default {
       setTimeout(function() {
           if (vue.resultSelected) {
             console.log('Result selected, redirecting to result detail page')
-            let path = vue.result.creator + '/' + vue.result.slug + '/primary/latest/specs'
+            let path = vue.result.creator + '/' + vue.result.slug + '/primary/latest'
             vue.inputQuery = null
             vue.resultSelected = false
             vue.result = {}
@@ -166,7 +166,11 @@ export default {
       $('.ui.search').search(
         {
           apiSettings: {
-              url: 'https://stage.omnibuilds.com/designquery/?q={query}'
+              url: 'https://stage.omnibuilds.com/designquery/?q={query}',
+              beforeXHR: function(xhr) {
+                xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                return xhr;
+              }
             },
           fields: {
             title: 'name'

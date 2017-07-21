@@ -56,9 +56,9 @@
         </div>
       </div>
       <div class="actions">
-        <button type="button" class="ui small green button" @click='hideDeleteModal'>Close</button>
+        <button type="button" class="ui small basic blue button" @click='hideDeleteModal'>Close</button>
         <button
-          class="ui red small button"
+          class="ui red basic small button"
           @click='deleteRev'
           data-dismiss="modal"
         >
@@ -73,7 +73,7 @@
 <script>
 import { mapGetters } from 'vuex'
 export default {
-  name: 'home',
+  name: 'revs',
   data () {
     return {
       deadRevName: '',

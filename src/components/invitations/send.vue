@@ -50,13 +50,13 @@
             </div>
           </transition-group>
           <br>
-          <input type='button' id='addAnother' value='Add Another' class='ui small button' @click.prevent='addInvite'>
+          <input type='button' id='addAnother' value='Add Another' class='ui small basic blue button' @click.prevent='addInvite'>
           &nbsp;
           <input
             type='submit'
             value='Send Invites'
             id='sendInvites'
-            class='ui small button'
+            class='ui small basic blue button'
             @click.prevent='submitInvites'
             :disabled='valid_invites.length === 0 || invalid_invites.length > 0'>
 
@@ -82,7 +82,7 @@
             <p>
           </div>
           <div class="actions">
-            <button type="button" class="ui small button" @click='toggleSuccessModal'>Close</button>
+            <button type="button" class="ui small basic bluebutton" @click='toggleSuccessModal'>Close</button>
           </div>
         </div>
 
@@ -114,7 +114,7 @@
             <p>
           </div>
           <div class="actions">
-            <button type="button" class="ui small button" @click='toggleFailureModal'>Close</button>
+            <button type="button" class="ui small basic blue button" @click='toggleFailureModal'>Close</button>
           </div>
         </div>
       </div>

@@ -26,17 +26,17 @@ import Accepted from './components/invitations/accepted.vue'
 import Pending from './components/invitations/pending.vue'
 import Design from './components/designs/design.vue'
 import Home from './components/designs/home.vue'
-import NewSpecs from './components/designs/newspecs.vue'
+import Specs from './components/designs/specs.vue'
 import Parts from './components/designs/parts.vue'
 import Files from './components/designs/files.vue'
 import Docs from './components/designs/docs.vue'
 import Settings from './components/designs/settings/settings.vue'
 import Basic from './components/designs/settings/basic.vue'
 import Collaborators from './components/designs/settings/collaborators.vue'
-import Specs from './components/designs/settings/specs.vue'
 import Advanced from './components/designs/settings/advanced.vue'
 import Configs from './components/designs/settings/configs.vue'
 import Revs from './components/designs/settings/revs.vue'
+import Changes from './components/designs/settings/changes.vue'
 import CreateDesign from './components/designs/CreateDesign.vue'
 
 let DesignChildren =
@@ -50,7 +50,7 @@ let DesignChildren =
   {
     path: 'specs',
     components: {
-      designContent: NewSpecs
+      designContent: Specs
     }
   },
   {
@@ -99,6 +99,12 @@ let DesignChildren =
         path: 'revs',
         components: {
           settingsContent: Revs
+        }
+      },
+      {
+        path: 'changes',
+        components: {
+          settingsContent: Changes
         }
       },
       {
@@ -220,6 +226,7 @@ export const routes = [
   },
   {
     path: '/:profile_slug/:design_slug/:change_slug',
+    redirect: '/:profile_slug/:design_slug/:change_slug/parts',
     name: 'ChangeFullRoute',
     component: Design,
     meta: { requiresAuth: true },
@@ -227,15 +234,15 @@ export const routes = [
   },
   {
     path: '/:profile_slug/:design_slug',
-    redirect: '/:profile_slug/:design_slug/primary/latest/specs'
+    redirect: '/:profile_slug/:design_slug/primary/latest/parts'
   },
   {
     path: '/:profile_slug/:design_slug/:config_slug',
-    redirect: '/:profile_slug/:design_slug/:config_slug/latest/specs'
+    redirect: '/:profile_slug/:design_slug/:config_slug/latest/parts'
   },
   {
     path: '/:profile_slug/:design_slug/:config_slug/:rev_slug',
-    redirect: '/:profile_slug/:design_slug/:config_slug/:rev_slug/specs'
+    redirect: '/:profile_slug/:design_slug/:config_slug/:rev_slug/parts'
   },
   {
     path: '/:profile_slug/:design_slug/:config_slug/:rev_slug?',

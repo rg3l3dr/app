@@ -68,7 +68,7 @@ export default {
     },
     viewResult: function(index) {
       let result = this.results[index]
-      let path = '/' + result.creator + '/' + result.slug + '/primary/latest/specs'
+      let path = '/' + result.creator + '/' + result.slug + '/primary/latest/'
       this.$router.push(path)
     }
   },

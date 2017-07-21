@@ -11,7 +11,7 @@
       <h2>Delete Design Project</h2>
       <h4>If you delete this project, you will lose all data and files associated with it.  This action cannot be undone.</h4>
       <br>
-      <button class="ui red button" @click='showDeleteModal'>Delete Design</button>
+      <button class="ui small red basic button" @click='showDeleteModal'>Delete Design</button>
     </div>
     <div class='ui modal' id='deleteModal'>
       <div class="header">
@@ -30,8 +30,8 @@
         </div>
       </div>
       <div class="actions">
-        <button type="button" class="ui small green button" @click.prevent='hideDeleteModal'>Close</button>
-        <button class="ui red small button" @click='deleteDesign'>Delete Design</button>
+        <button type="button" class="ui small blue basic button" @click.prevent='hideDeleteModal'>Close</button>
+        <button class="ui red small basic button" @click='deleteDesign'>Delete Design</button>
       </div>
     </div>
   </div>

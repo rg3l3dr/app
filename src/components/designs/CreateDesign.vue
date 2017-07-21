@@ -63,7 +63,7 @@
                   > {{description.error}}
                 </div>
               </div> -->
-              <button class='ui button primary' @click='submit'>Create Design</button>
+              <button class='ui basic blue button' @click='submit'>Create Design</button>
             </div>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default {
         error: ''
       },
       visibility: 'private',
-      license: null,
+      license: 1,
       selectedLicense: null,
       licenses: [],
       description: {
@@ -163,7 +163,7 @@ export default {
                 this.name.error = response.body.non_field_errors[0]
               } else {
                 console.log('New design created')
-                this.$router.push({ path: '/' + this.session.username + '/' + this.name_slug + '/primary/latest/specs' })
+                this.$router.push({ path: '/' + this.session.username + '/' + this.name_slug + '/primary/latest/parts' })
               }
             }, response => {
               console.log('Error creating new design')

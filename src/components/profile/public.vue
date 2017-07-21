@@ -135,7 +135,7 @@
         <h4 v-else-if='errors.profile.updated===false' style='color:#b94a48;'>
           Unable to update profile, please correct the noted fields
         </h4>
-        <button class='ui button ' id='update_profile_btn' @click.prevent='updateProfile'>
+        <button class='ui small basic blue button' id='update_profile_btn' @click.prevent='updateProfile'>
       Update Profile
         </button>
       </form>

@@ -4,284 +4,304 @@
     <div class="ui top attached grey header">
       DESIGN FILES &#8212; Upload any CAD files, renderings, or drawings and retain the full version history
     </div>
-    <div class="ui bottom attached segment" v-if='!selectedFile'>
-      <div v-if='files.data && files.data.length > 0'>
-        <table class="ui striped selectable table" id='files-table' >
-          <thead>
-            <tr>
-              <th>File Name</th>
-              <th>Last Change</th>
-              <th>Size</th>
-              <th>Versions</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tfoot>
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-          </tfoot>
-          <tbody name='fade' is='transition-group'>
-            <tr v-for='(file, index) in this.files.data' :key='file'>
+    <transition name='fade'>
+      <div class="ui bottom attached segment" v-if='!selectedFile'>
+        <!-- <transition name='fade'> -->
+          <div v-if='files.data && files.data.length > 0'>
+            <table class="ui striped selectable table" id='files-table'>
+              <thead>
+                <tr>
+                  <th>File Name</th>
+                  <th>Last Change</th>
+                  <th>Size</th>
+                  <th>Versions</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tfoot>
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tfoot>
+              <tbody name='fade' is='transition-group'>
+                <tr v-for='(file, index) in this.files.data' :key='file'>
 
-              <td id='file-name'>
-                <a href='#' @click='getFileFromS3(index)'>
-                  {{ file.name }}
-                </a>
-              </td>
+                  <td id='file-name'>
+                    <a href='#' @click='getFileFromS3(index)'>
+                      {{ file.name }}
+                    </a>
+                  </td>
 
-              <td id='file-last-change'>
+                  <td id='file-last-change'>
 
-                <router-link
-                  v-if='file.uploaded'
-                  :to='"/" + file.versions[file.versions.length - 1].editor_slug'
-                  tag='a'
-                >
-                  {{ file.versions[file.versions.length - 1].editor_slug }}
-                </router-link>
-
-                <span>
-                  {{ file.versions[file.versions.length - 1].message }}
-                  <span v-if='file.versions[file.versions.length - 1].message == "Uploading"'>
-                    &nbsp &nbsp
-                    <i class="fa fa-spinner fa-pulse"></i>
-                    <span class="sr-only">Loading...</span>
-                  </span>
-                </span>
-
-                <span v-if='file.uploaded'>
-                  {{ file.versions[file.versions.length - 1].updated_at | moment("from", "now") }}
-                </span>
-
-              </td>
-
-              <td id='file-size'>
-                {{ formatBytes(file.versions[file.versions.length - 1].size, 0) }}
-              </td>
-
-              <td id='file-versions'>
-                <router-link to='' tag='a' @click.native='showVersions(index)'>
-                  <span v-if='file.versions'>
-                    {{ file.versions.length }}
-                  </span>
-                  <span v-else>
-                    1
-                  </span>
-                </router-link>
-              </td>
-
-              <td id='file-menu'>
-                <div class="ui icon top left pointing mini basic dropdown button options">
-                  <i class="caret down icon"></i>
-                  <div class="menu">
-                    <div class="item">File Options</div>
-                    <div class="item" @click='getFileFromS3(index)'>
-                      <i class="download icon"></i>
-                      Download File
-                    </div>
-                    <div
-                      v-if='$route.params.rev_slug == "latest"'
-                      class="item"
-                      @click='selectFilesForUpload'
+                    <router-link
+                      v-if='file.uploaded'
+                      :to='"/" + file.versions[file.versions.length - 1].editor_slug'
+                      tag='a'
                     >
-                      <i class="upload icon"></i>
-                      Upload New Version
+                      {{ file.versions[file.versions.length - 1].editor_slug }}
+                    </router-link>
+
+                    <span>
+                      {{ file.versions[file.versions.length - 1].message }}
+                      <span v-if='file.versions[file.versions.length - 1].message == "Uploading"'>
+                        &nbsp &nbsp
+                        <i class="fa fa-spinner fa-pulse"></i>
+                        <span class="sr-only">Loading...</span>
+                      </span>
+                    </span>
+
+                    <span v-if='file.uploaded'>
+                      {{ file.versions[file.versions.length - 1].updated_at | moment("from", "now") }}
+                    </span>
+
+                  </td>
+
+                  <td id='file-size'>
+                    {{ formatBytes(file.versions[file.versions.length - 1].size, 0) }}
+                  </td>
+
+                  <td id='file-versions'>
+                    <router-link to='' tag='a' @click.native='showVersions(index)'>
+                      <span v-if='file.versions'>
+                        {{ file.versions.length }}
+                      </span>
+                      <span v-else>
+                        1
+                      </span>
+                    </router-link>
+                  </td>
+
+                  <td id='file-menu'>
+                    <div class="ui icon top left pointing mini basic dropdown button options">
+                      <i class="caret down icon"></i>
+                      <div class="menu">
+                        <div class="item">File Options</div>
+                        <div class="item" @click='getFileFromS3(index)'>
+                          <i class="download icon"></i>
+                          Download File
+                        </div>
+                        <div
+                          v-if='$route.params.rev_slug == "latest"'
+                          class="item"
+                          @click='selectFilesForUpload'
+                        >
+                          <i class="upload icon"></i>
+                          Upload New Version
+                        </div>
+                        <div class="item" @click='showVersions(index)'>
+                          <i class="history icon"></i>
+                          See Version History
+                        </div>
+                        <div
+                          v-if='$route.params.rev_slug == "latest"'
+                          class="item"
+                          @click='deleteFileAndFileRecord(index)'
+                        >
+                          <i class="trash icon"></i>
+                          Delete File
+                        </div>
+                      </div>
                     </div>
-                    <div class="item" @click='showVersions(index)'>
-                      <i class="history icon"></i>
-                      See Version History
-                    </div>
-                    <div
-                      v-if='$route.params.rev_slug == "latest"'
-                      class="item"
-                      @click='deleteFileAndFileRecord(index)'
-                    >
-                      <i class="trash icon"></i>
-                      Delete File
-                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="ui success message" v-if='status.ready'>
+              <i class="close icon"></i>
+              <div class="header">
+                File Upload Complete
+              </div>
+              <ul class="list">
+                <li v-if='status.new == 1'> {{ status.new }} new file has been uploaded </li>
+                <li v-if='status.new > 1'> {{ status.new }} new files have been uploaded </li>
+                <li v-if='status.updated == 1'> {{ status.updated }} existing file has been updated to a new version </li>
+                <li v-if='status.updated > 1'> {{ status.updated }} existing files have been updated to a new version </li>
+                <li v-if='status.empty == 1'> {{ status.empty }} file has not changed and was not updated </li>
+                <li v-if='status.empty > 1'> {{ status.empty }} files have not changed and were not updated </li>
+              </ul>
+
+            </div>
+            <br>
+            <button
+              v-if='$route.params.rev_slug == "latest"'
+              class="ui small basic blue button"
+              @click='selectFilesForUpload'
+              id='upload-file-button'
+            >
+              Upload New Files or Versions
+            </button>
+          </div>
+          <div class="row" v-else-if="$route.params.rev_slug=='latest'">
+            <div class="six wide column"></div>
+            <div class="four wide column" style='text-align:center' @click='selectFilesForUpload'>
+              <br>
+              <h2 class="ui icon header" >
+                <i class="fa-files-o icon"></i>
+                <br>
+                <div class="content">
+                  Click here to add files
+                  <div class="sub header">
+                    <br>
+                    You have not added any files yet
                   </div>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="ui success message" v-if='status.ready'>
-          <i class="close icon"></i>
-          <div class="header">
-            File Upload Complete
+              </h2>
+            </div>
+            <div class="six wide column"></div>
           </div>
-          <ul class="list">
-            <li v-if='status.new == 1'> {{ status.new }} new file has been uploaded </li>
-            <li v-if='status.new > 1'> {{ status.new }} new files have been uploaded </li>
-            <li v-if='status.updated == 1'> {{ status.updated }} existing file has been updated to a new version </li>
-            <li v-if='status.updated > 1'> {{ status.updated }} existing files have been updated to a new version </li>
-            <li v-if='status.empty == 1'> {{ status.empty }} file has not changed and was not updated </li>
-            <li v-if='status.empty > 1'> {{ status.empty }} files have not changed and were not updated </li>
-          </ul>
+          <div class="row" v-else>
+            <div class="six wide column"></div>
+            <div class="four wide column" style='text-align:center' @click='selectFilesForUpload'>
+              <br>
+              <h2 class="ui icon header" >
+                <i class="fa-files-o icon"></i>
+                <br>
+                <div class="content">
+                  Change rev back to latest to add files
+                  <div class="sub header">
+                    <br>
+                    You have not added any files yet
+                    <br>
+                    Your project is read only when rev is not latest
+                  </div>
+                </div>
+              </h2>
+            </div>
+            <div class="six wide column"></div>
+          </div>
+        <!-- </transition> -->
 
-        </div>
+        <br> <br>
+
+        <input
+          type="file"
+          multiple
+          id='upload-file-input'
+          style="display:none"
+          @change='uploadFiles($event)'
+        >
+
+      </div>
+      <div class="ui bottom attached segment" v-else>
+        <a href="#" @click='selectedFile = null'> Return to Files List</a>
+        <table class="ui striped selectable table" id='versions-table' >
+            <thead>
+              <tr>
+                <th>File Name</th>
+                <th>Last Update</th>
+                <th>Change</th>
+                <th>Size</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <td></td>
+                <td></td>
+                <td>Total Size</td>
+                <td> {{ this.total_size }} </td>
+                <td></td>
+              </tr>
+            </tfoot>
+            <tbody>
+              <tr v-for='(version, index) in selectedFile.versions'>
+
+                <td id='version-name'>
+                  <a href='#' @click='getVersionFromS3(index)'>
+                    {{ selectedFile.name }}
+                  </a>
+                </td>
+
+                <td id='version-last-update'>
+
+                  <router-link
+                    :to='"/" + version.editor_slug'
+                    tag='a'
+                  >
+                    {{ version.editor_slug }}
+                  </router-link>
+
+                  <span>
+                    {{ version.message }}
+                  </span>
+
+                  <span>
+                    {{ version.updated_at | moment("from", "now") }}
+                  </span>
+
+                </td>
+
+
+
+                <td id='version-change'>
+                  {{ version.change_message }}
+                </td>
+
+                <td id='version-size'>
+                  {{ formatBytes(version.size, 0) }}
+                </td>
+
+                <td id='version-menu'>
+                  <div class="ui icon top left pointing mini basic dropdown button versions">
+                    <i class="caret down icon"></i>
+                    <div class="menu">
+                      <div class="item">Version Options</div>
+                      <div class="item" @click='getVersionFromS3(index)'>
+                        <i class="download icon"></i>
+                        Download Version
+                      </div>
+                      <div
+                        class="item"
+                        @click='selectFilesForUpload'
+                        v-if='$route.params.rev_slug == "latest"'
+                      >
+                        <i class="upload icon"></i>
+                        Upload New Version
+                      </div>
+                      <div
+                        v-if='$route.params.rev_slug == "latest"'
+                        class="item"
+                        @click='deleteVersionAndVersionRecord(index)'
+                      >
+                        <i class="trash icon"></i>
+                        Delete Version
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
         <br>
+
         <button
           v-if='$route.params.rev_slug == "latest"'
-          class="ui small primary button"
+          class="ui small basic blue button"
           @click='selectFilesForUpload'
           id='upload-file-button'
         >
           Upload New Files or Versions
         </button>
+
+        <br> <br>
+
+        <input
+          type="file"
+          multiple
+          id='upload-file-input'
+          style="display:none"
+          @change='uploadFiles($event)'
+        >
+
       </div>
+    </transition>
 
-      <div class="row" v-else>
-        <div class="six wide column"></div>
-        <div class="four wide column" style='text-align:center' @click='selectFilesForUpload'>
-          <br>
-          <h2 class="ui icon header" >
-            <i class="fa-files-o icon"></i>
-            <br>
-            <div class="content">
-              Click here to add files
-              <div class="sub header">
-                <br>
-                You have not added any files yet
-                <span v-if='$route.params.rev_slug!="latest"'>
-                  <br>
-                  Switch rev back to latest to exit read-only mode
-                </span>
-              </div>
-            </div>
-          </h2>
-        </div>
-        <div class="six wide column"></div>
-      </div>
-
-      <br> <br>
-
-      <input
-        type="file"
-        multiple
-        id='upload-file-input'
-        style="display:none"
-        @change='uploadFiles($event)'
-      >
-
-    </div>
-    <div class="ui bottom attached segment" v-if='selectedFile'>
-      <a href="#" @click='selectedFile = null'> Return to Files List</a>
-      <table class="ui striped selectable table" id='versions-table' >
-          <thead>
-            <tr>
-              <th>File Name</th>
-              <th>Last Update</th>
-              <th>Change</th>
-              <th>Size</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tfoot>
-            <tr>
-              <td></td>
-              <td></td>
-              <td>Total Size</td>
-              <td> {{ this.total_size }} </td>
-              <td></td>
-            </tr>
-          </tfoot>
-          <tbody>
-            <tr v-for='(version, index) in selectedFile.versions'>
-
-              <td id='version-name'>
-                <a href='#' @click='getVersionFromS3(index)'>
-                  {{ selectedFile.name }}
-                </a>
-              </td>
-
-              <td id='version-last-update'>
-
-                <router-link
-                  :to='"/" + version.editor_slug'
-                  tag='a'
-                >
-                  {{ version.editor_slug }}
-                </router-link>
-
-                <span>
-                  {{ version.message }}
-                </span>
-
-                <span>
-                  {{ version.updated_at | moment("from", "now") }}
-                </span>
-
-              </td>
-
-
-
-              <td id='version-change'>
-                {{ version.change_message }}
-              </td>
-
-              <td id='version-size'>
-                {{ formatBytes(version.size, 0) }}
-              </td>
-
-              <td id='version-menu'>
-                <div class="ui icon top left pointing mini basic dropdown button versions">
-                  <i class="caret down icon"></i>
-                  <div class="menu">
-                    <div class="item">Version Options</div>
-                    <div class="item" @click='getVersionFromS3(index)'>
-                      <i class="download icon"></i>
-                      Download Version
-                    </div>
-                    <div
-                      class="item"
-                      @click='selectFilesForUpload'
-                      v-if='$route.params.rev_slug == "latest"'
-                    >
-                      <i class="upload icon"></i>
-                      Upload New Version
-                    </div>
-                    <div
-                      v-if='$route.params.rev_slug == "latest"'
-                      class="item"
-                      @click='deleteVersionAndVersionRecord(index)'
-                    >
-                      <i class="trash icon"></i>
-                      Delete Version
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-      <br>
-
-      <button
-        v-if='$route.params.rev_slug == "latest"'
-        class="ui small primary button"
-        @click='selectFilesForUpload'
-        id='upload-file-button'
-      >
-        Upload New Files or Versions
-      </button>
-
-      <br> <br>
-
-      <input
-        type="file"
-        multiple
-        id='upload-file-input'
-        style="display:none"
-        @change='uploadFiles($event)'
-      >
-
-    </div>
   </div>
 </template>
 

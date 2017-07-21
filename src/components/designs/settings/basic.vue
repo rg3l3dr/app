@@ -69,7 +69,7 @@
             <option value='3'>Public</option>
           </select>
         </div> -->
-        <button class='ui button' @click='submit'>
+        <button class='ui small basic blue button' @click='submit'>
           Update Design
         </button>
       </div>
@@ -114,6 +114,11 @@ export default {
       return this.design.name.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
     }
   },
+  watch: {
+    design() {
+      this.setLicense()
+    }
+  },
   methods: {
     getLicenses() {
       return new Promise((resolve, reject) => {
@@ -127,6 +132,32 @@ export default {
           console.log(error)
           reject()
         })
+      })
+    },
+    setLicense() {
+      console.log('Filtering through licenses for design license')
+
+      let selectedLicense = this.licenses.filter(license => {
+        return license.id == this.design.license
+      })[0]
+
+      console.log(selectedLicense)
+
+      $('.ui.dropdown.license').dropdown({'silent': true})
+      $('.license').dropdown('set text', selectedLicense.long_name)
+      $('.license').dropdown('set selected', selectedLicense.id)
+
+      this.$nextTick(() => {
+        $('.ui.dropdown.license').dropdown(
+          {
+            'silent': true,
+            onChange(value, text, $choice) {
+              console.log('Value is:')
+              console.log(value)
+              this.license = value
+            }
+          }
+        )
       })
     },
     submit() {
@@ -201,36 +232,40 @@ export default {
       console.log('Error getting licenses at created')
     })
   },
-  mounted() {
+  mounted: async function() {
     $('.ui.dropdown.visibility').dropdown({'silent': true})
     $('.visibility').dropdown('set text', 'Private')
     $('.visibility').dropdown('set selected', 1)
 
     let vue = this
     EventBus.$once('got-licenses', function() {
-      console.log('Filtering through licenses for design license')
-
-      let selectedLicense = vue.licenses.filter(license => {
-        return license.id == vue.design.license
-      })[0]
-
-      $('.ui.dropdown.license').dropdown({'silent': true})
-      $('.license').dropdown('set text', selectedLicense.long_name)
-      $('.license').dropdown('set selected', selectedLicense.id)
-
-      this.$nextTick(() => {
-        let vue = this
-        $('.ui.dropdown.license').dropdown(
-          {
-            'silent': true,
-            onChange(value, text, $choice) {
-              console.log('Value is:')
-              console.log(value)
-              vue.license = value
-            }
-          }
-        )
-      })
+      // console.log('Filtering through licenses for design license')
+      //
+      // let selectedLicense = vue.licenses.filter(license => {
+      //   console.log(license.id)
+      //   console.log(vue.design.license)
+      //   return license.id == vue.design.license
+      // })[0]
+      //
+      // console.log(selectedLicense)
+      //
+      // $('.ui.dropdown.license').dropdown({'silent': true})
+      // $('.license').dropdown('set text', selectedLicense.long_name)
+      // $('.license').dropdown('set selected', selectedLicense.id)
+      //
+      // this.$nextTick(() => {
+      //   let vue = this
+      //   $('.ui.dropdown.license').dropdown(
+      //     {
+      //       'silent': true,
+      //       onChange(value, text, $choice) {
+      //         console.log('Value is:')
+      //         console.log(value)
+      //         vue.license = value
+      //       }
+      //     }
+      //   )
+      // })
     })
   }
 }
