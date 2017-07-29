@@ -8,7 +8,7 @@
           <h3>
             Please confirm that <a href="mailto:email">{{ email }}</a> is an email for user {{user}}.
           </h3>
-          <button class='ui button' @click="goToSignup">Confirm Signup</button>
+          <button class='ui blue basic button' @click="goToSignup">Confirm Signup</button>
           </div>
         </div>
       </div>
@@ -32,6 +32,7 @@ function getParameterByName(name, url) {
 
 let email = getParameterByName('email'); // "lorem"
 let user = getParameterByName('user'); // "lorem"
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'ConfirmSignup',
@@ -41,8 +42,14 @@ export default {
       user: user
     }
   },
+  computed: {
+    ...mapGetters([
+      'session'
+    ])
+  },
   methods: {
     goToSignup: function() {
+      this.$store.commit('signUp')
       this.$router.push({ path: '/accounts/login' })
     }
   }

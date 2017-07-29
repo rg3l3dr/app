@@ -36,8 +36,37 @@ import Collaborators from './components/designs/settings/collaborators.vue'
 import Advanced from './components/designs/settings/advanced.vue'
 import Configs from './components/designs/settings/configs.vue'
 import Revs from './components/designs/settings/revs.vue'
-import Changes from './components/designs/settings/changes.vue'
+import Builds from './components/designs/settings/builds.vue'
 import CreateDesign from './components/designs/CreateDesign.vue'
+
+let config_names = [
+  'alpha',
+  'beta',
+  'charlie',
+  'delta',
+  'echo',
+  'fox',
+  'golf',
+  'hotel',
+  'india',
+  'juliet',
+  'kilo',
+  'lima',
+  'mike',
+  'oscar',
+  'november',
+  'papa',
+  'quebec',
+  'romeo',
+  'sierra',
+  'tango',
+  'uniform',
+  'victor',
+  'whiskey',
+  'x-ray',
+  'yankee',
+  'zulu'
+]
 
 let DesignChildren =
 [
@@ -96,15 +125,15 @@ let DesignChildren =
         }
       },
       {
-        path: 'revs',
+        path: 'builds',
         components: {
-          settingsContent: Revs
+          settingsContent: Builds
         }
       },
       {
-        path: 'changes',
+        path: 'revs',
         components: {
-          settingsContent: Changes
+          settingsContent: Revs
         }
       },
       {
@@ -225,32 +254,40 @@ export const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/:profile_slug/:design_slug/:change_slug',
-    redirect: '/:profile_slug/:design_slug/:change_slug/parts',
-    name: 'ChangeFullRoute',
+    path: '/:profile_slug/:design_slug/:build_slug',
+    // redirect: '/:profile_slug/:design_slug/:build_slug/parts',
+    redirect: to => {
+      const { hash, params, query } = to
+      if (config_names.includes(params.build_slug)) {
+        // on a config
+        params.config_slug = params.build_slug
+        return '/:profile_slug/:design_slug/:config_slug/latest/parts'
+      } else {
+        // on a build
+        return '/:profile_slug/:design_slug/:build_slug/parts'
+      }
+    },
+    name: 'BuildFullRoute',
     component: Design,
     meta: { requiresAuth: true },
     children: DesignChildren
   },
   {
     path: '/:profile_slug/:design_slug',
-    redirect: '/:profile_slug/:design_slug/primary/latest/parts'
-  },
-  {
-    path: '/:profile_slug/:design_slug/:config_slug',
-    redirect: '/:profile_slug/:design_slug/:config_slug/latest/parts'
+    redirect: '/:profile_slug/:design_slug/alpha/latest/parts'
   },
   {
     path: '/:profile_slug/:design_slug/:config_slug/:rev_slug',
     redirect: '/:profile_slug/:design_slug/:config_slug/:rev_slug/parts'
   },
   {
-    path: '/:profile_slug/:design_slug/:config_slug/:rev_slug?',
+    path: '/:profile_slug/:design_slug/:config_slug/:rev_slug',
     name: 'DesignFullRoute',
     component: Design,
     meta: { requiresAuth: true },
     children: DesignChildren
   },
+
 
   { path: "*", component: home }
 ]

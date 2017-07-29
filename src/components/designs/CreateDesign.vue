@@ -132,7 +132,7 @@ export default {
         this.name.error = 'You must enter a design name'
       } else {
         // regex check for legal project name
-        let test = /^[A-Za-z0-9-_ ]{1,50}$/.test(this.name.data)
+        let test = /^[A-Za-z0-9-_/\,;:'" ]{1,50}$/.test(this.name.data)
         if (test) {
           console.log('Name matches regex')
           // check if this design name is already in use by this user
@@ -145,11 +145,11 @@ export default {
 
             let payload = {
               name: this.name.data,
-              description: this.description.data,
               active: true,
               creator: this.profile.id,
-              project: true,
-              license: this.license
+              license: this.license,
+              design_class: 1,
+              cost: 0.00
             }
 
             console.log('payload is')
@@ -163,7 +163,7 @@ export default {
                 this.name.error = response.body.non_field_errors[0]
               } else {
                 console.log('New design created')
-                this.$router.push({ path: '/' + this.session.username + '/' + this.name_slug + '/primary/latest/parts' })
+                this.$router.push({ path: '/' + this.session.username + '/' + this.name_slug + '/alpha/latest/parts' })
               }
             }, response => {
               console.log('Error creating new design')

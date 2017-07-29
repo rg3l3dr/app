@@ -420,7 +420,12 @@
               Click here to add technical specs
               <div class="sub header">
                 <br>
-                You have not added any specs yet<br>
+                <a href="http://help.omnibuilds.com#specs-describe-designs" style='font-size:18px'>
+                  How do specs work?
+                </a>
+                <br>
+                <br>
+                <br>
               </div>
             </div>
           </h2>
@@ -543,6 +548,7 @@ export default {
       return new Promise((resolve, reject) => {
         let payload = {
           id: this.design.specs.id,
+          config_slug: this.designRefs.config,
           ref: this.designRefs.ref,
           ref_type: this.designRefs.ref_type
         }
@@ -555,15 +561,29 @@ export default {
     },
     dispatchUpdateSpecs() {
       return new Promise((resolve, reject) => {
+
+        let action = 'Updated specs'
+        let message = null
+
         let payload = {
-          params: this.specs.id + '/?ref=' + this.$route.params.config_slug,
+          params: this.specs.id + '/?ref=' +
+                  this.$route.params.config_slug +
+                  '&action=' + action +
+                  '&message=' + message,
           data: {
             editor: this.profile.id,
             data: this.specs.data
           }
         }
+        console.log(this.specs.data)
         this.$store.dispatch('updateSpecs', payload).then(success => {
           // this.$router.push( this.designRefs.design_path + '/specs')
+          let design_payload = { design_slug: this.$route.params.design_slug }
+          this.$store.dispatch('getDesign', design_payload).then(success => {
+            console.log('Got updated Design after adding updating Specs')
+          }, error => {
+            console.log('Error getting updating design after adding part to Specs')
+          })
           this.setDropDowns()
           this.specsUpdated = true
           console.log('Reloaded the page')
@@ -765,7 +785,7 @@ export default {
     },
   },
   created() {
-    if (this.design.specs) {
+    if (this.designRefs.ref) {
       console.log('NewSpecs.vue created, design data already loaded, getting specs')
       this.awaitDropDowns()
     } else {

@@ -11,34 +11,76 @@
       <table class="ui table">
         <thead>
           <th>Name</th>
-          <th>Owner</th>
+          <th>Creator</th>
           <th>Created</th>
+          <th>Builds</th>
           <th>Revs</th>
-          <th>Changes</th>
           <th></th>
         </thead>
         <tbody name='fade' is='transition-group'>
           <tr v-for='config in this.design.config_set' :key='config'>
-            <td>{{ config.name }}</td>
-            <td> {{config.owner}} </td>
-            <td>{{ config.created_at | moment("MMMM Do YYYY") }}</td>
-            <td>{{ config.rev_set.length }}</td>
-            <td>{{ config.change_set.length }}</td>
-            <td>
-              <span v-if='$route.params.config_slug=="primary" && $route.params.rev_slug=="latest"'>
-                <button
-                  class="ui red circular basic icon button"
-                  @click='deleteModal(config)'
-                  v-if='config.name != "Primary"'
-                >
-                  <i class="remove icon"></i>
-                </button>
+            <td id='config-name'>
+              <a href="" @click='viewConfig(config)'>
+                {{ config.name.name }}
+              </a>
+            </td>
+            <td id='config-owner'>
+              <a href="" @click='viewProfile(config)'>
+                {{config.owner}}
+              </a>
+            </td>
+            <td id='config-created-at'>{{ config.created_at | moment("MMMM Do YYYY") }}</td>
+            <td id='config-builds'>
+              <span v-if='(config.build_set.length - 1) == 0'>
+                {{ config.build_set.length - 1 }}
               </span>
-
+              <span v-else>
+                <a href="" @click='viewBuilds(config)'>
+                  {{ config.build_set.length - 1 }}
+                </a>
+              </span>
+            </td>
+            <td id='config-revs'>
+              <a href="" @click='viewRevs(config)'>
+                {{ config.rev_set.length }}
+              </a>
+            </td>
+            <td id='config-options'>
+              <div class="ui icon top left pointing mini basic dropdown button part">
+                <i class="caret down icon"></i>
+                <div class="menu">
+                  <div class="item">Config Options</div>
+                  <div
+                    class="item"
+                    @click='viewConfig(config)'
+                  >
+                    <i class="fork icon"></i>
+                    View Config
+                  </div>
+                  <div
+                    v-if='$route.params.rev_slug == "latest" && config.name.name != "Alpha" && $route.params.config_slug=="alpha"'
+                    class="item"
+                    @click='deleteModal(config)'
+                  >
+                    <i class="trash icon"></i>
+                    Delete Config
+                  </div>
+                </div>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
+      <br>
+      <button class="ui small basic blue button" @click='createConfig'>
+        Create a new config
+      </button>
+      <div style='text-align:center'>
+        <br>
+        <a href="http://help.omnibuilds.com#configurations-configs" style='font-size:17px'>
+          What is a config?
+        </a>
+      </div>
     </div>
     <div class='ui modal' id='deleteModal'>
       <div class="header">
@@ -83,16 +125,55 @@ export default {
       'designRefs'
     ])
   },
+  watch: {
+    $route() {
+      this.$nextTick(() => {
+        $('.ui.dropdown').dropdown({ 'silent': true })
+      })
+    }
+  },
   methods: {
+    viewConfig(config) {
+      this.$router.push(`/${config.owner}/${this.design.slug}/${config.slug}/latest`, onComplete => { this.$store.commit('setDesignRefs')}, onAbort => {})
+    },
+    viewProfile(config) {
+      this.$router.push(`/${config.owner}`, onComplete => { this.$store.commit('setDesignRefs')}, onAbort => {})
+    },
+    viewBuilds(config) {
+      this.$router.push(`/${config.owner}/${this.design.slug}/${config.slug}/latest/settings/builds`, onComplete => { this.$store.commit('setDesignRefs')}, onAbort => {})
+    },
+    viewRevs(config) {
+      this.$router.push(`/${config.owner}/${this.design.slug}/${config.slug}/latest/settings/revs`, onComplete => { this.$store.commit('setDesignRefs')}, onAbort => {})
+    },
+    createConfig: function() {
+      // set payload and create new config
+      let payload = {
+        design: this.design.id,
+        owner: this.profile.id,
+        name: 1
+      }
+      this.$http.post('configs/', payload ).then(success => {
+        console.log('New config created')
+        console.log(success)
+        let design_payload = { design_slug: this.design.slug }
+        this.$store.dispatch('getDesign', design_payload).then(success => {
+          $('.ui.dropdown').dropdown({ 'silent': true })
+        }, error => {})
+      }, error => {
+        console.log('Error creating new config')
+        console.log(error)
+      })
+    },
     showDeleteModal: function() {
       $('#deleteModal').modal('show')
     },
     hideDeleteModal: function() {
+      $('#deleteModal').modal('hide')
       $('#deleteModal').modal('hide all')
     },
     deleteModal: function(config) {
 
-      this.deadConfigName = config.name
+      this.deadConfigName = config.name.name
       this.deadConfigID = config.id
       this.showDeleteModal()
     },
@@ -105,8 +186,8 @@ export default {
         this.hideDeleteModal()
         console.log(response)
 
-        $('#configs').dropdown('set text', 'Primary')
-        $('#configs').dropdown('set selected', 'Primary')
+        $('#configs').dropdown('set text', 'Alpha')
+        $('#configs').dropdown('set selected', 'Alpha')
 
         $('#revs').dropdown('set text', 'Latest')
         $('#revs').dropdown('set selected', 'Latest')
@@ -117,12 +198,12 @@ export default {
         //   change: null
         // }
         // this.$store.commit('setRefs', refs_payload)
-        this.$route.params.config_slug = 'primary'
+        this.$route.params.config_slug = 'alpha'
         this.$route.params.rev_slug = 'latest'
-        this.$route.params.change_slug = null
+        this.$route.params.build_slug = null
         let design_payload = { design_slug: this.$route.params.design_slug }
         this.$store.dispatch('getDesign', design_payload).then(success => {
-          this.$router.push(this.designRefs.path + '/settings/configs')
+          $('.ui.dropdown').dropdown({ 'silent': true })
         }, error => {
 
         })
@@ -136,7 +217,7 @@ export default {
 
   },
   mounted: function() {
-
+    $('.ui.dropdown').dropdown({ 'silent': true })
   }
 }
 </script>

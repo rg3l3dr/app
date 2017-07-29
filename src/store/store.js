@@ -7,11 +7,6 @@ import VueRouter from 'vue-router'
 import createPersistedState from 'vuex-persistedstate'
 import { EventBus } from '../event-bus.js'
 
-// import counter from './modules/counter';
-// import actions from './actions';
-// import getters from './getters';
-// import mutations from './mutations';
-
 Vue.use(Vuex)
 Vue.use(VueResource)
 Vue.use(VueRouter)
@@ -21,6 +16,7 @@ export const store = new Vuex.Store({
   state: {
     session: {
       active: false,
+      signed_up: false,
       token: null,
       username: null,
       user_id: null,
@@ -73,8 +69,12 @@ export const store = new Vuex.Store({
     // }
   },
   mutations: {
+    signUp (state) {
+      state.session.signed_up = true
+    },
     startSession (state, payload) {
       state.session.active = true
+      state.session.signed_up = false
       state.session.token = payload.token
       state.session.username = payload.username
       state.session.user_id = payload.user_id
@@ -94,9 +94,11 @@ export const store = new Vuex.Store({
     endSession (state) {
       state.session = {
         active: false,
+        signed_up: false,
         token: null,
-        'username': null,
-        'user_id': null
+        username: null,
+        user_id: null,
+        time_left: null,
       }
       state.profile = {},
       state.designs = {},
@@ -113,27 +115,27 @@ export const store = new Vuex.Store({
     setDesignRefs (state) {
       console.log('Set Design refs has been called in store')
       let config = store.state.route.params.config_slug ? store.state.route.params.config_slug : null
+      let build = store.state.route.params.build_slug ? store.state.route.params.build_slug : null
       let rev = store.state.route.params.rev_slug ? store.state.route.params.rev_slug : null
-      let change = store.state.route.params.change_slug ? store.state.route.params.change_slug : null
 
       let ref, ref_type, design_path, splits, endpoint, pre_endpoint
 
-      if (change) {
-        ref = change
-        ref_type = 'change'
-        console.log('set ref to change')
+      if (build) {
+        ref = build
+        ref_type = 'build'
+        console.log('set ref to build')
       } else if (rev && (rev != 'latest' && rev != 'Latest')) {
         ref = rev
         ref_type = 'rev'
         console.log('set ref to rev')
-      } else if (config && (config != 'primary' && config != 'Primary')) {
+      } else if (config && (config != 'alpha' && config != 'Alpha')) {
         ref = config
         ref_type = 'config'
         console.log('set ref to config')
       } else {
-        ref = 'primary'
+        ref = 'alpha'
         ref_type = 'config'
-        console.log('set ref to Primary (default)')
+        console.log('set ref to Alpha (default)')
       }
       if (ref_type == 'config' || ref_type == 'rev') {
          design_path =
@@ -145,7 +147,7 @@ export const store = new Vuex.Store({
         design_path =
           '/' + state.route.params.profile_slug
           + '/' + state.route.params.design_slug
-          + '/' + change
+          + '/' + build
       }
       splits = store.state.route.fullPath.split('/')
       endpoint = splits[splits.length - 1]
@@ -154,6 +156,7 @@ export const store = new Vuex.Store({
       state.designRefs = {
         ref: ref,
         ref_type: ref_type,
+        config_slug: config,
         design_path: design_path,
         pre_endpoint: pre_endpoint,
         endpoint: endpoint,
@@ -239,7 +242,7 @@ export const store = new Vuex.Store({
     },
     getSpecs ({commit}, payload) {
       return new Promise((resolve, reject) => {
-        Vue.http.get('specs/' + payload.id + '/?ref=' + payload.ref + '&type=' + payload.ref_type).then(success => {
+        Vue.http.get('specs/' + payload.id + '/?ref=' + payload.ref + '&type=' + payload.ref_type + '&config=' + payload.config_slug).then(success => {
           console.log('got specs')
           console.log(success)
           commit('setSpecs', success.data)

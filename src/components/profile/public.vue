@@ -8,8 +8,27 @@
       </div>
     </div>
     <div class="ui bottom attached clearing segment">
+      <transition appear name='fade'>
+        <div class="ui positive icon message" v-if='errors.profile.updated===true'>
+          <i class="check circle icon icon"></i>
+          <div class="content">
+            <div class="header">
+              Your profile has been updated
+            </div>
+          </div>
+        </div>
+      </transition>
+      <transition appear name='fade'>
+        <div class="ui negative icon message" v-if='errors.profile.updated===false'>
+          <i class="warning sign icon"></i>
+          <div class="content">
+            <div class="header">
+              There was a problem updating your profile
+            </div>
+          </div>
+        </div>
+      </transition>
       <form class='ui form' id='profileForm' enctype="multipart/form-data">
-
         <div class="field has-feedback"
           :class="{
             'has-success': errors.profile.public_name.isValid,
@@ -105,7 +124,7 @@
             <img :src='profile.picture' style='height:40px'/>
             <br><br>
           </span>
-          <input class="form-control" id="picture" name="picture" type="file">
+          <input class="form-control" id="picture" name="picture" type="file" accept='image/*'>
         </div>
 
         <!-- <div class="field has-feedback"
@@ -128,13 +147,6 @@
             > {{errors.profile.about.error}}
           </span>
         </div> -->
-
-        <h4 v-if='errors.profile.updated===true' style='color:#468847;'>
-          Successfully updated profile
-        </h4>
-        <h4 v-else-if='errors.profile.updated===false' style='color:#b94a48;'>
-          Unable to update profile, please correct the noted fields
-        </h4>
         <button class='ui small basic blue button' id='update_profile_btn' @click.prevent='updateProfile'>
       Update Profile
         </button>
@@ -221,14 +233,19 @@ export default {
       this.errors.profile.public_name.hasError = null
       this.errors.profile.public_name.error = null
       // validate email
-      let test = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(this.profile.public_email)
-      if (test) {
-        this.errors.profile.public_email.isValid = true
-        this.errors.profile.public_email.hasError = null
-        this.errors.profile.public_email.error = null
-      } else {
-        this.errors.profile.public_email.isValid = false
+      if (this.profile.public_email) {
+        let test = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(this.profile.public_email)
+
+        if (test) {
+          this.errors.profile.public_email.isValid = true
+          this.errors.profile.public_email.hasError = null
+          this.errors.profile.public_email.error = null
+        } else {
+          this.errors.profile.public_email.isValid = false
+        }
       }
+
+
       // validate website
       this.errors.profile.website.isValid = true
       this.errors.profile.website.hasError = null
@@ -310,11 +327,11 @@ export default {
           this.$store.dispatch('getProfile').then(response => {
             console.log('Got profile after updating public profile')
             // redirect to dashboard
-            this.$router.push({ path: '/home' })
+            // this.$router.push({ path: '/home' })
           }, error => {
             console.log('Error getting profile after updating public profile')
           })
-          this.$router.push('/home')
+          // this.$router.push('/home')
         }
 
 
@@ -360,4 +377,16 @@ export default {
 </script>
 
 <style lang="css">
+  .fade-enter-active, .fade-leave-active {
+    transition-property: opacity;
+    transition-duration: .25s;
+  }
+
+  .fade-enter-active {
+    transition-delay: .25s;
+  }
+
+  .fade-enter, .fade-leave-active {
+    opacity: 0
+  }
 </style>

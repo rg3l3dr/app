@@ -35,20 +35,20 @@
             v-if='!$route.params.change_slug'
               tag='a'
               class='item'
-              :to=' this.designRefs.design_path + "/settings/revs"'
+              :to=' this.designRefs.design_path + "/settings/builds"'
             >
               <a>
-                <i class="fa fa-tags"></i> &nbsp; Revs
+                <i class="fa fa-wrench"></i> &nbsp; Builds
               </a>
             </router-link>
             <router-link
               v-if='!$route.params.change_slug'
               tag='a'
               class='item'
-              :to=' this.designRefs.design_path + "/settings/changes"'
+              :to=' this.designRefs.design_path + "/settings/revs"'
             >
               <a>
-                <i class="fa fa-history"></i> &nbsp; Changes
+                <i class="fa fa-tags"></i> &nbsp; Revs
               </a>
             </router-link>
             <router-link tag='a' class='item' :to='this.designRefs.design_path + "/settings/advanced"'>

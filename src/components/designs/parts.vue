@@ -59,7 +59,7 @@
             <tr>
               <th></th>
               <th>Part Name</th>
-              <th>Latest Change</th>
+              <th>Part #</th>
               <th>Quantity</th>
               <th>Cost</th>
               <th>Total</th>
@@ -149,9 +149,9 @@
 
               <!-- Last Change for Part -->
               <td>
-                <!-- <div v-if='!part.meta.created'>
-                  <a href="#">{{ part.changes[-1].owner }}</a> <a href="#">{{ part.changes[-1].message }}</a>  {{ part.changes[-1].created_at }}
-                </div> -->
+                <div v-if='part.meta.created'>
+                  {{ part.design.number }}
+                </div>
               </td>
 
               <!-- Part Quantity -->
@@ -318,6 +318,7 @@
             </tr>
           </tbody>
         </table>
+
         <div style='text-align:center' v-else-if='$route.params.rev_slug=="latest"' @click='showBomTable'>
           <br>
           <h2 class="ui icon header" >
@@ -327,7 +328,12 @@
               Click here to add parts
               <div class="sub header">
                 <br>
-                You have not added any parts yet<br>
+                <a href="http://help.omnibuilds.com#parts-are-the-building-blocks-of-designs" style='font-size:18px'>
+                  How do parts work?
+                </a>
+                <br>
+                <br>
+                <br>
               </div>
             </div>
           </h2>
@@ -361,12 +367,12 @@
 
     </div>
       <div class="ui modal" v-if='modalPart' style='width: 80em; margin: -24em -38em'>
-        <div class="header">
+        <div class="header" style='padding: 10px'>
           <div class="ui grid">
-            <div class="six wide column">
+            <div class="five wide column" style='padding: 20px 0px 0px 20px'>
               <div
                 class="ui large fluid transparent input"
-                style='margin: -5px 0px 0px 0px'
+                style='margin: -5px 0px 0px 0px; padding: 0px'
                 :class='$route.params.rev_slug == "latest" ? null : "disabled"'
               >
                 <input
@@ -376,7 +382,10 @@
                   @blur='editDesignNameInModal(modalIndex)'
                 >
               </div>
-              <div
+              <div style='font-size:18px'>
+                {{ modalPart.design.number }}
+              </div>
+              <!-- <div
                 class="ui mini fluid transparent input"
                 style='font-size: 15px'
                 :class='$route.params.rev_slug == "latest" ? null : "disabled"'
@@ -387,9 +396,9 @@
                   v-model='modalPart.specs.data.description'
                   @blur='updateSpecs(modalIndex)'
                 >
-              </div>
+              </div> -->
             </div>
-            <div class="three wide column">
+            <div class="four wide column">
               <div class="ui basic icon buttons">
                 <button
                   class="ui button"
@@ -452,7 +461,7 @@
                 <div class="menu">
                   <div class="ui icon search input">
                     <i class="search icon"></i>
-                    <input type="text" placeholder="Search configs and revs">
+                    <input type="text" placeholder="Search configs and builds">
                   </div>
                   <div class="divider"></div>
                   <div class="header">
@@ -470,12 +479,12 @@
                     </div>
                     <div
                       class="item"
-                      v-for='rev in modalPart.revs'
-                      v-if='rev.name!="Latest"'
-                      :data-value='rev.slug'
+                      v-for='build in modalPart.builds'
+                      v-if='build.name!="None"'
+                      :data-value='build.slug'
                     >
                       <i class="tags icon"></i>
-                      {{ rev.name }}
+                      {{ build.name }}
                     </div>
                   </div>
                 </div>
@@ -727,14 +736,14 @@
                     <th>Change</th>
                     <th>Date</th>
                   </thead>
-                  <tbody v-if='this.modalPart.changes'>
-                    <tr v-for='change in this.modalPart.changes'>
+                  <tbody v-if='this.modalPart.revs'>
+                    <tr v-for='rev in this.modalPart.revs'>
                       <td><img src="" class="ui circular avatar image"></td>
                       <td>
-                        <a href="#">{{ change.message }}</a>
+                        <a href="#">{{ rev.message }}</a>
                       </td>
                       <td>
-                        {{ change.created_at | moment("MMMM Do YYYY") }}
+                        {{ rev.created_at | moment("MMMM Do YYYY") }}
                       </td>
                     </tr>
                   </tbody>
@@ -809,7 +818,6 @@
         </div>
       </div>
   </div>
-
 </template>
 
 <script>
@@ -884,9 +892,11 @@ export default {
       if (this.designRefs.endpoint == 'parts') {
         let bom_payload = {
           design_id: this.design.id,
+          config_slug: this.designRefs.config_slug,
           ref_slug: this.designRefs.ref,
           ref_type: this.designRefs.ref_type
         }
+        console.log('getBomParts has been called from watcher in parts.vue')
         this.getBomParts(bom_payload)
       }
     },
@@ -935,7 +945,7 @@ export default {
       })
     },
     getBom() {
-      this.http.get('boms/' + this.design.bom.id + '/?ref=' + this.designRefs.ref + '&type=' + this.designRefs.ref_type).then(response => {
+      this.http.get('boms/' + this.design.bom.id + '/?ref=' + this.designRefs.ref + '&type=' + this.designRefs.ref_type + '$config=' + this.designRefs.config_slug).then(response => {
         console.log('got bom')
         console.log(response)
         this.bom = response.data
@@ -946,7 +956,13 @@ export default {
     },
     getBomParts(payload) {
       return new Promise((resolve, reject) => {
-        this.$http.get('bom_parts/?design_id=' + payload.design_id + '&ref_slug=' + payload.ref_slug + '&ref_type=' + payload.ref_type).then(success => {
+
+        let design_id = payload.design_id
+        let ref_slug = payload.ref_slug
+        let ref_type = payload.ref_type
+        let config_slug = payload.config_slug
+
+        this.$http.get(`bom_parts/?design_id=${design_id}&ref_slug=${ref_slug}&ref_type=${ref_type}&config_slug=${config_slug}`).then(success => {
           console.log('Got bom and parts')
           console.log(success)
           this.$nextTick(() => {
@@ -973,6 +989,7 @@ export default {
                       design_id: this.design.id,
                       ref_slug: this.designRefs.ref,
                       ref_type: this.designRefs.ref_type,
+                      config_slug: this.designRefs.config_slug,
                       path: this.designRefs.path
                     }
                     this.trail.push(breadcrumb)
@@ -1003,8 +1020,9 @@ export default {
         let design_id = this.modalPart.design.id
         let ref_slug = this.modalPart.meta.ref_slug
         let ref_type = this.modalPart.meta.ref_type
+        let config_slug = this.modalPart.meta.config_slug
 
-        this.$http.get(`bom_parts/?design_id=${design_id}&ref_slug=${ref_slug}&ref_type=${ref_type}`).then(success => {
+        this.$http.get(`bom_parts/?design_id=${design_id}&ref_slug=${ref_slug}&ref_type=${ref_type}&config_slug=${config_slug}`).then(success => {
           console.log('Got BOM for modal part')
           console.log(success)
           this.modalBom = success.body.parts
@@ -1037,7 +1055,6 @@ export default {
     },
     newPartBlurTest(index, $event) {
       console.log('New part blur test function started')
-      console.log($event)
       if (!this.enterPressed) {
         if ($event.relatedTarget) {
           var target = $event.relatedTarget.id
@@ -1058,7 +1075,7 @@ export default {
         console.log('New part has been entered');
         this.testNewPart(index)
       } else {
-        console.log('New party input is empty');
+        console.log('New part input is empty');
         this.partNameError(index, $event)
       }
     },
@@ -1074,7 +1091,6 @@ export default {
       document.getElementById("part-name-editable-div").className = 'ui input error'
       document.getElementById("part-name-editable").placeholder = 'Enter a name'
     },
-
     getSearchResult(index) {
       let vue = this
       setTimeout(() => {
@@ -1122,10 +1138,6 @@ export default {
                   { 'silent': true }
                 );
               })
-
-
-
-
               return
             }
             // test if it is an exisiting name,
@@ -1166,7 +1178,7 @@ export default {
         let matched_part_index = part_slugs.indexOf(result)
         let matched_part = this.parts[matched_part_index]
         // check to see if they are being tracked at the same ref
-        if (matched_part.meta.ref_slug != 'primary') {
+        if (matched_part.meta.ref_slug != 'alpha') {
           console.log('New part is being tracked at a different ref, adding new part')
           this.addExistingDesign(index, result)
         } else {
@@ -1175,7 +1187,9 @@ export default {
           matched_part.meta.quantity += 1
           this.parts.pop()
           this.bom.data[matched_part_index].quantity += 1
-          this.updateBOM()
+          let action = `Changed quantity of ${matched_part.design.name} to ${matched_part.meta.quantity} `
+          let message = null
+          this.updateBOM(action, message)
 
           // Notify the user with an alert
           this.message.active = true
@@ -1236,8 +1250,9 @@ export default {
       newPart.files = response.data.files
       newPart.specs = response.data.specs
       newPart.configs = response.data.config_set
+      newPart.builds = response.data.build_set,
       newPart.revs = response.data.rev_set
-      newPart.meta.path = `${newPart.design.creator_slug}/${newPart.design.slug}/primary/latest/specs`
+      newPart.meta.path = `${newPart.design.creator_slug}/${newPart.design.slug}/alpha/latest/specs`
 
       // reset the new part
       this.newPartName = {
@@ -1263,13 +1278,16 @@ export default {
       // create a new bom item and insert into the bom.data
       let new_item = {
         design_id: newPart.design.id,
-        ref_slug: 'primary',
+        ref_slug: 'alpha',
         ref_type: 'config',
+        config_slug: 'alpha',
         quantity: newPart.meta.quantity
       }
 
       this.bom.data.push(new_item)
-      this.updateBOM()
+      let action = `Added ${newPart.design.name} to BOM`
+      let message = null
+      this.updateBOM(action, message)
     },
 
     testNewPart(index, $event) {
@@ -1280,7 +1298,7 @@ export default {
       this.newPartName.data = this.newPartName.data.trim()
 
       // regex check for legal project name
-      let test = /^[A-Za-z0-9-_""''\/ ]{1,50}$/.test(this.newPartName.data)
+      let test = /^[A-Za-z0-9-_/\,;:'" ]{1,50}$/.test(this.newPartName.data)
       if (test) {
         console.log('Name matches regex')
         // check if this design name is already in use by this user
@@ -1324,9 +1342,11 @@ export default {
       // create the actual design
       let payload = {
         name: this.newPartName.data,
-        description: null,
         active: true,
-        creator: this.profile.id
+        creator: this.profile.id,
+        license: 1,
+        design_class: 3,
+        cost: newPart.specs.data.suppliers[0].partSchedules[0].unitCost
       }
       let vue = this
       this.$http.post('designs/', payload).then(response => {
@@ -1346,11 +1366,10 @@ export default {
           newPart.files = response.data.files
           newPart.specs = response.data.specs
           newPart.configs = response.data.config_set
+          newPart.builds = response.data.build_set
           newPart.revs = response.data.rev_set
-          newPart.meta.path = `${newPart.design.creator_slug}/${newPart.design.slug}/primary/latest/specs`
+          newPart.meta.path = `${newPart.design.creator_slug}/${newPart.design.slug}/alpha/latest/specs`
           newPart.specs.data.suppliers[0].partSchedules[0].unitCost = cost
-
-          // have to make sure the
 
           // reset the new part
           vue.newPartName = {
@@ -1367,14 +1386,19 @@ export default {
           // create a new bom item and insert into the bom.data
           let new_item = {
             design_id: newPart.design.id,
-            ref_slug: 'primary',
+            ref_slug: 'alpha',
             ref_type: 'config',
+            config_slug: 'alpha',
             quantity: newPart.meta.quantity
           }
 
           vue.bom.data.push(new_item)
-          vue.updateBOM()
-          this.updateSpecs(index)
+          let action = `Created and added ${newPart.design.name} to BOM`
+          let message = null
+          vue.updateBOM(action, message)
+          if (cost > 0) {
+            this.updateSpecs(index)
+          }
           console.log('commited part to bom')
         }
       }, response => {
@@ -1394,8 +1418,9 @@ export default {
         meta: {
           created: false,
           editable: false,
-          ref_slug: 'primary',
+          ref_slug: 'alpha',
           ref_type: 'config',
+          config_slug: 'alpha',
           quantity: 1
         },
         design: {
@@ -1413,7 +1438,7 @@ export default {
               {
                 partSchedules: [
                   {
-                    unitCost: null
+                    unitCost: 0.00
                   }
                 ]
               }
@@ -1421,8 +1446,8 @@ export default {
           }
         },
         configs: {},
-        revs: {},
-        changes: {}
+        builds: {},
+        revs: {}
       }
       this.parts.push(part)
 
@@ -1447,7 +1472,8 @@ export default {
                 }
               },
             fields: {
-              title: 'name'
+              title: 'name',
+              description: 'number'
             },
             showNoResults: false,
             onSelect: function(result, response) {
@@ -1476,12 +1502,14 @@ export default {
       console.log('Open Assembly clicked')
       let selectedPart = this.parts[index]
 
+      console.log(selectedPart)
       // create a new breadrcrumb
       let breadcrumb = {
         name: selectedPart.design.name,
         design_id: selectedPart.design.id,
         ref_slug: selectedPart.meta.ref_slug,
         ref_type: selectedPart.meta.ref_type,
+        config_slug: selectedPart.meta.config_slug,
         path: selectedPart.meta.path
       }
 
@@ -1492,8 +1520,11 @@ export default {
       let bom_payload = {
         design_id: selectedPart.design.id,
         ref_slug: selectedPart.meta.ref_slug,
-        ref_type: selectedPart.meta.ref_type
+        ref_type: selectedPart.meta.ref_type,
+        config_slug: selectedPart.meta.config_slug
       }
+
+      console.log(bom_payload)
       this.$nextTick(() => {
         this.getBomParts(bom_payload)
       })
@@ -1507,7 +1538,8 @@ export default {
       let bom_payload = {
         design_id: breadcrumb.design_id,
         ref_slug: breadcrumb.ref_slug,
-        ref_type: breadcrumb.ref_type
+        ref_type: breadcrumb.ref_type,
+        config_slug: breadcrumb.config_slug
       }
       this.getBomParts(bom_payload)
     },
@@ -1528,31 +1560,36 @@ export default {
     },
     updateBlurTest(index, event) {
 
-      console.log('Update blur test called')
+      if (!this.enterPressed) {
+        console.log('Update blur test called')
 
-      if (event.relatedTarget) {
-        var target = event.relatedTarget.id
+        if (event.relatedTarget) {
+          var target = event.relatedTarget.id
+        } else {
+          var target = null
+        }
+
+        // have to know if the target is wihin the same
+
+        if (target !== 'part-quantity-editable' && target !== 'part-cost-editable' && target !== 'part-name-editable' ) {
+          console.log('Not an editable div, testing part')
+          this.testEditedPartDesign(index)
+        } else {
+          console.log('Target is an editable div, passing')
+        }
       } else {
-        var target = null
-      }
-
-      // have to know if the target is wihin the same
-
-      if (target !== 'part-quantity-editable' && target !== 'part-cost-editable' && target !== 'part-name-editable' ) {
-        console.log('Not an editable div, testing part')
-        this.testEditedPartDesign(index)
-      } else {
-        console.log('Target is an editable div, passing')
+        this.enterPressed = false
       }
     },
     testEditedPartDesign(index) {
       // test if design (name) has changed -> update the design record
+      this.enterPressed = true
       let testPart = this.parts[index]
       if (testPart != this.selectedPart) {
         if (testPart.design.name != this.selectedPart.design.name.trim()) {
           console.log('Design change detected in update part')
 
-          let test = /^[A-Za-z0-9-_""''\/ ]{1,50}$/.test(testPart.design.name)
+          let test = /^[A-Za-z0-9-_/\,;:'" ] ]{1,50}$/.test(testPart.design.name)
           if (test) {
             console.log('Name matches regex')
             // check if this design name is already in use by this user
@@ -1606,13 +1643,16 @@ export default {
           design_id: testPart.design.id,
           ref_slug: testPart.meta.ref_slug,
           ref_type: testPart.meta.ref_type,
+          config: testPart.meta.config_slug,
           quantity: testPart.meta.quantity
         }
 
         console.log('About to call update bom with update part replaced by index')
         console.log(this.bom)
 
-        this.updateBOM().then(success => {
+        let action = `Changed quantity of ${testPart.design.name} to ${testPart.meta.quantity} in BOM`
+        let message = null
+        this.updateBOM(action, message).then(success => {
           console.log('Updated BOM record after editing an existing part')
           testPart.meta.editable = false
           this.editedPartUpdated = true
@@ -1635,24 +1675,23 @@ export default {
           console.log('Updated Specs record after editing an existing part')
           this.editedPartUpdated = true
           testPart.meta.editable = false
-        }, error => {
-
-        })
-        console.log('Updated Specs record after editing an existing part')
         testPart.meta.editable = false
+      }, error => {})
       } else {
         if (this.editedPartUpdated = false) {
             console.log('ALERT --- when testing the update for this part, the objects are not equal but no specific change was detected...')
         } else {
           console.log('No change to specs in edited part')
           console.log('Completing part update, un update actually occurred :-)')
+          // let design_payload = { design_slug: this.$route.params.design_slug }
+          // this.$store.dispatch('getDesign', design_payload)
         }
         testPart.meta.editable = false
       }
     },
 
     editDesignNameInModal(index) {
-      let test = /^[A-Za-z0-9-_""''\/ ]{1,50}$/.test(this.modalPart.design.name)
+      let test = /^[A-Za-z0-9-_/\,;:'" ]{1,50}$/.test(this.modalPart.design.name)
       if (test) {
         console.log('Name matches regex')
         // check if this design name is already in use by this user
@@ -1702,11 +1741,11 @@ export default {
         }
 
         if (!new_ref) {
-          for(let rev of this.modalPart.revs) {
-            if(!new_ref && rev.slug == ref_slug) {
-              new_ref = rev
-              this.modalPart.ref_slug = rev.slug
-              this.modalPart.ref_type = 'rev'
+          for(let build of this.modalPart.builds) {
+            if(!new_ref && build.slug == ref_slug) {
+              new_ref = build
+              this.modalPart.ref_slug = build.slug
+              this.modalPart.ref_type = 'build'
             }
           }
         }
@@ -1717,7 +1756,8 @@ export default {
         let payload = {
           design_id: this.design.id,
           ref_slug: this.designRefs.ref,
-          ref_type: this.designRefs.ref_type
+          ref_type: this.designRefs.ref_type,
+          config_slug: this.designRefs.config_slug
         }
 
         this.getBomParts(payload)
@@ -1766,17 +1806,23 @@ export default {
         console.log(response)
       })
     },
-    updateBOM() {
+    updateBOM(action, message) {
       return new Promise((resolve, reject) => {
         let payload = {
           editor: this.profile.id,
           data: this.bom.data
         }
-        this.$http.put('boms/' + this.bom.id +'/?ref=' + this.$route.params.config_slug,
+        this.$http.put('boms/' + this.bom.id +'/?ref=' + this.$route.params.config_slug + '&action=' + action + '&message=' + message,
         payload).then(success => {
           console.log('BOM updated')
           console.log(success)
           this.bom = success.data
+          let design_payload = { design_slug: this.$route.params.design_slug }
+          this.$store.dispatch('getDesign', design_payload).then(success => {
+            console.log('Got updated Design after adding updating BOM')
+          }, error => {
+            console.log('Error getting updating design after adding part to BOM')
+          })
           resolve(success)
         }, error => {
           console.log('Error updating BOM when adding new part')
@@ -1792,9 +1838,18 @@ export default {
           editor: this.profile.id,
           data: updated_part.specs.data
         }
-        this.$http.put('specs/' + updated_part.specs.id + '/?ref=' + updated_part.meta.ref_slug, payload).then(success => {
+        let action = `Updated cost for ${updated_part.design.name}`
+        let message = null
+        this.$http.put('specs/' + updated_part.specs.id + '/?ref=' + updated_part.meta.ref_slug +
+        '&action=' + action + '&message=' + message, payload).then(success => {
           console.log('Specs updated')
           console.log(success)
+          let design_payload = { design_slug: this.$route.params.design_slug }
+          this.$store.dispatch('getDesign', design_payload).then(success => {
+            console.log('Got updated Design after updating Specs')
+          }, error => {
+            console.log('Error getting updating design after updating Specs')
+          })
           resolve(success)
         }, error => {
           console.log('Error updating specs')
@@ -1827,7 +1882,9 @@ export default {
         this.$nextTick(() => {
           this.bom.data.splice(index, 1)
           this.$nextTick(() => {
-            this.updateBOM()
+            let action = `Removed ${removed_part.design.name} from BOM`
+            let message = null
+            vue.updateBOM(action, message)
             console.log('Existing part has been removed from the BOM')
             // if last part in an assembly, remove the assembly from the bom
           })
@@ -1891,11 +1948,11 @@ export default {
                   console.log('Modal tracking point set to config')
                 }
               }
-            } else if (this.modalPart.meta.ref_tye == 'rev') {
-              for (let rev of this.modalPart.revs) {
-                if (rev.slug == this.modalPart.meta.ref_slug) {
-                  ref = rev
-                  console.log('Modal tracking point set to rev')
+            } else if (this.modalPart.meta.ref_tye == 'build') {
+              for (let build of this.modalPart.builds) {
+                if (build.slug == this.modalPart.meta.ref_slug) {
+                  ref = build
+                  console.log('Modal tracking point set to build')
                 }
               }
             } else {
@@ -1977,14 +2034,15 @@ export default {
     // on back from another design this will get the old BOM, since that is still the data context
     // design.vue will clear itself on created but not on, back (updated)
     // have to detect in the design if the route params do not match the store params, if so then clear and get new context
-    // have to detect when the
-    if (this.design.bom) {
+    if (this.designRefs.ref) {
       console.log('Parts.vue created, design data already loaded, getting bom')
       let bom_payload = {
         design_id: this.design.id,
+        config_slug: this.designRefs.config,
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type
       }
+      console.log('getBOMParts has been called in part.vue created')
       this.getBomParts(bom_payload)
     } else {
       console.log('Parts.vue created, no design data present, waiting on watcher')
@@ -2003,16 +2061,16 @@ export default {
 
 <style lang="css">
 
-.fade-enter-active, .fade-leave-active {
-  transition-property: opacity;
-  transition-duration: .25s;
-}
+  .fade-enter-active, .fade-leave-active {
+    transition-property: opacity;
+    transition-duration: .25s;
+  }
 
-.fade-enter-active {
-  transition-delay: .25s;
-}
+  .fade-enter-active {
+    transition-delay: .25s;
+  }
 
-.fade-enter, .fade-leave-active {
-  opacity: 0
-}
+  .fade-enter, .fade-leave-active {
+    opacity: 0
+  }
 </style>

@@ -9,6 +9,14 @@
           <div class='login'>
             <form class='ui form'>
               <h1 class="ui dividing header">Login to OmniBuilds</h1>
+              <div class='ui info icon message' style='text-align:center' v-if='session.signed_up'>
+                <i class="mail icon"></i>
+                <div class="content">
+                  An activation email has been sent to the address provided.
+                  <br>
+                  Please confirm your email and login below.
+                </div>
+              </div>
               <div
                 class="field"
                 :class="{
@@ -69,6 +77,8 @@
 
 <script>
 import { EventBus } from '../../event-bus.js'
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'Login',
   data () {
@@ -89,6 +99,11 @@ export default {
         username: null
       }
     }
+  },
+  computed: {
+    ...mapGetters([
+      'session'
+    ])
   },
   methods: {
     submit: function () {

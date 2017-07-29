@@ -262,6 +262,7 @@ export default {
       }
       this.$http.post('rest-auth/registration/', user).then(response => {
         console.log('New user created')
+        this.$store.commit('signUp')
         this.$router.push({ path: '/accounts/login' })
       }, response => {
         console.log('Error creating new user')

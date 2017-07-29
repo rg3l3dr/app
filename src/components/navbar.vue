@@ -105,7 +105,7 @@ export default {
       setTimeout(function() {
           if (vue.resultSelected) {
             console.log('Result selected, redirecting to result detail page')
-            let path = vue.result.creator + '/' + vue.result.slug + '/primary/latest'
+            let path = vue.result.creator + '/' + vue.result.slug + '/alpha/latest'
             vue.inputQuery = null
             vue.resultSelected = false
             vue.result = {}
@@ -173,7 +173,8 @@ export default {
               }
             },
           fields: {
-            title: 'name'
+            title: 'name',
+            description: 'number'
           },
           onSelect: function(result, response) {
             console.log(result)
@@ -227,4 +228,14 @@ export default {
     min-width:1.5em;
     font-weight:bold;
   }
+
+  .ui.search .prompt {
+    border-radius: 1.25em;
+  }
+
+  .ui.input.input {
+    padding: .5em 0em;
+  }
+
+
 </style>

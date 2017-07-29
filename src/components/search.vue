@@ -20,7 +20,7 @@
                 </a>
                 <div class="description" >
                   <h4>
-                    {{ result.description }}
+                    {{ result.number }}
                   </h4>
 
                 </div>
@@ -68,7 +68,7 @@ export default {
     },
     viewResult: function(index) {
       let result = this.results[index]
-      let path = '/' + result.creator + '/' + result.slug + '/primary/latest/'
+      let path = '/' + result.creator + '/' + result.slug + '/alpha/latest/'
       this.$router.push(path)
     }
   },

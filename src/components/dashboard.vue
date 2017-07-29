@@ -93,7 +93,7 @@
                   <div v-else class="item" v-for='design in designs'>
                     <i class="folder icon"></i>
                     <div class="content">
-                      <router-link tag='a' :to=' "/" + session.username + "/" + design.slug + "/primary/latest/parts" '>
+                      <router-link tag='a' :to=' "/" + session.username + "/" + design.slug + "/alpha/latest/parts" '>
                         {{ design.name }}
                       </router-link>
                     </div>

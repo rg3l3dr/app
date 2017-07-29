@@ -51,6 +51,11 @@ export default {
   created: function() {
     this.getNotifications()
   },
+  watch: {
+    $route() {
+      this.getNotifications()
+    }
+  },
   data() {
     return {
       notifications: []

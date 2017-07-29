@@ -136,43 +136,38 @@
               Upload New Files or Versions
             </button>
           </div>
-          <div class="row" v-else-if="$route.params.rev_slug=='latest'">
-            <div class="six wide column"></div>
-            <div class="four wide column" style='text-align:center' @click='selectFilesForUpload'>
+
+          <div style='text-align:center' v-else-if="$route.params.rev_slug=='latest'" @click='selectFilesForUpload'>
+            <br>
+            <h2 class="ui icon header" >
+              <i class="fa-files-o icon"></i>
               <br>
-              <h2 class="ui icon header" >
-                <i class="fa-files-o icon"></i>
-                <br>
-                <div class="content">
-                  Click here to add files
-                  <div class="sub header">
-                    <br>
-                    You have not added any files yet
-                  </div>
+              <div class="content">
+                Click here to add files
+                <div class="sub header" >
+                  <br>
+                  <a href="http://help.omnibuilds.com#files-are-cad-agnostic" style='font-size:18px'>
+                    How do files work?
+                  </a>
                 </div>
-              </h2>
-            </div>
-            <div class="six wide column"></div>
+              </div>
+            </h2>
           </div>
-          <div class="row" v-else>
-            <div class="six wide column"></div>
-            <div class="four wide column" style='text-align:center' @click='selectFilesForUpload'>
+          <div v-else style='text-align:center' @click='selectFilesForUpload'>
+            <br>
+            <h2 class="ui icon header" >
+              <i class="fa-files-o icon"></i>
               <br>
-              <h2 class="ui icon header" >
-                <i class="fa-files-o icon"></i>
-                <br>
-                <div class="content">
-                  Change rev back to latest to add files
-                  <div class="sub header">
-                    <br>
-                    You have not added any files yet
-                    <br>
-                    Your project is read only when rev is not latest
-                  </div>
+              <div class="content">
+                Change rev back to latest to add files
+                <div class="sub header">
+                  <br>
+                  You have not added any files yet
+                  <br>
+                  Your project is read only when rev is not latest
                 </div>
-              </h2>
-            </div>
-            <div class="six wide column"></div>
+              </div>
+            </h2>
           </div>
         <!-- </transition> -->
 
@@ -382,7 +377,7 @@ export default {
       })
     },
     getFilesRecord() {
-      this.$http.get('files/' + this.design.files.id + '/?ref=' + this.designRefs.ref + '&type=' + this.designRefs.ref_type).then(success => {
+      this.$http.get('files/' + this.design.files.id + '/?ref=' + this.designRefs.ref + '&type=' + this.designRefs.ref_type + '&config=' + this.designRefs.config_slug).then(success => {
         console.log('got files')
         console.log(success)
         this.files = success.data
@@ -402,6 +397,12 @@ export default {
       this.$http.put('files/' + payload.params, payload.data).then(success => {
         console.log('Files updated')
         console.log(success)
+        let design_payload = { design_slug: this.$route.params.design_slug }
+        this.$store.dispatch('getDesign', design_payload).then(success => {
+          console.log('Got updated Design after updating Files')
+        }, error => {
+          console.log('Error getting updating design after updating Files')
+        })
       }, error => {
         console.log('Error updating files')
         console.log(error)
@@ -570,9 +571,28 @@ export default {
         file_record.uploaded = true
       }
 
+      var action, message
+
+      if (this.status.updated > 0 && this.status.new > 0) {
+        action = `Added ${this.status.new} new files and updated ${this.status.updated} existing files`
+        message = null
+      } else if (this.status.new > 0) {
+        action = `Added ${this.status.new} new files`
+        message = null
+      } else if (this.status.updated > 0) {
+        action = `Updated ${this.status.updated} existing files`
+        message = null
+      } else {
+        action = 'No updates'
+        message = null
+      }
+
       // put new file record to S3
       let payload = {
-        params: this.design.files.id + '/?ref=' + this.$route.params.config_slug,
+        params: this.design.files.id +
+                '/?ref=' + this.$route.params.config_slug +
+                '&action=' + action +
+                '&message=' + message,
         data: {
           editor: this.profile.id,
           data: this.files.data
@@ -676,9 +696,16 @@ export default {
       let deleteFile = await this.deleteFileFromS3(index)
       this.files.data.splice(index, 1)
 
+      let action = `Removed ${file.name} from files`
+      let message = null
+
       // update the files and POST to API
       let payload = {
-        params: this.design.files.id + '/?ref=' + this.$route.params.config_slug,
+        params:
+          this.design.files.id +
+          '/?ref=' + this.$route.params.config_slug +
+          '&action=' + action +
+          '&message=' + message,
         data: {
           editor: this.profile.id,
           data: this.files.data
@@ -695,9 +722,15 @@ export default {
 
       this.selectedFile.versions.splice(index, 1)
 
+      let action = `Removed version ${index + 1} from ${this.selectedFile.name} in files`
+      let message = null
+
       // update the files and POST to API
       let payload = {
-        params: this.design.files.id + '/?ref=' + this.$route.params.config_slug,
+        params: this.design.files.id + '/?ref=' +
+                this.$route.params.config_slug +
+                '&action=' + action +
+                '&message=' + message,
         data: {
           editor: this.profile.id,
           data: this.files.data
@@ -720,7 +753,7 @@ export default {
     }
   },
   created() {
-    if (this.design.files) {
+    if (this.designRefs.ref) {
       console.log('Files.vue created, design data already loaded, getting files')
       this.getFilesRecord()
       this.getToken()

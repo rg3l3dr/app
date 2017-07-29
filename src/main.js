@@ -53,6 +53,8 @@ if (sub == 'app') {
     .install();
 }
 
+
+
 // Vue Resource Config
 Vue.http.interceptors.push((request, next) => {
   if (store.state.session.token) {
@@ -166,6 +168,9 @@ router.beforeEach((to, from, next) => {
 
 // Vue router sync config
 sync(store, router)
+
+var VueTruncate = require('vue-truncate-filter')
+Vue.use(VueTruncate)
 
 /*eslint-disable no-new */
 new Vue({
