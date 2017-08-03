@@ -464,12 +464,13 @@ export default {
       suppliers: [],
       dataTypes: [ 'Text', 'Number', 'True/False'],
       newSupplierName: null,
-      specsUpdated: false
-
+      specsUpdated: false,
+      bucket: null
     }
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
       'design',
@@ -645,11 +646,11 @@ export default {
       reader.onloadend = function () {
         array_buffer = reader.result
         let s3 = new AWS.S3()
-        let s3_path = 'https://s3-us-west-2.amazonaws.com/omni-stage-designs/'
+        let s3_path = `https://s3-us-west-2.amazonaws.com/${vue.bucket}/Designs`
         let s3_key = 'designs/' + vue.design.creator + '/' + vue.design.id + '/' + file.name
         let params = {
           Body: array_buffer,
-          Bucket: "omni-stage-designs",
+          Bucket: vue.bucket,
           Key: s3_key
          }
          s3.putObject(params, function(err, data) {
@@ -790,6 +791,12 @@ export default {
       this.awaitDropDowns()
     } else {
       console.log('NewSpecs.vue created, no design data present, waiting on watcher')
+    }
+
+    if (this.env == 'prod') {
+      this.bucket='omni-prod-designs'
+    } else {
+      this.bucket='omni-stage-designs'
     }
   },
   mounted() {

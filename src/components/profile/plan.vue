@@ -17,7 +17,7 @@
     </div><!-- /.list-group-item -->
     <div v-if='profile.plan.id != 1' class="ui bottom attached segment">
       <strong>Billing Info: </strong> &nbsp;
-      <button class="ui small button" @click='openPaymentModal'>Update Payment Method</button>
+      <button class="ui small blue basic button" @click='openPaymentModal'>Update Payment Method</button>
       <br><br>
       {{profile.customer_set[0].card_brand}} **** **** **** {{profile.customer_set[0].card_last4 }} Expiration: {{profile.customer_set[0].card_exp_month}}/{{profile.customer_set[0].card_exp_year}}<br>
       Next payment due: {{profile.customer_set[0].next_payment | moment("MMMM Do YYYY")}} <br>
@@ -184,13 +184,17 @@ function formatBytes(bytes,decimals) {
 }
 
 // import stripe from 'stripe'
-Stripe.setPublishableKey('pk_test_C0HvFMtbYemrQX7BxBWBSVQw')
+
+
 import { mapGetters } from 'vuex'
 
 export default {
   created: function() {
-    // this.$store.commit('getProfile')
-    // $('.ui.modal').modal('show')
+    if (this.env == 'prod') {
+      Stripe.setPublishableKey('pk_live_3SeBO3EpdY6OGGjbtcHdyG1j')
+    } else {
+      Stripe.setPublishableKey('pk_test_C0HvFMtbYemrQX7BxBWBSVQw')
+    }
   },
   data() {
     return {
@@ -205,6 +209,7 @@ export default {
   },
 	computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile'
     ]),
@@ -254,12 +259,6 @@ export default {
     hideCancelModal: function() {
       $('#cancelModal').modal('hide')
     },
-    // togglePaymentModal: function() {
-    //   $('#paymentModal').modal('toggle')
-    // },
-    // toggleCancelModal: function() {
-    //   $('#cancelModal').modal('toggle')
-    // },
 		downgradePlan: function() {
 			console.log('Downgrading plan')
       // change the profile plan

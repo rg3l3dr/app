@@ -312,6 +312,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
       'design',

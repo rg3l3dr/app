@@ -318,11 +318,13 @@ export default {
         ready: false,
         data: 0
       },
-      mode: 'files'
+      mode: 'files',
+      bucket: null
     }
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
       'design',
@@ -450,7 +452,7 @@ export default {
         data: 0
       }
       this.filesInput = event.target.files
-      let s3_path = 'https://s3-us-west-2.amazonaws.com/omni-stage-designs/Designs/'
+      let s3_path = `https://s3-us-west-2.amazonaws.com/${this.bucket}/Designs`
 
       // update the files record to reflect files input
       for (let file of this.filesInput) {
@@ -635,11 +637,11 @@ export default {
       }, 0);
     },
     putFileToS3(array_buffer, s3_key) {
-      return new Promise((resolve, rejec) => {
+      return new Promise((resolve, reject) => {
         let s3 = new AWS.S3()
         let params = {
           Body: array_buffer,
-          Bucket: "omni-stage-designs",
+          Bucket: this.bucket,
           Key: s3_key
          }
          s3.putObject(params, function(err, data) {
@@ -658,7 +660,7 @@ export default {
       let s3 = new AWS.S3()
       let s3_key = 'designs/' + this.design.creator + '/' + this.design.id + '/' + file.name
 
-      var params = {Bucket: 'omni-stage-designs', Key: s3_key}
+      var params = {Bucket: this.bucket, Key: s3_key}
       var url = s3.getSignedUrl('getObject', params)
       window.location = url
     },
@@ -668,7 +670,7 @@ export default {
       let s3_key = 'designs/' + this.design.creator + '/' + this.design.id + '/' + this.selectedFile.name
 
       var params = {
-        Bucket: 'omni-stage-designs',
+        Bucket: this.bucket,
         Key: s3_key,
         VersionId: version.s3_version_id
       }
@@ -682,7 +684,7 @@ export default {
         let s3_key = 'designs/' + this.design.creator + '/' + this.design.id + '/' + file.name
 
         let params = {
-          Bucket: "omni-stage-designs",
+          Bucket: this.bucket,
           Key: s3_key
         }
 
@@ -776,6 +778,12 @@ export default {
 
     } else {
       console.log('Files.vue created, no design data present, waiting on watcher')
+    }
+    if (this.env == 'prod') {
+      this.bucket='omni-prod-designs'
+
+    } else {
+      this.bucket='omni-stage-designs'
     }
   }
 }

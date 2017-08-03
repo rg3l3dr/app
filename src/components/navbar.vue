@@ -61,7 +61,7 @@
           <!-- <router-link class='item' to='#'><i class='fa fa-users fa-fw'></i>&nbsp Create Team</router-link> -->
           <router-link class='item' to='/profile/public'><i class='fa fa-gear fa-fw'></i>&nbsp My Account</router-link>
           <div class="divider"></div>
-          <a class='item' v-if='subDomain == "app"' href='http://www.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
+          <a class='item' v-if='env == "prod"' href='http://www.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
           <a class='item' v-else href='http://stage.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
         </div>
       </div>
@@ -87,17 +87,12 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
       'query',
       'path',
     ]),
-    subDomain() {
-      let my_host = window.location.host
-      let parts = my_host.split('.')
-      let sub = parts[0]
-      return sub
-    }
   },
   methods: {
     getResult() {
@@ -163,6 +158,51 @@ export default {
     setSearch() {
       console.log('Set search has been called')
       let vue = this
+      if (this.env == 'prod') {
+        $('.ui.search').search(
+          {
+            apiSettings: {
+                url: 'https://www.omnibuilds.com/designquery/?q={query}',
+                beforeXHR: function(xhr) {
+                  xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                  return xhr;
+                }
+              },
+            fields: {
+              title: 'name',
+              description: 'number'
+            },
+            onSelect: function(result, response) {
+              console.log(result)
+              vue.resultSelected = true
+              console.log('Result selected, set resultSelected to true')
+              vue.result = result
+            }
+          }
+        )
+      } else {
+        $('.ui.search').search(
+          {
+            apiSettings: {
+                url: 'https://stage.omnibuilds.com/designquery/?q={query}',
+                beforeXHR: function(xhr) {
+                  xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                  return xhr;
+                }
+              },
+            fields: {
+              title: 'name',
+              description: 'number'
+            },
+            onSelect: function(result, response) {
+              console.log(result)
+              vue.resultSelected = true
+              console.log('Result selected, set resultSelected to true')
+              vue.result = result
+            }
+          }
+        )
+      }
       $('.ui.search').search(
         {
           apiSettings: {

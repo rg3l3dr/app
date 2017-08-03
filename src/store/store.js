@@ -14,6 +14,7 @@ Vue.use(VueRouter)
 export const store = new Vuex.Store({
   plugins: [createPersistedState()],
   state: {
+    env: null,
     session: {
       active: false,
       signed_up: false,
@@ -36,9 +37,13 @@ export const store = new Vuex.Store({
     parts: [],
     bom: {},
     specs: {},
-    files: null
+    files: null,
+
   },
   getters: {
+    env: state => {
+      return state.env
+    },
     path: state => {
       return state.route.path
     },
@@ -77,6 +82,9 @@ export const store = new Vuex.Store({
     // }
   },
   mutations: {
+    setEnv (state, payload) {
+      state.env = payload
+    },
     signUp (state) {
       state.session.signed_up = true
     },

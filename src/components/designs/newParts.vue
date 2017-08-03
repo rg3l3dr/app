@@ -347,6 +347,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'params',
       'session',
       'profile',
@@ -923,27 +924,52 @@ export default {
           if (button) { button.disabled=true }
         }
         let vue = this
-        $('.ui.search').search(
-          {
-            apiSettings: {
-                url: 'https://stage.omnibuilds.com/designquery/?q={query}' + design_ids,
-                beforeXHR: function(xhr) {
-                  xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
-                  return xhr;
-                }
+        if (this.env == 'prod') {
+          $('.ui.search').search(
+            {
+              apiSettings: {
+                  url: 'https://www.omnibuilds.com/designquery/?q={query}' + design_ids,
+                  beforeXHR: function(xhr) {
+                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                    return xhr;
+                  }
+                },
+              fields: {
+                title: 'name',
+                description: 'number'
               },
-            fields: {
-              title: 'name',
-              description: 'number'
-            },
-            showNoResults: false,
-            onSelect: function(result, response) {
-              vue.resultSelected = true
-              vue.result = result
-              console.log('Result selected, set result Selected to true')
+              showNoResults: false,
+              onSelect: function(result, response) {
+                vue.resultSelected = true
+                vue.result = result
+                console.log('Result selected, set result Selected to true')
+              }
             }
-          }
-        )
+          )
+        } else {
+          $('.ui.search').search(
+            {
+              apiSettings: {
+                  url: 'https://stage.omnibuilds.com/designquery/?q={query}' + design_ids,
+                  beforeXHR: function(xhr) {
+                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                    return xhr;
+                  }
+                },
+              fields: {
+                title: 'name',
+                description: 'number'
+              },
+              showNoResults: false,
+              onSelect: function(result, response) {
+                vue.resultSelected = true
+                vue.result = result
+                console.log('Result selected, set result Selected to true')
+              }
+            }
+          )
+        }
+
         console.log('focusing')
         $('#part-name-editable').focus()
       })
