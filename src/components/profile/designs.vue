@@ -4,21 +4,20 @@
       <i class="fa fa-folder-open-o text-primary" aria-hidden="true"></i>
       <div class="content">
         &nbsp
-        Projects Owned
+        My Designs
       </div>
     </div>
     <div class="ui bottom attached segment">
-      Project Info
-      <table class="ui striped small selectable table">
+      <table class="ui striped selectable table">
         <thead>
-          <td>Project Name</td>
+          <td>Design Name</td>
           <td>Last Updated</td>
           <td>Parts</td>
           <td>Files</td>
           <td>Configs</td>
+          <td>Builds</td>
           <td>Revs</td>
-          <td>Changes</td>
-          <td>Total Data</td>
+          <td>Data</td>
         </thead>
         <tbody>
           <tr v-for='design in designs'>
@@ -42,16 +41,16 @@
               {{ design.config_set.length }}
             </td>
 
+            <td id='project-builds'>
+              {{ design.build_set.length }}
+            </td>
+
             <td id='project-revs'>
               {{ design.rev_set.length }}
             </td>
 
-            <td id='project-changes'>
-              {{ design.change_set.length }}
-            </td>
-
-            <td id='project-dat'>
-              {{  }}
+            <td id='project-data'>
+              {{ formatBytes(design.data + 100000, 1) }}
             </td>
 
           </tr>
@@ -79,6 +78,14 @@ export default {
   },
   watch: {},
   methods: {
+    formatBytes(bytes,decimals) {
+       if(bytes == 0) return '0 Bytes'
+       var k = 1000
+       var dm = decimals + 1 || 3
+       var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+       var i = Math.floor(Math.log(bytes) / Math.log(k))
+       return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+    },
     getDesigns() {
       this.$http.get('designs').then(success => {
         console.log('Got designs')

@@ -19,7 +19,7 @@
          Delete Design Project
        </h3>
       </div>
-      <div class="content">
+      <div class="content" v-if='design.imports == 0'>
         <div class="ui large error message">
           <div class="header">
             Are you sure you want to delete this design?
@@ -29,10 +29,23 @@
           </p>
         </div>
       </div>
-      <div class="actions">
+      <div class="content" v-else>
+        <div class="ui large error message">
+          <div class="header">
+            You cannot delete this design yet...
+          </div>
+          <p>
+            This design has been imported as a part into {{ design.imports }} other designs.  You must remove it from those designs before it can be deleted.
+          </p>
+        </div>
+      </div>
+      <div class="actions" v-if='design.imports == 0'>
         <button type="button" class="ui small blue basic button" @click.prevent='hideDeleteModal'>Close</button>
         <button class="ui red small basic button" @click='deleteDesign'>Delete Design</button>
       </div>
+      <div class="actions" v-else>
+          <button type="button" class="ui small blue basic button" @click.prevent='hideDeleteModal'>Close</button>
+        </div>
     </div>
   </div>
 </template>

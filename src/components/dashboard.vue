@@ -4,16 +4,18 @@
     <div class='ui grid'>
   		<div class='row'>
   			<div class='four wide column' id='plan'>
-  				Plan:  {{ profile.plan.name }} &nbsp
-          <router-link v-if='profile.plan.name=="Starter"' to='profile/plan'>
-            Upgrade
-          </router-link>
+          <span style='font-size:15px'>
+            Plan:  {{ profile.plan.name }} &nbsp
+            <router-link v-if='profile.plan.name=="Starter"' to='profile/plan'>
+              Upgrade
+            </router-link>
+          </span>
   			</div>
   			<div class='eight wide column' >
   				 Private Storage:  {{ data_fmt }} / {{data_cap_fmt}} &nbsp;
-           <router-link to='invite/send'>
+           <!-- <router-link to='invite/send'>
              Invite friends to add storage
-           </router-link>
+           </router-link> -->
            <div id="myProgress">
              <div id="myBar" :style="{width: data_percent + '%'  }">
              </div>
@@ -35,7 +37,7 @@
                   <div class="ui grid">
                     <div class='row' style='padding: 0px 0px 0px 0px'>
                       <div class='four wide column'>
-                        <img class='ui right floated image' v-if='profile.picture' :src='profile.picture' style='height:40px'/>
+                        <img class='ui image' v-if='profile.picture' :src='profile.picture' style='height:40px'/>
                         <i v-else class="fa fa-user fa-2x" aria-hidden="true"></i>
                       </div>
                       <div class='twelve wide column'>
@@ -130,36 +132,72 @@
   				</div> -->
         </div>
   			<div class='eleven wide column'>
-  				<div class='row'>
-  					<div class='ui small top attached header' id='contributions'>
-							<i class="fa fa-random text-primary" aria-hidden="true"></i>
+          <div class="sixteen wide column" id='welcome-message'>
+            <div class="ui small top attached header">
+              <i class="cogs icon text-primary"></i>
               <div class="content">
                 &nbsp
-								My Contributions (wip)
+                Welcome!
               </div>
-						</div>
-						<div class="ui bottom attached clearing segment">
-							<div id="cal-heatmap">
-							</div>
-						</div>
-  				</div>
-          <br>
-  				<div class='row'>
-  						<div class="ui small top attached header" id='feed'>
-  							<i class="fa fa-feed text-primary" aria-hidden="true"></i>
-                <div class="content">
-                  &nbsp
-  								My Activity Feed
-                </div>
-  						</div>
-  						<div class="ui bottom attached clearing segment">
-								<div id='app'>
-									Coming Soon!
-								</div>
-								<br><br>
-  						</div>
-  					</div>
-  				</div>
+            </div>
+            <div class="ui bottom attached clearing segment">
+              <div style='text-align:center'>
+                <br>
+                <h2 class="ui icon header" >
+                  <i class="fa-cogs icon"></i>
+                  <br>
+                  <div class="content">
+                    Welcome to OmniBuilds!
+                    <div class="sub header" >
+                      <br>
+                      <a href="http://help.omnibuilds.com" style='font-size:18px'>
+                        Learn how OmniBuilds tracks designs
+                      </a>
+                      <br>
+                      <br>
+                      <i>then</i>
+                      <br>
+                      <br>
+                      <router-link to='/create_design' style='font-size:18px'>
+                        Start your first design project
+                      </router-link>
+                      <br>
+                    </div>
+                  </div>
+                </h2>
+              </div>
+            </div>
+          </div>
+  			  <!-- <div class='row'>
+  			    <div class='ui small top attached header' id='contributions'>
+  			              <i class="fa fa-random text-primary" aria-hidden="true"></i>
+  			              <div class="content">
+  			                &nbsp
+  			                My Contributions (wip)
+  			              </div>
+  			            </div>
+  			            <div class="ui bottom attached clearing segment">
+  			              <div id="cal-heatmap">
+  			              </div>
+  			            </div>
+  			  </div>
+  			          <br>
+  			  <div class='row'>
+  			      <div class="ui small top attached header" id='feed'>
+  			        <i class="fa fa-feed text-primary" aria-hidden="true"></i>
+  			                <div class="content">
+  			                  &nbsp
+  			          My Activity Feed
+  			                </div>
+  			      </div>
+  			      <div class="ui bottom attached clearing segment">
+  			                <div id='app'>
+  			                  Coming Soon!
+  			                </div>
+  			                <br><br>
+  			      </div>
+  			    </div>
+  			  </div> -->
   			</div>
   		</div>
   </div>
@@ -190,7 +228,7 @@ export default {
       'profile',
     ]),
     data_fmt: function() {
-			return this.formatBytes(this.profile.data)
+			return this.formatBytes(this.profile.data, 0)
 		},
     data_percent: function() {
 			return (this.profile.data / this.profile.data_cap) * 100
@@ -237,7 +275,7 @@ export default {
   },
   mounted() {
     this.getDesigns().then( () => {
-      this.startCalHeatMap()
+      // this.startCalHeatMap()
     })
   },
 }

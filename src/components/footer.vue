@@ -8,7 +8,7 @@
             <div class="item">
               <a href="http://help.omnibuilds.com" class='item'>Guide</a>
               <a href='mailto:info@omnibuilds.com' class='item'>Contact</a>
-              <a href="http://terms.omnibuilds.com" class='item'>Terms</a>
+              <!-- <a href="http://terms.omnibuilds.com" class='item'>Terms</a> -->
             </div>
           </div>
         </div>

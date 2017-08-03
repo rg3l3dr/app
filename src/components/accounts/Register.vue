@@ -104,16 +104,16 @@
                  > {{password.error}}
                </div>
               </div>
-              <div class='field'>
-                <label for="codeInput">Code</label>
-                <input type="text" v-model='code' class='form-control' placeholder='Type in your registration code'>
+            <!--   <div class='field'>
+              <label for="codeInput">Code</label>
+              <input type="text" v-model='code' class='form-control' placeholder='Type in your registration code'>
 
-              </div>
+            </div> -->
               <button
                 type="submit"
                 class="ui button primary"
                 @click.prevent='submit'
-                :disabled='username.isValid != true || email.isValid != true || password.isValid != true || code != "2017"'
+                :disabled='username.isValid != true || email.isValid != true || password.isValid != true'
                 >Signup
               </button>
             </form>

@@ -18,7 +18,7 @@
         <div>
         </div>
         <tbody name='fade' is='transition-group'>
-          <tr v-for='rev in currentConfig.rev_set' :key='rev'>
+          <tr v-for='(rev, index) in currentConfig.rev_set' :key='index'>
             <td if='rev-number'>
               <a href='' @click='viewRev(rev)'>
               {{ currentConfig.name.letter }}{{ rev.number }}

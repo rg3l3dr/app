@@ -18,7 +18,7 @@
           <th></th>
         </thead>
         <tbody name='fade' is='transition-group'>
-          <tr v-for='config in this.design.config_set' :key='config'>
+          <tr v-for='(config, index) in this.design.config_set' :key='index'>
             <td id='config-name'>
               <a href="" @click='viewConfig(config)'>
                 {{ config.name.name }}

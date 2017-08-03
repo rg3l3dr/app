@@ -1,189 +1,235 @@
 <template lang="html">
   <div class="design">
-    <div class="ui horizontal middle aligned list">
-      <div class="item">
-        <i class="fa fa-lock fa-4x"></i>
+
+<!--     <div class="sixteen wide column">
+  <div class="ui horizontal middle aligned list">
+    <div class="item">
+      <i class="fa fa-lock fa-2x"></i>
+    </div>
+    <div class="item">
+      <img src="images/Rebel_Alliance_logo.png" class="ui circular tiny image">
+      <div class="content">
+        <div class="ui header" style='font-size:22px'>
+          <router-link tag='a' to='/home'>
+            {{ profile.name }}
+          </router-link>
+           / {{ design.name }} / Assembly / SubAssembly / Final Part
+        </div>
       </div>
-      <div class="four wide item">
-        <!-- <img src="images/Rebel_Alliance_logo.png" class="ui circular tiny image"> -->
-        <div class="content">
-          <div class="ui header" style='font-size:22px'>
-            <router-link tag='a' to='/home'>
-              {{ profile.name }}
-            </router-link>
-             / {{ design.name }}
+    </div>
+  </div>
+</div> -->
+
+    <div class="sixteen wide column">
+      <div class="ui horizontal middle aligned list">
+        <div class="item">
+          <i class="fa fa-lock fa-2x"></i>
+        </div>
+        <div class="item">
+          <transition name='fade'>
+            <div class="ui massive breadcrumb" style='padding: 0px 0px 10px 0px 'v-if='trail.length > 0'>
+              <router-link tag='a' to='/home'>
+                {{ profile.name }}
+              </router-link>
+              <span  class='divider'>/</span>
+              <span v-for='(breadcrumb, index) in trail'>
+                <span v-if='(trail.length - 1) != index'>
+                  <router-link tag='a' to='' @click.native='selectPart(index)'>
+                    {{ breadcrumb.name }}
+                  </router-link>
+                  <span  class='divider'>/</span>
+                </span>
+                <span v-else>
+                  <div class="active section">{{ breadcrumb.name }}</div>
+                </span>
+              </span>
+            </div>
+          </transition>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="ui three item large text menu" style='margin: -5px 0px 5px 0px'>
+      <div class="item" id='ref-selectors'>
+        <div id="config-selector">
+          <div style='font-size: 13px; padding: 5px; text-align: left'>
+             CONFIG
           </div>
-          <div style='padding: 5px 0px 0px 0px'>
-            <!-- <span style='font-size: 13px; padding: 5px'>
-              REV
-            </span> -->
-            <span style='font-size:18px'>
+          <div class="ui selection dropdown" id='configs' style='font-size:13px'>
+            <i class='fork icon'></i>
+            <input type="hidden" name="config">
+            <div class="default text"></div>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <div
+                class="item"
+                v-for='config in design.config_set'
+                :data-value='config.slug'
+                @click='selectConfig(config)'
+              >
+                {{ config.name.name }}
+              </div>
+              <div class="divider"></div>
+              <div
+                v-if='new_config.hasError'
+                class="header"
+                style='color: red'
+              >
+                {{new_config.error}}
+              </div>
+              <div  v-else class="header">
+                ADD ANOTHER CONFIG
+              </div>
+              <!-- <div class='item' @click.prevent='createConfig'>
+                <i class="plus icon"></i>
+                Add A Config
+              </div> -->
+              <div class="ui input">
+                <div
+                  class="ui small basic compact grey button"
+                  @click.prevent='createConfig'
+                  style='line-height: 1px; font-size: 14px'
+                >
+                  <i class="plus icon"></i>
+                  Add Conifg
+                </div>
+              </div>
+
+              <div class="header">
+                <a href="http://help.omnibuilds.com#configurations-configs">
+                  WHAT IS A CONFIG?
+                </a>
+
+              </div>
+
+
+              <!-- <button class="ui button">
+              Create New Config
+            </button> -->
+              <!-- <div
+                class="ui input"
+                :class="{'error': new_config.hasError}"
+              >
+                <input
+                  type="text"
+                  placeholder='Choose a name...'
+                  v-model='new_config.data'
+                  @keydown.enter.prevent='testConfig'
+                >
+              </div> -->
+            </div>
+          </div>
+        </div>
+        &nbsp&nbsp&nbsp&nbsp
+        <div id="build-selector">
+          <div style='font-size: 13px; padding: 3px; text-align: left'>
+            BUILD
+          </div>
+          <div class="ui selection dropdown" id='builds' style='font-size:13px'>
+            <i class='wrench icon'></i>
+            <input type="hidden" name="builds">
+            <div class="default text"></div>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <div
+                class="item"
+                v-for='build in current_build_set'
+                :data-value='build.slug'
+                @click='selectBuild(build)'
+              >
+                {{ build.name }}
+              </div>
+              <div class="divider"></div>
+              <div v-if='new_build.hasError' class="header" style='color: red'> {{new_build.error}} </div>
+              <div  v-else-if='$route.params.rev_slug == "latest"' class="header">Create a new Build</div>
+              <div class="ui input" :class="{'error': new_build.hasError}" v-if='$route.params.rev_slug == "latest"'>
+                <input
+                  type="text"
+                  placeholder='Choose a name...'
+                  @keydown.enter.prevent='testBuild'
+                  v-model='new_build.data'
+                  id='build-input'
+                >
+              </div>
+              <div class="header">
+                <a href="http://help.omnibuilds.com#builds">
+                  WHAT IS A BUILD?
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item" id='part-number' v-if='design.design_class'>
+        <div style='padding: 15px 0px 0px 0px'>
+          <div class="ui basic icon buttons">
+            <button
+              class="ui button"
+              @click='toggleRev(-1)'
+              :disabled='current_rev_index==0'
+            >
+              <i class="left chevron icon"></i>
+            </button>
+            <button class="ui button" @click='selectRev'>
               <span v-if='$route.params.build_slug'>
                 {{ `${design.abbreviation}-${design.sequence}-${design.design_class.code}-${current_config.name.letter}${current_rev.number}: ${current_build.name}` }}
               </span>
-              <span v-else>
+              <span v-else style='color:#337ab7; font-size:15px'>
                 {{ `${design.abbreviation}-${design.sequence}-${design.design_class.code}-${current_config.name.letter}${current_rev.number}`
                 }}
               </span>
-              &nbsp
-            </span>
-            <!-- &nbsp
-            &nbsp
-            <button class="ui mini basic icon button">
-              <i class="left arrow icon"></i>
             </button>
-            &nbsp
-            <button class="ui mini basic icon button">
-              <i class="right arrow icon"></i>
-            </button> -->
-          </div>
-        </div>
-      </div>
-      <div class="four wide item">
-        &nbsp
-        &nbsp
-      </div>
-      <div class="two wide item">
-        <div style='font-size: 12px; padding: 3px'>
-           <!-- <a href="#">CONFIG</a> -->
-           CONFIG
-        </div>
-        <div class="ui selection dropdown" id='configs' style='font-size:13px'>
-          <i class='fork icon'></i>
-          <input type="hidden" name="config">
-          <div class="default text"></div>
-          <i class="dropdown icon"></i>
-          <div class="menu">
-            <div
-              class="item"
-              v-for='config in design.config_set'
-              :data-value='config.slug'
-              @click='selectConfig(config)'
+            <button
+              class="ui button"
+              @click='toggleRev(+1)'
+              :disabled='current_rev_index == (current_rev_set.length - 1)'
             >
-              {{ config.name.name }}
-            </div>
-            <div class="divider"></div>
-            <div
-              v-if='new_config.hasError'
-              class="header"
-              style='color: red'
-            >
-              {{new_config.error}}
-            </div>
-            <div  v-else class="header">
-              ADD ANOTHER CONFIG
-            </div>
-            <!-- <div class='item' @click.prevent='createConfig'>
-              <i class="plus icon"></i>
-              Add A Config
-            </div> -->
-            <div class="ui input">
-              <div
-                class="ui small basic compact grey button"
-                @click.prevent='createConfig'
-                style='line-height: 1px; font-size: 14px'
-              >
-                <i class="plus icon"></i>
-                Add New Conifg
-              </div>
-            </div>
-
-            <div class="header">
-              <a href="http://help.omnibuilds.com#configurations-configs">
-                WHAT IS A CONFIG?
-              </a>
-
-            </div>
-
-
-            <!-- <button class="ui button">
-            Create New Config
-          </button> -->
-            <!-- <div
-              class="ui input"
-              :class="{'error': new_config.hasError}"
-            >
-              <input
-                type="text"
-                placeholder='Choose a name...'
-                v-model='new_config.data'
-                @keydown.enter.prevent='testConfig'
-              >
-            </div> -->
+              <i class="right chevron icon"></i>
+            </button>
           </div>
         </div>
       </div>
-      <div class="item">
-        <div style='font-size: 12px; padding: 3px'>
-          BUILD
-        </div>
-        <div class="ui selection dropdown" id='builds' style='font-size:13px'>
-          <i class='wrench icon'></i>
-          <input type="hidden" name="builds">
-          <div class="default text"></div>
-          <i class="dropdown icon"></i>
-          <div class="menu">
-            <div
-              class="item"
-              v-for='build in current_build_set'
-              :data-value='build.slug'
-              @click='selectBuild(build)'
+      <div class="item" id='action-buttons'>
+        <!-- <div id="import-button" style='padding: 20px 0px 0px 0px'>
+          <div class="ui labeled button" tabindex="0">
+            <div class="ui basic button">
+              <i class="plus square o icon medium"></i>Import
+            </div>
+            <a
+              class="ui basic left pointing label"
+              v-if='design.imports > 0'
+              @click='showImports'
             >
-              {{ build.name }}
-            </div>
-            <div class="divider"></div>
-            <div v-if='new_build.hasError' class="header" style='color: red'> {{new_build.error}} </div>
-            <div  v-else-if='$route.params.rev_slug == "latest"' class="header">Create a new Build</div>
-            <div class="ui input" :class="{'error': new_build.hasError}" v-if='$route.params.rev_slug == "latest"'>
-              <input
-                type="text"
-                placeholder='Choose a name...'
-                @keydown.enter.prevent='testBuild'
-                v-model='new_build.data'
-                id='build-input'
-              >
-            </div>
-            <div class="header">
-              <a href="http://help.omnibuilds.com#builds">
-                WHAT IS A BUILD?
-              </a>
+              {{ design.imports }}
+            </a>
+            <div class='ui basic left pointing label' v-else>
+              0
             </div>
           </div>
         </div>
-      </div>
-      <div class="item">
-        &nbsp
-        &nbsp
-      </div>
-      <div class="item">
-        <div class="ui small labeled button" tabindex="0">
-          <div class="ui basic button">
-            <i class="plus square o icon medium"></i>Import
+        <div id='copy-button' style='padding: 20px 0px 0px 0px'>
+          &nbsp&nbsp
+          <div class="ui labeled button" tabindex="0">
+            <div class="ui basic button">
+              <i class="clone icon"></i>Copy
+            </div>
+            <a class="ui basic left pointing label">
+              {{ design.copys }}
+            </a>
           </div>
-          <a class="ui basic left pointing label">
-            {{ design.imports }}
-          </a>
-        </div>
-        &nbsp&nbsp
-        <div class="ui small labeled button" tabindex="0">
-          <div class="ui basic button">
-            <i class="clone icon"></i>Copy
+          <div class="ui labeled button tiny" tabindex="0">
+            <div class="ui button tiny">
+              <i class="balance scale icon"></i>Vote
+            </div>
+            <a class="ui basic left pointing label">
+              112
+            </a>
           </div>
-          <a class="ui basic left pointing label">
-            {{ design.copys }}
-          </a>
-        </div>
-        <!-- <div class="ui labeled button tiny" tabindex="0">
-          <div class="ui button tiny">
-            <i class="balance scale icon"></i>Vote
-          </div>
-          <a class="ui basic left pointing label">
-            112
-          </a>
         </div> -->
       </div>
     </div>
-    <div class="ui top attached fuild four item small tabular menu" style='padding: 8px 0px 0px 0px'>
+    <div class="ui top attached fuild four item tabular menu" style='padding: 8px 0px 0px 0px'>
       <!-- <router-link tag='a' class='item' :to='this.designRefs.design_path  + "/home"'>
         <a>
           <i class="home icon"></i>
@@ -257,9 +303,10 @@ export default {
         error: ''
       },
       current_config: {},
-      current_build_set: {},
+      current_build_set: [],
       current_build: {},
-      current_rev_set: {},
+      current_rev_set: [],
+      current_rev_index: 0,
       current_rev: {}
     }
   },
@@ -270,13 +317,9 @@ export default {
       'design',
       'designRefs',
       'params',
-      'path'
+      'path',
+      'trail',
     ]),
-    // new_config_slug: function() {
-    //   if (this.new_config.data != null) {
-    //     return this.new_config.data.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
-    //   },
-    // },
     new_build_slug: function() {
       if (this.new_build.data != null) {
         return this.new_build.data.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
@@ -292,51 +335,41 @@ export default {
       }
       return endpoints_object
     },
-    part_name() {
-
-      //  Get name abbreviation from model
-      //  Get name last 4 from model
-      //   Get class code from specs
-      //   Get config-rev from refs
-      //   Concatenate into part name
-      let name = ''
-      return name
-    }
   },
   watch: {
-    // path() {
-    //   console.log('Path has changed in store')
-    //   this.$store.commit('setDesignRefs')
-    // },
     design() {
+      console.log('Design watcher called in design.vue')
       if (this.design.config_set) {
+        console.log('watch function activiated in design.vue')
+
         this.updateDesignRefs()
+        this.updateRefSelectors()
       }
     },
     params: function () {
-      console.log('Params watcher has been called in design.vue')
-      if (this.params.design_slug != this.design.slug) {
-        this.$store.commit('clearDesign')
-        console.log('Design slug has changed, getting new design')
-        // this.$store.commit('setDesignRefs')
-        let design_payload = { design_slug: this.$route.params.design_slug }
-        this.$store.dispatch('getDesign', design_payload).then(success => {
-          this.updateDesignRefs()
-          this.$store.commit('setDesignRefs')
-          this.updateRefSelectors()
-        }, error => {
-
-        })
-      } else if (this.params.rev_slug) {
-        this.updateDesignRefs()
-        this.$store.commit('setDesignRefs')
-        this.updateRefSelectors()
-      }
-      else { console.log('No change to design slug, passing...') }
+      // console.log('Params watcher has been called in design.vue')
+      // if (this.params.design_slug != this.design.slug) {
+      //   this.$store.commit('clearDesign')
+      //   console.log('Design slug has changed, getting new design')
+      //   // this.$store.commit('setDesignRefs')
+      //   let design_payload = { design_slug: this.$route.params.design_slug }
+      //   this.$store.dispatch('getDesign', design_payload).then(success => {
+      //     this.updateDesignRefs()
+      //     this.$store.commit('setDesignRefs')
+      //     this.updateRefSelectors()
+      //   }, error => {
+      //
+      //   })
+      // } else if (this.params.rev_slug) {
+      //   this.updateDesignRefs()
+      //   this.$store.commit('setDesignRefs')
+      //   this.updateRefSelectors()
+      // }
+      // else { console.log('No change to design slug, passing...') }
     }
   },
   methods: {
-    updateDesignRefs: function() {
+    updateDesignRefs() {
       if (this.$route.params.config_slug) {
         console.log('Design refs being set at config or rev');
         this.current_config = this.design.config_set.filter(
@@ -361,6 +394,7 @@ export default {
         } else {
           this.current_rev = this.current_rev_set[this.current_rev_set.length - 1]
         }
+
       } else {
         console.log('Design refs being set at a build')
         this.current_build_set = this.design.build_set
@@ -373,9 +407,9 @@ export default {
         this.current_rev = this.design.rev_set.filter(
           rev => rev.sha1 == this.current_build.sha1
         )[0]
-
-
+        this.current_rev_set = this.current_config.rev_set
       }
+      this.current_rev_index = this.current_rev_set.indexOf(this.current_rev)
       EventBus.$emit('design-refs-updated')
       console.log('Design Refs have been updated in design.vue')
     },
@@ -391,21 +425,39 @@ export default {
       }
       console.log('Ref selectors have been updated in design.vue')
     },
-    selectConfig: function(config) {
+    selectConfig(config) {
       this.$route.params.config_slug = config.slug
       this.$route.params.rev_slug = 'latest'
       this.$route.params.build_slug = null
       this.$store.commit('setDesignRefs')
       this.updateDesignRefs()
       this.updateRefSelectors()
-      // this.$router.push(this.designRefs.design_path + '/' + this.designRefs.endpoint)
+
+      let breadcrumb = {
+        name: this.design.name,
+        slug: this.design.slug,
+        design_id: this.design.id,
+        ref_slug: this.designRefs.ref,
+        ref_type: this.designRefs.ref_type,
+        config_slug: this.designRefs.config_slug,
+      }
+
+      let index = this.trail.length - 1
+      let payload = {
+        breadcrumb: breadcrumb,
+        index: index
+      }
+      this.$store.commit('editTrail', payload)
+
       let settings_ref
       if (this.designRefs.pre_endpoint == 'settings') {
         settings_ref = 'settings/'
       } else { settings_ref = ''}
       this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
+      let button = document.getElementById('add-part-button')
+      if (button) { button.disabled=false }
     },
-    selectBuild: function(build) {
+    selectBuild(build) {
       // handle none
       if (build.name == 'None') {
         this.$route.params.config_slug = 'alpha'
@@ -420,60 +472,67 @@ export default {
       this.updateDesignRefs()
       this.updateRefSelectors()
       // this.$router.push(this.designRefs.design_path + '/' + this.designRefs.endpoint)
+
+      let breadcrumb = {
+        name: this.design.name,
+        slug: this.design.slug,
+        design_id: this.design.id,
+        ref_slug: this.designRefs.ref,
+        ref_type: this.designRefs.ref_type,
+        config_slug: this.designRefs.config_slug,
+      }
+
+      let index = this.trail.length - 1
+      let payload = {
+        breadcrumb: breadcrumb,
+        index: index
+      }
+      this.$store.commit('editTrail', payload)
+
       let settings_ref
       if (this.designRefs.pre_endpoint == 'settings') {
         settings_ref = 'settings/'
       } else { settings_ref = ''}
       this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
+      let button = document.getElementById('add-part-button')
+      if (button) { button.disabled=false }
     },
-    // testConfig: function() {
-    //   if (this.new_config.data == '') {
-    //     console.log('Error: did not enter a config name')
-    //     this.new_config.hasError = true
-    //     this.new_config.error = "You must enter a name"
-    //     $('#configs').dropdown('toggle')
-    //     $('#configs').dropdown('toggle')
-    //   } else {
-    //     let regexTest = /^[A-Za-z0-9-_ ]{1,50}$/.test(this.new_config.data)
-    //     if (regexTest) {
-    //       console.log('Config name passes regex test')
-    //       // see if config name is in config_set.name
-    //       let vue = this
-    //       let uniqueConfigTest = this.design.config_set.filter(function(config) {
-    //         return config.name.toLowerCase() == vue.new_config.data.toLowerCase()
-    //       })
-    //       if (uniqueConfigTest.length == 0) {
-    //         console.log('Config name is unique for configs')
-    //         let uniqueRevTest = this.design.rev_set.filter(function(rev) {
-    //           return rev.name.toLowerCase() == vue.new_config.data.toLowerCase()
-    //         })
-    //         if (uniqueRevTest.length == 0) {
-    //           console.log('Config name is unique for revs')
-    //           this.createConfig()
-    //         } else {
-    //           console.log('This name is already being used as a rev')
-    //           this.new_config.hasError = true
-    //           this.new_config.error = 'Name in taksen (rev)'
-    //           $('#configs').dropdown('toggle')
-    //           $('#configs').dropdown('toggle')
-    //         }
-    //       } else {
-    //         console.log('This config name is aleady being used')
-    //         this.new_config.hasError = true
-    //         this.new_config.error = 'Name is taken (config)'
-    //         $('#configs').dropdown('toggle')
-    //         $('#configs').dropdown('toggle')
-    //       }
-    //     } else {
-    //       console.log('This is not a vaild config name')
-    //       this.new_config.hasError = true
-    //       this.new_config.error = 'Invalid Characters'
-    //       $('#configs').dropdown('toggle')
-    //       $('#configs').dropdown('toggle')
-    //     }
-    //   }
-    // },
-    testBuild: function() {
+    selectPart(index) {
+
+      let breadcrumb = this.trail[index]
+      console.log(breadcrumb)
+      if (breadcrumb.ref_type == 'config') {
+        this.$route.params.config_slug = breadcrumb.config_slug
+        this.$route.params.rev_slug = 'latest'
+        this.$route.params.build_slug = null
+      } else if (breadcrumb.ref_type == 'rev') {
+        this.$route.params.config_slug = breadcrumb.config_slug
+        this.$route.params.rev_slug = breadcrumb.ref_slug
+        this.$route.params.build_slug = null
+      } else if (breadcrumb.ref_type == 'build') {
+        this.$route.params.config_slug = breadcrumb.config_slug
+        this.$route.params.rev_slug = null
+        this.$route.params.build_slug = breadcrumb.ref_slug
+      }
+
+      let payload = { design_slug: breadcrumb.slug }
+      this.$store.dispatch('getDesign', payload).then(success => {
+        this.$store.commit('resetTrail', index)
+        this.$store.commit('setDesignRefs')
+        // this.updateDesignRefs()
+        // this.updateRefSelectors()
+
+        let settings_ref
+        if (this.designRefs.pre_endpoint == 'settings') {
+          settings_ref = 'settings/'
+        } else { settings_ref = ''}
+        this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
+        console.log('updated route after selecting part')
+        let button = document.getElementById('add-part-button')
+        if (button) { button.disabled=false }
+      }, error => {})
+    },
+    testBuild() {
       if (this.new_build.data == '') {
         console.log('Error: did not enter a build name')
         this.new_build.hasError = true
@@ -549,7 +608,7 @@ export default {
         }
       }
     },
-    createConfig: function() {
+    createConfig() {
       // set payload and create new config
       let payload = {
         design: this.design.id,
@@ -572,8 +631,8 @@ export default {
         this.$store.dispatch('getDesign', design_payload).then(success => {
 
           $('#configs').dropdown('hide')
-          this.updateDesignRefs()
-          this.updateRefSelectors()
+          // this.updateDesignRefs()
+          // this.updateRefSelectors()
 
           // reset the form
           this.new_config = {
@@ -583,6 +642,21 @@ export default {
           }
           // reload the page at new path with new config
           // this.$router.push(this.designRefs.design_path + '/' + this.designRefs.endpoint)
+          let breadcrumb = {
+            name: this.design.name,
+            slug: this.design.slug,
+            design_id: this.design.id,
+            ref_slug: this.designRefs.ref,
+            ref_type: this.designRefs.ref_type,
+            config_slug: this.designRefs.config_slug,
+          }
+
+          let index = this.trail.length - 1
+          let payload = {
+            breadcrumb: breadcrumb,
+            index: index
+          }
+          this.$store.commit('editTrail', payload)
           let settings_ref
           if (this.designRefs.pre_endpoint == 'settings') {
             settings_ref = 'settings/'
@@ -596,7 +670,7 @@ export default {
         console.log(error)
       })
     },
-    createBuild: function() {
+    createBuild() {
       // set payload and create the new Rev
       let payload = {
         design: this.design.id,
@@ -620,8 +694,8 @@ export default {
         this.$store.commit('setDesignRefs')
         this.$store.dispatch('getDesign', design_payload).then(success => {
           $('#builds').dropdown('hide')
-          this.updateDesignRefs()
-          this.updateRefSelectors()
+          // this.updateDesignRefs()
+          // this.updateRefSelectors()
 
           // reset the form
           this.new_build = {
@@ -629,6 +703,22 @@ export default {
             hasError: null,
             error: '',
           }
+
+          let breadcrumb = {
+            name: this.design.name,
+            slug: this.design.slug,
+            design_id: this.design.id,
+            ref_slug: this.designRefs.ref,
+            ref_type: this.designRefs.ref_type,
+            config_slug: this.designRefs.config_slug,
+          }
+
+          let index = this.trail.length - 1
+          let payload = {
+            breadcrumb: breadcrumb,
+            index: index
+          }
+
           // this.$router.push(this.designRefs.design_path + '/' + this.designRefs.endpoint)
           let settings_ref
           if (this.designRefs.pre_endpoint == 'settings') {
@@ -643,13 +733,74 @@ export default {
         console.log(error)
       })
     },
+    selectRev() {
+      if (this.current_rev_index == (this.current_rev_set.length - 1)) {
+        var path = `/${this.design.creator_slug}/${this.design.slug}/${this.current_config.slug}/latest/parts`
+      } else {
+        var path = `/${this.design.creator_slug}/${this.design.slug}/${this.current_config.slug}/${this.current_rev.slug}/parts`
+      }
+
+      this.$router.push('/' + path, onComplete => {
+        let button = document.getElementById('add-part-button')
+        if (button) { button.disabled=true }
+      }, onAbort => {
+
+      })
+    },
+    toggleRev(step) {
+      this.current_rev_index += step
+      this.current_rev = this.current_rev_set[this.current_rev_index]
+
+      if (this.current_rev_index == (this.current_rev_set.length - 1)) {
+        this.$route.params.config_slug = this.current_config.slug
+        this.$route.params.rev_slug = 'latest'
+        this.$route.params.build_slug = null
+      } else {
+        this.$route.params.config_slug = this.current_config.slug
+        this.$route.params.rev_slug = this.current_rev.slug
+        this.$route.params.build_slug = null
+      }
+      // adjust the route params and desing refs
+
+      this.$store.commit('setDesignRefs')
+
+      // set the breadcrumb
+      let breadcrumb = {
+        name: this.design.name,
+        slug: this.design.slug,
+        design_id: this.design.id,
+        ref_slug: this.designRefs.ref,
+        ref_type: this.designRefs.ref_type,
+        config_slug: this.designRefs.config_slug,
+      }
+
+      let index = this.trail.length - 1
+      let payload = {
+        breadcrumb: breadcrumb,
+        index: index
+      }
+      this.$store.commit('editTrail', payload)
+
+      let settings_ref
+      if (this.designRefs.pre_endpoint == 'settings') {
+        settings_ref = 'settings/'
+      } else { settings_ref = ''}
+      this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
+      let button = document.getElementById('add-part-button')
+      if (button) { button.disabled=false }
+    },
+    showImports() {},
+    importDesign() {},
+    showCopies() {},
+    copyDesign() {}
   },
-  created: function() {
+  created() {
     console.log('Design.vue has been created')
 
     // clear the design context, in case coming from another design
     this.$store.commit('clearDesignRefs')
     this.$store.commit('clearDesign')
+    this.$store.commit('clearTrail')
 
     // set the new design refs based on the $route
     // this.$store.commit('setDesignRefs')
@@ -661,14 +812,27 @@ export default {
     // get the design instance from route params
     let design_payload = { design_slug: this.$route.params.design_slug }
     this.$store.dispatch('getDesign', design_payload).then(success => {
-      this.updateDesignRefs()
+
+
+      // this.updateDesignRefs()
       this.$store.commit('setDesignRefs')
       EventBus.$emit('design-refs-updated')
+
+      let breadcrumb = {
+        name: this.design.name,
+        slug: this.design.slug,
+        design_id: this.design.id,
+        ref_slug: this.designRefs.ref,
+        ref_type: this.designRefs.ref_type,
+        config_slug: this.designRefs.config_slug,
+      }
+      this.$store.commit('extendTrail', breadcrumb)
+
     }, error => {
 
     })
   },
-  mounted: function() {
+  mounted() {
     let vue = this
     EventBus.$once('design-refs-updated', function() {
       this.$nextTick(() => {

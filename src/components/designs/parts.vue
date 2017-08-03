@@ -19,32 +19,6 @@
                   </span>
                   <span v-else>
                     <div class="active section">{{ breadcrumb.name }}</div>
-                    <!-- <div v-if='index != 0' class="ui icon top left pointing mini basic dropdown button part">
-                      <i class="caret down icon"></i>
-                      <div class="menu">
-                        <div class="item">Assembly Options</div>
-                        <div class="item" @click='viewPart(index)'>
-                          <i class="home icon"></i>
-                          View Homepage
-                        </div>
-                        <div class="item">
-                          <i class="edit icon"></i>
-                          Edit Assembly
-                        </div>
-                        <div class="item">
-                          <i class="compress icon"></i>
-                          Collapse Assembly
-                        </div>
-                        <div class="item">
-                          <i class="level up icon"></i>
-                          Move Up in BOM
-                        </div>
-                        <div v-if='$route.params.rev_slug == "latest"' class="item" @click='removePart(index)'>
-                          <i class="trash icon"></i>
-                          Remove from BOM
-                        </div>
-                      </div>
-                    </div> -->
                   </span>
                 </span>
               </div>
@@ -902,6 +876,20 @@ export default {
     },
   },
   methods: {
+    setBOM() {
+      let part = {
+        design_id: 1,
+        config_slug: 'alpha',
+        ref_slug: '1',
+        ref_type: 'rev',
+        name: 'Part Name', -> get from design instance
+        number: 'PN-0001-100-A1', -> construct based on ref
+        quantity: 1,
+        cost: 10.00, -> get from specs or calculate recursively
+        parts: [],
+      }
+
+    },
     formatBytes(bytes, decimals) {
        if(bytes == 0) return '0 Bytes'
        var k = 1000

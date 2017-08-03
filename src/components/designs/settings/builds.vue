@@ -19,8 +19,8 @@
           </thead>
           <tbody name='fade' is='transition-group'>
             <tr
-              v-for='build in currentConfig[0].build_set'
-              :key='build'
+              v-for='(build, index) in currentConfig[0].build_set'
+              :key='index'
               v-if='build.name != "None"'
             >
               <td>

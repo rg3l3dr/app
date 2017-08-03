@@ -28,7 +28,7 @@
             </router-link>
             <router-link tag='a' class='item' to='/profile/designs'>
               <a>
-                <i class="fa fa-folder-open-o"></i> &nbsp; Projects Owned
+                <i class="fa fa-folder-open-o"></i> &nbsp; My Designs
               </a>
             </router-link>
             <!-- <router-link tag='a' class='item' to='/profile/teams'>

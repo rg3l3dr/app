@@ -121,7 +121,7 @@
 
             <h3 class="ui dividing header">Supplier Data</h3>
             <transition-group name='fade'>
-              <div v-for='(supplier, supplierIndex) in specs.data.suppliers' :key='supplier'>
+              <div v-for='(supplier, supplierIndex) in specs.data.suppliers' :key='supplierIndex'>
                 <div class="five fields">
                   <div class="four wide field" id='part-manufacturer-name'>
                     <label>Manufacturer</label>
@@ -145,7 +145,7 @@
                             v-for='supplier in suppliers'
                             class="item"
                             :data-value='supplier.id'
-                            @click='specs.data.suppliers[supplierIndex].supplierId = supplier.id'
+                            @click='specs.data.suppliers[supplierIndex].supplierId = supplier.supplierId'
                             >
                             {{ supplier.name }}
                           </div>
@@ -205,7 +205,7 @@
                   </div>
                 </div>
                 <transition-group name='fade'>
-                  <div v-for='(schedule, scheduleIndex) in supplier.partSchedules' :key='schedule'>
+                  <div v-for='(schedule, scheduleIndex) in supplier.partSchedules' :key='scheduleIndex'>
                     <div class="five fields">
                       <div class="four wide field" id='part-cost'>
                         <label>Part Unit Cost</label>
@@ -313,7 +313,7 @@
 
             <h3 class="ui dividing header">Custom Data</h3>
             <transition-group name='fade'>
-              <div v-for='(customSpec, specIndex) in specs.data.customSpecs' :key="customSpec" >
+              <div v-for='(customSpec, specIndex) in specs.data.customSpecs' :key="specIndex" >
                 <div class="five fields">
                   <div class="three wide field" id='specification-name'>
                     <label>Specification Name</label>

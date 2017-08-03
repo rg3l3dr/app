@@ -32,8 +32,10 @@ export const store = new Vuex.Store({
       endpoint: '',
       pre_endpoint: ''
     },
-    specs: {},
+    trail: [],
+    parts: [],
     bom: {},
+    specs: {},
     files: null
   },
   getters: {
@@ -58,11 +60,17 @@ export const store = new Vuex.Store({
     designRefs: state => {
       return state.designRefs
     },
-    specs: state => {
-      return state.specs
+    trail: state => {
+      return state.trail
     },
+    // parts: state => {
+    //   return state.parts
+    // },
     bom: state => {
       return state.bom
+    },
+    specs: state => {
+      return state.specs
     },
     // files: state => {
     //   return state.files
@@ -177,6 +185,19 @@ export const store = new Vuex.Store({
       state.design = {}
       console.log('design cleared in store')
     },
+    extendTrail(state, breadcrumb) {
+      state.trail.push(breadcrumb)
+    },
+    clearTrail(state) {
+      state.trail = []
+    },
+    resetTrail(state, index) {
+      state.trail = state.trail.slice(0, index + 1)
+    },
+    editTrail(state, payload) {
+      console.log(payload)
+      state.trail[payload.index] = payload.breadcrumb
+    },
     setProfile (state, data) {
       state.profile = data
       console.log('profile set in store')
@@ -185,6 +206,16 @@ export const store = new Vuex.Store({
       state.design = data
       console.log('design set in store')
     },
+    // setParts(state, data) {
+    //   state.parts = data
+    //   console.log('bom parts set in store')
+    // },
+    // addPart(state, part) {
+    //   state.parts.push(part)
+    // },
+    // clearParts(state) {
+    //   state.parts = []
+    // },
     setSpecs(state, data) {
       state.specs = data
       console.log('specs set in store')
@@ -240,6 +271,11 @@ export const store = new Vuex.Store({
         })
       })
     },
+    // getParts({commit}, payload) {
+    //   return new Promise((resolve, reject) => {
+    //
+    //   })
+    // },
     getSpecs ({commit}, payload) {
       return new Promise((resolve, reject) => {
         Vue.http.get('specs/' + payload.id + '/?ref=' + payload.ref + '&type=' + payload.ref_type + '&config=' + payload.config_slug).then(success => {

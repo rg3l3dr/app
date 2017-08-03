@@ -22,7 +22,7 @@
               class="prompt"
               type="text"
               size='35'
-              placeholder=" Search for designs..."
+              placeholder=" Search your parts library..."
               v-model='inputQuery'
               @keydown.enter='getResult'
             >
@@ -37,7 +37,7 @@
           <button class="ui button small">Submit</button>
         </div> -->
       </div>
-      <router-link class='item' id='nav-inbox' to='/notify/unread' v-if='session.active===true'>
+      <!-- <router-link class='item' id='nav-inbox' to='/notify/unread' v-if='session.active===true'>
         <span v-if='unread_count > 0' class="fa-stack fa-lg has-badge" :data-count='unread_count'>
           <i class="fa fa-circle fa-stack-2x"></i>
           <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
@@ -46,7 +46,7 @@
           <i class="fa fa-circle fa-stack-2x"></i>
           <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
         </span>
-      </router-link>
+      </router-link> -->
       <div class="ui top right pointing dropdown" id='nav-profile' v-if='session.active===true'>
         <span v-if='profile.picture'>
           <img :src='profile.picture' style='height:33px'>

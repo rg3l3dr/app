@@ -28,7 +28,7 @@
                 </tr>
               </tfoot>
               <tbody name='fade' is='transition-group'>
-                <tr v-for='(file, index) in this.files.data' :key='file'>
+                <tr v-for='(file, index) in this.files.data' :key='file.name'>
 
                   <td id='file-name'>
                     <a href='#' @click='getFileFromS3(index)'>
@@ -315,7 +315,8 @@ export default {
         new: 0,
         updated: 0,
         empty: 0,
-        ready: false
+        ready: false,
+        data: 0
       },
       mode: 'files'
     }
@@ -353,6 +354,14 @@ export default {
     }
   },
   methods: {
+    /*
+
+    Update design data
+      New file/s uploaded
+      New version/s uploaded
+      File deleted
+      Version deleted
+    */
     formatBytes(bytes, decimals) {
        if(bytes == 0) return '0 Bytes'
        var k = 1000
@@ -437,7 +446,8 @@ export default {
         new: 0,
         updated: 0,
         empty: 0,
-        ready: false
+        ready: false,
+        data: 0
       }
       this.filesInput = event.target.files
       let s3_path = 'https://s3-us-west-2.amazonaws.com/omni-stage-designs/Designs/'
@@ -528,6 +538,7 @@ export default {
           file_record.versions[version_index].message = 'added'
           file_record.total_size += file_record.versions[version_index].size
           this.status.new += 1
+          this.status.data += file_record.versions[version_index].size
 
           // display success or error message
         } else if (file_record.versions[version_index - 1].sha1 != this.sha1) {
@@ -542,6 +553,7 @@ export default {
           file_record.versions[version_index].message = 'added a new version'
           file_record.total_size += file_record.versions[version_index].size
           this.status.updated += 1
+          this.status.data += file_record.versions[version_index].size
 
         } else {
           console.log('Empty commit to an existing file')
@@ -574,16 +586,16 @@ export default {
       var action, message
 
       if (this.status.updated > 0 && this.status.new > 0) {
-        action = `Added ${this.status.new} new files and updated ${this.status.updated} existing files`
+        action = `added ${this.status.new} new files and updated ${this.status.updated} existing files`
         message = null
       } else if (this.status.new > 0) {
-        action = `Added ${this.status.new} new files`
+        action = `added ${this.status.new} new files`
         message = null
       } else if (this.status.updated > 0) {
-        action = `Updated ${this.status.updated} existing files`
+        action = `updated ${this.status.updated} existing files`
         message = null
       } else {
-        action = 'No updates'
+        action = 'no updates'
         message = null
       }
 
@@ -592,7 +604,8 @@ export default {
         params: this.design.files.id +
                 '/?ref=' + this.$route.params.config_slug +
                 '&action=' + action +
-                '&message=' + message,
+                '&message=' + message +
+                '&data=' + this.status.data,
         data: {
           editor: this.profile.id,
           data: this.files.data
@@ -615,7 +628,8 @@ export default {
             new: 0,
             updated: 0,
             empty: 0,
-            ready: false
+            ready: false,
+            data: 0
           }
         })
       }, 0);
@@ -693,10 +707,10 @@ export default {
     deleteFileAndFileRecord:  async function (index) {
       // check to make sure files are not a dependency
       let file = this.files.data[index]
-      let deleteFile = await this.deleteFileFromS3(index)
+      // let deleteFile = await this.deleteFileFromS3(index)
       this.files.data.splice(index, 1)
 
-      let action = `Removed ${file.name} from files`
+      let action = `removed ${file.name} from files`
       let message = null
 
       // update the files and POST to API
@@ -718,11 +732,11 @@ export default {
     deleteVersionAndVersionRecord: async function (index) {
       let file_index = this.file_names.indexOf(this.selectedFile.name)
       let version = this.selectedFile.versions[index]
-      let deleteVersion = await this.deleteFileFromS3(file_index, version.s3_version_id)
+      // let deleteVersion = await this.deleteFileFromS3(file_index, version.s3_version_id)
 
       this.selectedFile.versions.splice(index, 1)
 
-      let action = `Removed version ${index + 1} from ${this.selectedFile.name} in files`
+      let action = `removed version ${index + 1} from ${this.selectedFile.name} in files`
       let message = null
 
       // update the files and POST to API
@@ -752,6 +766,8 @@ export default {
 
     }
   },
+  // how can we await the receipt of the new design
+  // since we already have a design this
   created() {
     if (this.designRefs.ref) {
       console.log('Files.vue created, design data already loaded, getting files')
