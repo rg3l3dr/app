@@ -78,7 +78,7 @@
                   </div>
               </td>
 
-              <td v-else-if='part.created && part.editable && $route.params.rev_slug == "latest" '>
+              <!--<td v-else-if='part.created && part.editable && $route.params.rev_slug == "latest" '>
                 <div class="ui transparent input" id='part-name-editable-div'>
                   <input
                     type="text"
@@ -91,7 +91,7 @@
                     @blur='part.design_name ? updateBlurTest(index, $event) : partNameError(index)'
                   >
                 </div>
-              </td>
+              </td>-->
 
               <td v-else id='part-name'>
                 <router-link tag='a' to='' @click.native.prevent.once='openPart(index)'>
@@ -136,32 +136,36 @@
               <!-- Part Quantity -->
               <td
                 v-if='!part.created && $route.params.rev_slug == "latest"'
-                class='ui transparent input'
+                class='collapsing'
               >
-                <input
-                  type="number"
-                  style='width:50px'
-                  min='1'
-                  v-model='part.quantity'
-                  id='part-quantity-editable'
-                  @keyup.enter='checkNewPartNameOnEnter(index, $event)'
-                  @blur='newPartBlurTest(index, $event)'
-                >
+                <div class="ui transparent input" style='width:50px'>
+                  <input
+                    type="number"
+                    style='width:50px'
+                    min='1'
+                    v-model='part.quantity'
+                    id='part-quantity-editable'
+                    @keyup.enter='checkNewPartNameOnEnter(index, $event)'
+                    @blur='newPartBlurTest(index, $event)'
+                  >
+                </div
               </td>
 
               <td
                 v-else-if='part.created && part.editable && $route.params.rev_slug == "latest"'
-                class='ui transparent input'
+                class='collapsing'
               >
-                <input
-                  type="number"
-                  style='width:50px'
-                  id='part-quantity-editable'
-                  v-model='part.quantity'
-                  min='1'
-                  @keyup.enter='part.design_name ? testEditedPartDesign(index) : partNameError(index)'
-                  @blur='part.design_name ? updateBlurTest(index, $event) : partNameError(index)'
-                >
+                <div class="ui transparent input" style='width:50px'>
+                  <input
+                    type="number"
+                    style='width:50px'
+                    id='part-quantity-editable'
+                    v-model='part.quantity'
+                    min='1'
+                    @keyup.enter='part.design_name ? testEditedPartDesign(index) : partNameError(index)'
+                    @blur='part.design_name ? updateBlurTest(index, $event) : partNameError(index)'
+                  >
+                </div>
               </td>
 
               <td
