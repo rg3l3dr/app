@@ -79,7 +79,7 @@
             </span>
             <hr>
             For each friend who accepts an invite and creates an account on OmniBuilds, you will receive 100 MB of private storage! <br>
-            <p>
+            </p>
           </div>
           <div class="actions">
             <button type="button" class="ui small basic bluebutton" @click='toggleSuccessModal'>Close</button>
@@ -111,7 +111,7 @@
 
             <p>
             For each friend who accepts an invite and creates an account on OmniBuilds, you will receive 100 MB of private storage! <br>
-            <p>
+            </p>
           </div>
           <div class="actions">
             <button type="button" class="ui small basic blue button" @click='toggleFailureModal'>Close</button>

@@ -22,7 +22,6 @@
                   v-model='email.data'
                   @blur='validateEmail'>
                 <span v-if='email.isActive == false || email.hasError || email.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-                <span>
                 <span
                   v-if='email.isValid == false'
                   class="help-block"

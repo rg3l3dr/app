@@ -19,6 +19,7 @@
     "file-system": "^2.2.2",
     "fs": "0.0.1-security",
     "raven-js": "^3.16.0",
+    "rusha": "^0.8.6",
     "stripe": "^4.15.0",
     "vue": "^2.1.0",
     "vue-bulma": "0.0.35",
@@ -27,7 +28,10 @@
     "vue-moment": "^2.0.2",
     "vue-resource": "^1.2.0",
     "vue-router": "^2.2.0",
-    "vuex": "^2.1.2"
+    "vue-truncate-filter": "^1.1.6",
+    "vuex": "^2.1.2",
+    "vuex-persistedstate": "^2.0.0",
+    "vuex-router-sync": "^4.2.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.4.0",

@@ -40,7 +40,7 @@
         </span>
       </div>
     </div>
-  </div>/.tab-pane fade in
+  </div>
 </template>
 
 <script>
