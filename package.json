@@ -19,6 +19,7 @@
     "file-system": "^2.2.2",
     "fs": "0.0.1-security",
     "raven-js": "^3.16.0",
+    "rusha": "^0.8.6",
     "stripe": "^4.15.0",
     "vue": "^2.1.0",
     "vue-bulma": "0.0.35",
