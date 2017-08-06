@@ -1147,7 +1147,6 @@ export default {
     },
     testEditedPartDesign(index) {
       // test if design (name) has changed -> update the design record
-      this.enterPressed = true
       let testPart = this.parts[index]
       if (testPart != this.selectedPart) {
         /**Part names are currently not allowed to be changed, so this section is unecessary
