@@ -321,7 +321,9 @@
 
       <transition name='fade'>
         <div class="ui success message" v-if='message.active'>
-          <i class="close icon"></i>
+          <i class="close icon"
+            @click='clearMessage'
+          ></i>
           <div class="header">
             {{ message.title }}
           </div>
@@ -428,6 +430,13 @@ export default {
   methods: {
     isEditable(index){
       return index === this.indexOfEditable;
+    },
+    clearMessage() {
+      this.message = {
+        active: false,
+        title: null,
+        body: null
+      }
     },
     formatBytes(bytes, decimals) {
        if(bytes == 0) return '0 Bytes'
@@ -585,7 +594,6 @@ export default {
               setTimeout(function() {
                 let vue = this
                 $('.message .close').on('click', function() {
-                  console.log('Close message clicked')
                   $(this)
                   .closest('.message')
                   .transition('fade')
@@ -674,7 +682,6 @@ export default {
           let vue = this
           setTimeout(function() {
             $('.message .close').on('click', function() {
-              console.log('Close message clicked')
               $(this)
               .closest('.message')
               .transition('fade')
@@ -764,7 +771,6 @@ export default {
           let vue = this
           setTimeout(function() {
             $('.message .close').on('click', function() {
-              console.log('Close message clicked')
               $(this)
               .closest('.message')
               .transition('fade')
@@ -1065,13 +1071,49 @@ export default {
 
     viewPart(index) {
       let selectedPart = this.parts[index]
-      console.log('View part called')
-      this.$router.push('/' + selectedPart.path, onComplete => {
-        let button = document.getElementById('add-part-button')
-        if (button) { button.disabled=true }
-      }, onAbort => {
+      let refPath
+      if (selectedPart.ref_type == 'config') {
+        refPath = `${selectedPart.config_slug}/latest`
+      } else if (selectedPart.ref_type == 'rev') {
+        refPath = `${selectedPart.config_slug}/${selectedPart.ref_slug}`
+      } else if (selectedPart.ref_type == 'build') {
+        refPath = `${selectedPart.ref_slug}`
+      }
+      let path = `${selectedPart.creator_slug}/${selectedPart.design_slug}/${refPath}/parts`
+      this.$router.push('/' + path, onComplete => {
+        this.$store.commit('clearDesignRefs')
+        this.$store.commit('clearDesign')
+        this.$store.commit('clearTrail')
+        this.$store.commit('setDesignRefs')
+        let payload = {design_slug: selectedPart.design_slug}
+        this.$store.dispatch('getDesign', payload).then(success => {
 
-      })
+          // create a new breadrcrumb
+          let breadcrumb = {
+            name: selectedPart.design_name,
+            slug: selectedPart.design_slug,
+            design_id: selectedPart.design_id,
+            ref_slug: selectedPart.ref_slug,
+            ref_type: selectedPart.ref_type,
+            config_slug: selectedPart.config_slug,
+            // path: selectedPart.path
+          }
+          // this.trail.push(breadcrumb)
+          this.$store.commit('extendTrail', breadcrumb)
+
+          let bom_payload = {
+            design_id: selectedPart.design_id,
+            ref_slug: selectedPart.ref_slug,
+            ref_type: selectedPart.ref_type,
+            config_slug: selectedPart.config_slug
+          }
+          this.getBom().then(success => {
+            this.getParts(bom_payload)
+            let button = document.getElementById('add-part-button')
+            if (button) { button.disabled=false }
+          }, error => {})
+        }, error => {})
+      }, onAbort => {})
     },
     openPart(index) {
       let selectedPart = this.parts[index]

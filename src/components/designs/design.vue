@@ -340,6 +340,7 @@ export default {
   watch: {
     design() {
       console.log('Design watcher called in design.vue')
+      // this.updateDesignRefs()
       if (this.design.config_set) {
         console.log('watch function activiated in design.vue')
 

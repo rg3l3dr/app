@@ -34,7 +34,7 @@ export const store = new Vuex.Store({
       pre_endpoint: ''
     },
     trail: [],
-    parts: [],
+    // parts: [],
     bom: {},
     specs: {},
     files: null,
@@ -123,6 +123,9 @@ export const store = new Vuex.Store({
       state.specs = {},
       state.bom = {},
       state.files = {}
+      state.parts = null
+      state.part = null
+      state.partRefs = null
       console.log('Session closed in store')
     },
     setQuery (state, data) {

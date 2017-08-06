@@ -183,7 +183,7 @@
 
       </div>
       <div class="ui bottom attached segment" v-else>
-        <a href="#" @click='selectedFile = null'> Return to Files List</a>
+        <a href="#" @click='returnToFiles'> Return to Files List</a>
         <table class="ui striped selectable table" id='versions-table' >
             <thead>
               <tr>
@@ -259,7 +259,7 @@
                         Upload New Version
                       </div>
                       <div
-                        v-if='$route.params.rev_slug == "latest"'
+                        v-if='$route.params.rev_slug == "latest" && selectedFile.versions.length > 1'
                         class="item"
                         @click='deleteVersionAndVersionRecord(index)'
                       >
@@ -275,14 +275,14 @@
 
         <br>
 
-        <button
+        <!-- <button
           v-if='$route.params.rev_slug == "latest"'
           class="ui small basic blue button"
           @click='selectFilesForUpload'
           id='upload-file-button'
         >
           Upload New Files or Versions
-        </button>
+        </button> -->
 
         <br> <br>
 
@@ -766,6 +766,12 @@ export default {
       })
       console.log('Show versions has been selected')
 
+    },
+    returnToFiles() {
+      this.selectedFile = null
+      this.$nextTick(() => {
+        $('.ui.dropdown.options').dropdown({ 'silent': true })
+      })
     }
   },
   // how can we await the receipt of the new design
