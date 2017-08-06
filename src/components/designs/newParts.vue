@@ -697,14 +697,17 @@ export default {
 
       // get the design for the existing part by the slug
       let existingPart = this.parts[index]
+      console.log(existingPart)
       let design_payload = {design_slug: result}
       let response = await this.getDesign(design_payload)
       let design = response.data
 
       // check to see if any parts in the current trail are already inside the full bom of the new design
+      let trail_ids = this.trail.map(breadcrumb => {return breadcrumb.design_id} )
+      console.log(trail_ids)
 
       let bom_check_payload = {
-        imported_design: {
+        design_refs: {
           design_id: design.id,
           ref_slug: existingPart.ref_slug,
           ref_type: existingPart.ref_type,
@@ -713,9 +716,22 @@ export default {
         trail_ids: trail_ids
       }
 
-      this.$http.get('bom_check/', payload).then(success => {
+      this.$http.get('get_simple_bom/', payload).then(success => {
+        console.log('Got a value from bom check')
+        console.log(success)
+        // get the response value and react
+        if (success.data.inBom == true  ) {
+          // a part in the bom is in the trail
+          // reject adding the part and return an error message
+
+        } else if (success.data.inBom == false) {
+          // continue with adding the part
+
+        }
 
       }, error => {
+        console.log('Error getting a value form bom check')
+        console.log(error)
 
       })
 
