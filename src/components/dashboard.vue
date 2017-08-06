@@ -64,6 +64,7 @@
                           <i class="fa fa-envelope-o"></i>
                           &nbsp <a :href='"mailto:" + profile.public_email'> {{profile.public_email}}</a><br>
                         </span>
+                        <br>
                         <router-link to='/profile/public'>
                           <button class='ui right floated small compact basic black button'>
                             <i class="fa fa-gear" aria-hidden="true"></i>

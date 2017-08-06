@@ -159,6 +159,7 @@ export default {
       console.log('Set search has been called')
       let vue = this
       if (this.env == 'prod') {
+        console.log('Search env is production')
         $('.ui.search').search(
           {
             apiSettings: {
@@ -181,15 +182,17 @@ export default {
           }
         )
       } else {
+        console.log('Search env is development')
         $('.ui.search').search(
           {
             apiSettings: {
-                url: 'https://stage.omnibuilds.com/designquery/?q={query}',
-                beforeXHR: function(xhr) {
-                  xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
-                  return xhr;
-                }
-              },
+              searchFullText: true,
+              url: 'https://stage.omnibuilds.com/designquery/?q={query}',
+              beforeXHR: function(xhr) {
+                xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                return xhr;
+              }
+            },
             fields: {
               title: 'name',
               description: 'number'
@@ -203,27 +206,6 @@ export default {
           }
         )
       }
-      $('.ui.search').search(
-        {
-          apiSettings: {
-              url: 'https://stage.omnibuilds.com/designquery/?q={query}',
-              beforeXHR: function(xhr) {
-                xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
-                return xhr;
-              }
-            },
-          fields: {
-            title: 'name',
-            description: 'number'
-          },
-          onSelect: function(result, response) {
-            console.log(result)
-            vue.resultSelected = true
-            console.log('Result selected, set resultSelected to true')
-            vue.result = result
-          }
-        }
-      )
     }
   },
   created() {},

@@ -697,6 +697,34 @@ export default {
       let response = await this.getDesign(design_payload)
       let design = response.data
 
+      // check to see if any parts in the current trail are already inside the full bom of the new design
+
+      let bom_check_payload = {
+        imported_design: {
+          design_id: design.id,
+          ref_slug: existingPart.ref_slug,
+          ref_type: existingPart.ref_type,
+          config_slug: existingPart.config_slug
+        },
+        trail_ids: trail_ids
+      }
+
+      this.$http.get('bom_check/', payload).then(success => {
+
+      }, error => {
+
+      })
+
+
+
+      let parts_payload = {
+        design_id: design.id,
+        ref_slug: breadcrumb.ref_slug,
+        ref_type: breadcrumb.ref_type,
+        config_slug: breadcrumb.config_slug
+      }
+      let parts = this.getParts()
+
       // append it to the BOM
       let new_item = {
         design_id: design.id,

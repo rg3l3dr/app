@@ -23,7 +23,8 @@
                   id="username"
                   placeholder="Choose a username"
                   v-model='username.data'
-                  v-on:keydown='setUsernameTimer'>
+                  @blur='validateUsername'
+                  >
                 <span v-if='username.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
                 <span v-else-if='username.isTaken || username.hasError || username.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
                 <div
@@ -51,12 +52,12 @@
                 >
                 <label for="emailInput" class="control-label">Email address</label>
                 <input
-                  type="text"
+                  type="email"
                   id="emailInput"
                   placeholder="Enter your email"
                   aria-describedby="emailHelp"
                   v-model='email.data'
-                  v-on:keydown='setEmailTimer'
+                  @blur='validateEmail'
                 >
                 <span v-if='email.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
                 <span v-else-if='email.isTaken || email.hasError || email.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
@@ -89,7 +90,7 @@
                   placeholder="Choose a password"
                   aria-describedby="emailHelp"
                   v-model='password.data'
-                  v-on:keydown='setPasswordTimer'
+                  @blur='validatePassword'
                   >
                 <span v-if='password.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
                 <span v-else-if='password.hasError || password.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
@@ -113,8 +114,9 @@
                 type="submit"
                 class="ui button primary"
                 @click.prevent='submit'
-                :disabled='username.isValid != true || email.isValid != true || password.isValid != true'
+
                 >Signup
+                <!-- :disabled='username.isValid != true || email.isValid != true || password.isValid != true' -->
               </button>
             </form>
           </div>
@@ -132,7 +134,7 @@ export default {
       username: {
         isValid: null,
         isTaken: null,
-        data: '',
+        data: null,
         timer: 0,
         hasError: null,
         error: ''
@@ -148,12 +150,11 @@ export default {
       },
       password: {
         isValid: null,
-        data: '',
+        data: null,
         timer: 0,
         hasError: null,
         error: ''
       },
-      code: '',
       user: {
         id: null,
         token: null,
@@ -162,93 +163,110 @@ export default {
     }
   },
   methods: {
-    setUsernameTimer: function (event) {
-      if (event.key === 'Tab' || event.key === 'Enter') {
-        return
-      } else {
-        clearTimeout(this.username.timer)
-        this.username.timer = setTimeout(this.validateUsername, 750)
-      }
-    },
+    // setUsernameTimer: function (event) {
+    //   if (event.key === 'Tab' || event.key === 'Enter') {
+    //     return
+    //   } else {
+    //     clearTimeout(this.username.timer)
+    //     this.username.timer = setTimeout(this.validateUsername, 750)
+    //   }
+    // },
     validateUsername: function () {
-      this.username.data = this.username.data.trim()
-      // check if valid username regex ^[a-zA-Z0-9@.+-_]+$
-      console.log('Validating Username')
-      let test = /^[a-zA-Z0-9@.+-_]+$/.test(this.username.data)
-      this.username.isValid = null
-      this.username.isTaken = null
-      this.username.hasError = null
+      if (this.username.data != '' && this.username.data != null) {
+        this.username.data = this.username.data.trim()
+        // check if valid username regex ^[a-zA-Z0-9@.+-_]+$
+        console.log('Validating Username')
+        let test = /^[a-zA-Z0-9@.+-_]+$/.test(this.username.data)
+        this.username.isValid = null
+        this.username.isTaken = null
+        this.username.hasError = null
 
-      if (test) {
-        // check if unique by getting from the api with a vue-resource call
-        this.$http.get('profiles/' + this.username.data + '/').then(response => {
-          console.log('Username is already taken')
-          this.username.isTaken = true
-        }, response => {
-          console.log('Username is available')
-          this.username.isTaken = false
-          console.log('Valid Username')
-          this.username.isValid = true
-        })
+        if (test) {
+          // check if unique by getting from the api with a vue-resource call
+          this.$http.get('profiles/' + this.username.data + '/').then(response => {
+            console.log('Username is already taken')
+            this.username.isTaken = true
+          }, response => {
+            console.log('Username is available')
+            this.username.isTaken = false
+            console.log('Valid Username')
+            this.username.isValid = true
+          })
+        } else {
+          // return error message on form
+          console.log('Invalid username')
+          this.username.isValid = false
+        }
       } else {
-        // return error message on form
-        console.log('Invalid username')
-        this.username.isValid = false
+        this.username.isValid = null
+        this.username.isTaken = null
+        this.username.hasError = null
       }
     },
-    setEmailTimer: function (event) {
-      if (event.key === 'Tab' || event.key === 'Enter') {
-        return
-      } else {
-        clearTimeout(this.email.timer)
-        this.email.timer = setTimeout(this.validateEmail, 750)
-      }
-    },
+    // setEmailTimer: function (event) {
+    //   if (event.key === 'Tab' || event.key === 'Enter') {
+    //     return
+    //   } else {
+    //     clearTimeout(this.email.timer)
+    //     this.email.timer = setTimeout(this.validateEmail, 750)
+    //   }
+    // },
     validateEmail: function () {
-      this.email.data = this.email.data.trim()
-      // check if valid email regex ^[a-zA-Z0-9@.+-_]+$
-      console.log('Validating email')
-      let test = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(this.email.data)
-      this.email.isValid = null
-      this.email.isTaken = null
-      this.email.hasError = null
-      if (test) {
-        // check if unique by getting from the api with a vue-resource call
-        this.$http.get('emails/' + this.email.data + '/').then(response => {
-          console.log('Email is already taken')
-          this.email.isTaken = true
-        }, response => {
-          console.log('Email is not being used')
-          this.email.isTaken = false
-          console.log('Valid email')
-          this.email.isValid = true
-        })
+      if (this.email.data != '' && this.email.data != null) {
+        this.email.data = this.email.data.trim()
+        // check if valid email regex ^[a-zA-Z0-9@.+-_]+$
+        console.log('Validating email')
+        let test = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(this.email.data)
+        this.email.isValid = null
+        this.email.isTaken = null
+        this.email.hasError = null
+        if (test) {
+          // check if unique by getting from the api with a vue-resource call
+          this.$http.get('emails/' + this.email.data + '/').then(response => {
+            console.log('Email is already taken')
+            this.email.isTaken = true
+          }, response => {
+            console.log('Email is not being used')
+            this.email.isTaken = false
+            console.log('Valid email')
+            this.email.isValid = true
+          })
+        } else {
+          // return error message on form
+          console.log('Invalid email')
+          this.email.isValid = false
+        }
       } else {
-        // return error message on form
-        console.log('Invalid email')
-        this.email.isValid = false
+        this.email.isValid = null
+        this.email.isTaken = null
+        this.email.hasError = null
       }
     },
-    setPasswordTimer: function (event) {
-      if (event.key === 'Tab' || event.key === 'Enter') {
-        return
-      } else {
-        clearTimeout(this.password.timer)
-        this.password.timer = setTimeout(this.validatePassword, 750)
-      }
-    },
+    // setPasswordTimer: function (event) {
+    //   if (event.key === 'Tab' || event.key === 'Enter') {
+    //     return
+    //   } else {
+    //     clearTimeout(this.password.timer)
+    //     this.password.timer = setTimeout(this.validatePassword, 750)
+    //   }
+    // },
     validatePassword: function () {
-      this.password.data = this.password.data.trim()
-      console.log('Validating password')
-      let test = /^(?=.*[A-Za-z]).{8,}/.test(this.password.data)
-      this.password.isValid = null
-      this.password.hasError = null
-      if (test) {
-        console.log('Password is strong')
-        this.password.isValid = true
+      if (this.password.data != null && this.password.data != '' ) {
+        this.password.data = this.password.data.trim()
+        console.log('Validating password')
+        let test = /^(?=.*[A-Za-z]).{8,}/.test(this.password.data)
+        this.password.isValid = null
+        this.password.hasError = null
+        if (test) {
+          console.log('Password is strong')
+          this.password.isValid = true
+        } else {
+          console.log('Password is too weak')
+          this.password.isValid = false
+        }
       } else {
-        console.log('Password is too weak')
-        this.password.isValid = false
+        this.password.isValid = null
+        this.password.hasError = null
       }
     },
     submit: function () {
