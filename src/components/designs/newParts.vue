@@ -78,7 +78,7 @@
                   </div>
               </td>
 
-              <td v-else-if='part.created && part.editable && $route.params.rev_slug == "latest" '>
+              <td v-else-if='part.created && isEditable(index) && $route.params.rev_slug == "latest" '>
                 <div id='part-name-editable-div'>
                   <router-link tag='a' to='' @click.native.prevent.once='openPart(index)'
                   id ='part-name-editable'>
@@ -163,7 +163,7 @@
               </td>
 
               <td
-                v-else-if='part.created && part.editable && $route.params.rev_slug == "latest"'
+                v-else-if='part.created && isEditable(index) && $route.params.rev_slug == "latest"'
                 class='collapsing'
               >
                 <div class="ui transparent input" style='width:50px'>
@@ -203,7 +203,7 @@
                 </div>
               </td>
 
-              <td v-else-if='part.created && part.editable && $route.params.rev_slug == "latest"' class='collapsing' >
+              <td v-else-if='part.created && isEditable(index) && $route.params.rev_slug == "latest"' class='collapsing' >
                 <div class="ui transparent input" style='width:50px'>
                   <input
                     id='part-cost-editable'
@@ -347,6 +347,7 @@ export default {
       enterPressed: false,
       test: false,
       editedPartUpdated: false,
+      indexOfEditable: null,
       results: [],
       result: {},
       resultSelected: false,
@@ -423,6 +424,9 @@ export default {
     }
   },
   methods: {
+    isEditable(index){
+      return index === this.indexOfEditable;
+    },
     formatBytes(bytes, decimals) {
        if(bytes == 0) return '0 Bytes'
        var k = 1000
@@ -870,7 +874,6 @@ export default {
           newPart.rev_last_updated = response.data.rev_set[0].created_at
           newPart.rev_action = response.data.rev_set[0].action
           newPart.created = true
-          newPart.editable = false
           newPart.refs = [
             {
               part_number: `${response.data.abbreviation}-${response.data.sequence}-${response.data.design_class.code}-ALPHA`,
@@ -1110,17 +1113,19 @@ export default {
     makePartEditable(index, target) {
       let revisedPart = this.parts[index]
       this.selectedPart = JSON.parse(JSON.stringify(revisedPart))
-      revisedPart.editable = true
+      this.changeEditableIndex(index);
       // focus on the name input
       setTimeout(function() {
-          console.log('focusing on part edit input')
+          console.log('focusing on part edit input -> ', target)
           document.getElementById("part-" + target + "-editable").focus()
       }, 0);
     },
+    changeEditableIndex(newIndex){
+      this.indexOfEditable = newIndex;
+    },
     updateBlurTest(index, event) {
-
       if (!this.enterPressed) {
-        console.log('Update blur test called')
+        console.log('Update blur test called from ', index)
 
         if (event.relatedTarget) {
           var target = event.relatedTarget.id
@@ -1145,6 +1150,7 @@ export default {
       this.enterPressed = true
       let testPart = this.parts[index]
       if (testPart != this.selectedPart) {
+        /**Part names are currently not allowed to be changed, so this section is unecessary
         if (testPart.design_name != this.selectedPart.design_name.trim()) {
           console.log('Design change detected in update part')
 
@@ -1186,10 +1192,12 @@ export default {
         } else {
           console.log('No change to design in edited part, testing BOM')
           this.testEditedPartBOM(index)
-        }
+        }*/
+
+        this.testEditedPartBOM(index);
       } else {
         console.log('No change detected for this part update')
-        testPart.editable = false
+        this.changeEditableIndex(null);
       }
     },
     testEditedPartBOM(index) {
@@ -1213,7 +1221,7 @@ export default {
         let message = null
         this.updateBOM(action, message).then(success => {
           console.log('Updated BOM record after editing an existing part')
-          testPart.editable = false
+          this.changeEditableIndex(null)
           this.editedPartUpdated = true
           this.testEditedPartSpecs(index)
         }, error => {
@@ -1243,7 +1251,7 @@ export default {
           }
           this.getParts(bom_payload)
           this.editedPartUpdated = true
-          testPart.editable = false
+          this.changeEditableIndex(null)
         }, error => {})
       } else {
         if (this.editedPartUpdated = false) {
@@ -1254,7 +1262,7 @@ export default {
           // let design_payload = { design_slug: this.$route.params.design_slug }
           // this.$store.dispatch('getDesign', design_payload)
         }
-        testPart.editable = false
+        this.changeEditableIndex(null)
       }
     },
 
