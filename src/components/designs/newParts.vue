@@ -87,7 +87,7 @@
                 </div>
               </td>
 
-              <!--the old version of the part-name (where name could also be edited) 
+              <!--the old version of the part-name (where name could also be edited)
               <td v-else-if='part.created && part.editable && $route.params.rev_slug == "latest" '>
                 <div class="ui transparent input" id='part-name-editable-div'>
                   <input
@@ -740,6 +740,17 @@ export default {
           console.log('trail is in bom for added part')
           // a part in the bom is in the trail
           // reject adding the part and return an error message
+
+          // reset the new part
+          this.newPartName = {
+            data: null,
+            hasError: null,
+            error: null
+          }
+
+          this.resultSelected = false
+          this.result = {}
+          $('.ui.search').search('hide results')
 
           this.message.active = true
           this.message.title = "Cannot add a part to its own BOM"
