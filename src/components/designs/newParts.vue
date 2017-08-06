@@ -78,7 +78,17 @@
                   </div>
               </td>
 
-              <!--<td v-else-if='part.created && part.editable && $route.params.rev_slug == "latest" '>
+              <td v-else-if='part.created && part.editable && $route.params.rev_slug == "latest" '>
+                <div id='part-name-editable-div'>
+                  <router-link tag='a' to='' @click.native.prevent.once='openPart(index)'
+                  id ='part-name-editable'>
+                    {{ part.design_name }}
+                  </router-link>
+                </div>
+              </td>
+
+              <!--the old version of the part-name (where name could also be edited) 
+              <td v-else-if='part.created && part.editable && $route.params.rev_slug == "latest" '>
                 <div class="ui transparent input" id='part-name-editable-div'>
                   <input
                     type="text"
@@ -91,7 +101,8 @@
                     @blur='part.design_name ? updateBlurTest(index, $event) : partNameError(index)'
                   >
                 </div>
-              </td>-->
+              </td>
+              -->
 
               <td v-else id='part-name'>
                 <router-link tag='a' to='' @click.native.prevent.once='openPart(index)'>
@@ -1120,7 +1131,7 @@ export default {
         // have to know if the target is wihin the same
 
         if (target !== 'part-quantity-editable' && target !== 'part-cost-editable' && target !== 'part-name-editable' ) {
-          console.log('Not an editable div, testing part')
+          console.log('Not an editable div(', event, '), testing part')
           this.testEditedPartDesign(index)
         } else {
           console.log('Target is an editable div, passing')
