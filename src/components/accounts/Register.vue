@@ -127,6 +127,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'Register',
   data () {
@@ -162,6 +163,11 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters([
+      'env',
+    ]),
+  },
   methods: {
     // setUsernameTimer: function (event) {
     //   if (event.key === 'Tab' || event.key === 'Enter') {
@@ -175,7 +181,9 @@ export default {
       if (this.username.data != '' && this.username.data != null) {
         this.username.data = this.username.data.trim()
         // check if valid username regex ^[a-zA-Z0-9@.+-_]+$
-        console.log('Validating Username')
+        if (this.env != 'prod') {
+          console.log('Validating Username')
+        }
         let test = /^[a-zA-Z0-9@.+-_]+$/.test(this.username.data)
         this.username.isValid = null
         this.username.isTaken = null
@@ -184,17 +192,23 @@ export default {
         if (test) {
           // check if unique by getting from the api with a vue-resource call
           this.$http.get('profiles/' + this.username.data + '/').then(response => {
-            console.log('Username is already taken')
+            if (this.env != 'prod') {
+              console.log('Username is already taken')
+            }
             this.username.isTaken = true
           }, response => {
-            console.log('Username is available')
+            if (this.env != 'prod') {
+              console.log('Username is available')
+              console.log('Valid Username')
+            }
             this.username.isTaken = false
-            console.log('Valid Username')
             this.username.isValid = true
           })
         } else {
+          if (this.env != 'prod') {
+            console.log('Invalid username')
+          }
           // return error message on form
-          console.log('Invalid username')
           this.username.isValid = false
         }
       } else {
@@ -215,7 +229,9 @@ export default {
       if (this.email.data != '' && this.email.data != null) {
         this.email.data = this.email.data.trim()
         // check if valid email regex ^[a-zA-Z0-9@.+-_]+$
-        console.log('Validating email')
+        if (this.env != 'prod') {
+          console.log('Validating email')
+        }
         let test = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(this.email.data)
         this.email.isValid = null
         this.email.isTaken = null
@@ -223,17 +239,23 @@ export default {
         if (test) {
           // check if unique by getting from the api with a vue-resource call
           this.$http.get('emails/' + this.email.data + '/').then(response => {
-            console.log('Email is already taken')
+            if (this.env != 'prod') {
+              console.log('Email is already taken')
+            }
             this.email.isTaken = true
           }, response => {
-            console.log('Email is not being used')
+            if (this.env != 'prod') {
+              console.log('Email is not being used')
+              console.log('Valid email')
+            }
             this.email.isTaken = false
-            console.log('Valid email')
             this.email.isValid = true
           })
         } else {
+          if (this.env != 'prod') {
+            console.log('Invalid email')
+          }
           // return error message on form
-          console.log('Invalid email')
           this.email.isValid = false
         }
       } else {
@@ -253,15 +275,21 @@ export default {
     validatePassword: function () {
       if (this.password.data != null && this.password.data != '' ) {
         this.password.data = this.password.data.trim()
-        console.log('Validating password')
+        if (this.env != 'prod') {
+          console.log('Validating password')
+        }
         let test = /^(?=.*[A-Za-z]).{8,}/.test(this.password.data)
         this.password.isValid = null
         this.password.hasError = null
         if (test) {
-          console.log('Password is strong')
+          if (this.env != 'prod') {
+            console.log('Password is strong')
+          }
           this.password.isValid = true
         } else {
-          console.log('Password is too weak')
+          if (this.env != 'prod') {
+            console.log('Password is too weak')
+          }
           this.password.isValid = false
         }
       } else {
@@ -270,7 +298,9 @@ export default {
       }
     },
     submit: function () {
-      console.log('submitting registraiton form')
+      if (this.env != 'prod') {
+        console.log('submitting registraiton form')
+      }
       // create the payload object
       let user = {
         username: this.username.data,
@@ -279,11 +309,15 @@ export default {
         password2: this.password.data
       }
       this.$http.post('rest-auth/registration/', user).then(response => {
-        console.log('New user created')
+        if (this.env != 'prod') {
+          console.log('New user created')
+        }
         this.$store.commit('signUp')
         this.$router.push({ path: '/accounts/login' })
       }, response => {
-        console.log('Error creating new user')
+        if (this.env != 'prod') {
+          console.log('Error creating new user')
+        }
         if (typeof response.body.username !== 'undefined') {
           this.username.hasError = true
           this.username.error = response.body.username[0]

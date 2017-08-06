@@ -339,10 +339,14 @@ export default {
   },
   watch: {
     design() {
-      console.log('Design watcher called in design.vue')
+      if (this.env != 'prod') {
+        console.log('Design watcher called in design.vue')
+      }
       // this.updateDesignRefs()
       if (this.design.config_set) {
-        console.log('watch function activiated in design.vue')
+        if (this.env != 'prod') {
+          console.log('watch function activiated in design.vue')
+        }
 
         this.updateDesignRefs()
         this.updateRefSelectors()
@@ -373,7 +377,9 @@ export default {
   methods: {
     updateDesignRefs() {
       if (this.$route.params.config_slug) {
-        console.log('Design refs being set at config or rev');
+        if (this.env != 'prod') {
+          console.log('Design refs being set at config or rev');
+        }
         this.current_config = this.design.config_set.filter(
           config => config.slug == this.$route.params.config_slug
         )[0]
@@ -398,7 +404,9 @@ export default {
         }
 
       } else {
-        console.log('Design refs being set at a build')
+        if (this.env != 'prod') {
+          console.log('Design refs being set at a build')
+        }
         this.current_build_set = this.design.build_set
         this.current_build = this.current_build_set.filter(
           build => build.slug == this.$route.params.build_slug
@@ -413,7 +421,9 @@ export default {
       }
       this.current_rev_index = this.current_rev_set.indexOf(this.current_rev)
       EventBus.$emit('design-refs-updated')
-      console.log('Design Refs have been updated in design.vue')
+      if (this.env != 'prod') {
+        console.log('Design Refs have been updated in design.vue')
+      }
     },
     updateRefSelectors() {
       if (this.current_config != null) {
@@ -425,7 +435,9 @@ export default {
         $('#configs').dropdown('set text', 'None')
         $('#builds').dropdown('set text', 'None')
       }
-      console.log('Ref selectors have been updated in design.vue')
+      if (this.env != 'prod') {
+        console.log('Ref selectors have been updated in design.vue')
+      }
     },
     selectConfig(config) {
       this.$route.params.config_slug = config.slug
@@ -502,7 +514,6 @@ export default {
     selectPart(index) {
 
       let breadcrumb = this.trail[index]
-      console.log(breadcrumb)
       if (breadcrumb.ref_type == 'config') {
         this.$route.params.config_slug = breadcrumb.config_slug
         this.$route.params.rev_slug = 'latest'
@@ -529,14 +540,15 @@ export default {
           settings_ref = 'settings/'
         } else { settings_ref = ''}
         this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
-        console.log('updated route after selecting part')
         let button = document.getElementById('add-part-button')
         if (button) { button.disabled=false }
       }, error => {})
     },
     testBuild() {
       if (this.new_build.data == '') {
-        console.log('Error: did not enter a build name')
+        if (this.env != 'prod') {
+          console.log('Error: did not enter a build name')
+        }
         this.new_build.hasError = true
         this.new_build.error = "You must enter a name"
         $('#builds').dropdown('toggle')
@@ -544,7 +556,9 @@ export default {
       } else {
         let regexTest = /^[A-Za-z0-9-_ ]{1,50}$/.test(this.new_build.data)
         if (regexTest) {
-          console.log('Build name passes regex test')
+          if (this.env != 'prod') {
+            console.log('Build name passes regex test')
+          }
           // see if config name is in config_set.name
           let config_names = [
             'Alpha',
@@ -580,29 +594,39 @@ export default {
             return name.toLowerCase() == vue.new_build.data.toLowerCase()
           })
           if (uniqueConfigTest.length == 0) {
-            console.log('Build name is unique for configs')
+            if (this.env != 'prod') {
+              console.log('Build name is unique for configs')
+            }
             let uniqueBuildTest = this.design.build_set.filter(function(build) {
               return build.name.toLowerCase() == vue.new_build.data.toLowerCase()
             })
             if (uniqueBuildTest.length == 0) {
-              console.log('Build name is unique for builds')
+              if (this.env != 'prod') {
+                console.log('Build name is unique for builds')
+              }
               this.createBuild()
             } else {
-              console.log('This name is already being used as a build')
+              if (this.env != 'prod') {
+                console.log('This name is already being used as a build')
+              }
               this.new_build.hasError = true
               this.new_build.error = 'Name in taken (build)'
               $('#builds').dropdown('toggle')
               $('#builds').dropdown('toggle')
             }
           } else {
-            console.log('This build name is aleady being used')
+            if (this.env != 'prod') {
+              console.log('This build name is aleady being used')
+            }
             this.new_build.hasError = true
             this.new_build.error = 'Name is taken (config)'
             $('#builds').dropdown('toggle')
             $('#builds').dropdown('toggle')
           }
         } else {
-          console.log('This is not a vaild build name')
+          if (this.env != 'prod') {
+            console.log('This is not a vaild build name')
+          }
           this.new_build.hasError = true
           this.new_build.error = 'Invalid Characters'
           $('#builds').dropdown('toggle')
@@ -619,8 +643,10 @@ export default {
         //name: this.new_config.data
       }
       this.$http.post('configs/', payload ).then(success => {
-        console.log('New config created')
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log('New config created')
+          console.log(success)
+        }
 
         // set new route params and reset the refs
         this.$route.params.config_slug = success.body.name.slug
@@ -668,8 +694,10 @@ export default {
 
         })
       }, error => {
-        console.log('Error creating new config')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error creating new config')
+          console.log(error)
+        }
       })
     },
     createBuild() {
@@ -681,13 +709,16 @@ export default {
         name: this.new_build.data
       }
       this.$http.post('builds/', payload ).then(success => {
-        console.log('New build created')
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log('New build created')
+          console.log(success)
+          console.log('Config slug after creating new build is:')
+          console.log(this.$route.params.config_slug)
+        }
 
         // set new route params and reset the refs
         // this.$route.params.config_slug = this.designRefs.params.config_slug
-        console.log('Config slug after creating new build is:')
-        console.log(this.$route.params.config_slug)
+
         this.$route.params.build_slug = this.new_build_slug
         this.$route.params.rev_slug = null
 
@@ -731,8 +762,10 @@ export default {
 
         })
       }, error => {
-        console.log('Error creating new build')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error creating new build')
+          console.log(error)
+        }
       })
     },
     selectRev() {
@@ -823,7 +856,9 @@ export default {
     }
   },
   created() {
-    console.log('Design.vue has been created')
+    if (this.env != 'prod') {
+      console.log('Design.vue has been created')
+    }
 
     // clear the design context, in case coming from another design
     this.$store.commit('clearDesignRefs')
@@ -834,8 +869,11 @@ export default {
     // this.$store.commit('setDesignRefs')
     $('.ui.dropdown').dropdown({'silent': true})
 
-    console.log('Design at created is:')
-    console.log(this.design)
+    if (this.env != 'prod') {
+      console.log('Design at created is:')
+      console.log(this.design)
+    }
+
 
     // get the design instance from route params
     let design_payload = { design_slug: this.$route.params.design_slug }

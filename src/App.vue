@@ -24,11 +24,9 @@ export default {
     appFooter: footer
   },
   created() {
-    console.log('App.vue created')
     let my_host = window.location.host
     let parts = my_host.split('.')
     let sub = parts[0]
-    console.log(sub)
 
     if (sub == 'app') {
       let payload = 'prod'
@@ -36,6 +34,7 @@ export default {
     } else {
       let payload = 'dev'
       this.$store.commit('setEnv', payload)
+      console.log(sub)
     }
 
   }

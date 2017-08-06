@@ -72,6 +72,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile'
     ]),
@@ -88,12 +89,16 @@ export default {
     },
     getDesigns() {
       this.$http.get('designs').then(success => {
-        console.log('Got designs')
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log('Got designs')
+          console.log(success)
+        }
         this.designs = success.body.results
       }, error => {
-        console.log('Error getting designs')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error getting designs')
+          console.log(error)
+        }
       })
     }
   },

@@ -240,6 +240,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile'
     ]),
@@ -251,34 +252,42 @@ export default {
   methods: {
     changeUsername: function () {
       this.username.data = this.username.data.trim()
-      console.log('Validating Username')
+      if (this.env != 'prod') {
+        console.log('Validating Username')
+      }
       let test = /^[a-zA-Z0-9@.+-_]+$/.test(this.username.data)
       this.username.isValid = null
       this.username.isTaken = null
       this.username.hasError = null
       if (test) {
         this.$http.get('profiles/' + this.username.data + '/').then(response => {
-          console.log('Username is already taken')
           this.username.isTaken = true
         }, response => {
           this.username.isTaken = false
           this.username.isValid = true
           let payload = { username: this.username.data }
           this.$http.put('users/' + this.session.user_id + '/', payload).then(response => {
-            console.log('Username updated')
+            if (this.env != 'prod') {
+              console.log('Username updated')
+            }
             alert('Username successfully updated.  Please log back in with your new username.')
-              console.log('Logging out')
             this.$store.commit('endSession')
             this.$http.post('rest-auth/logout/').then(response => {
-              console.log('Logout successful')
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log('Logout successful')
+                console.log(response)
+              }
               this.$router.push({ path: '/accounts/login' })
             }, response => {
-              console.log('Error logging out user')
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log('Error logging out user')
+                console.log(response)
+              }
             })
           }, response => {
-            console.log('Error updating username')
+            if (this.env != 'prod') {
+              console.log('Error updating username')
+            }
             if (typeof response.body.username !== 'undefined') {
               this.username.hasError = true
               this.username.error = response.body.username[0]
@@ -286,13 +295,17 @@ export default {
           })
         })
       } else {
-        console.log('Invalid username')
+        if (this.env != 'prod') {
+          console.log('Invalid username')
+        }
         this.username.isValid = false
       }
     },
     changeEmail: function () {
       this.email.data = this.email.data.trim()
-      console.log('Validating email')
+      if (this.env != 'prod') {
+        console.log('Validating email')
+      }
       let test = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(this.email.data)
       this.email.isValid = null
       this.email.isTaken = null
@@ -300,23 +313,31 @@ export default {
       if (test) {
         // check if unique by getting from the api with a vue-resource call
         this.$http.get('emails/' + this.email.data + '/').then(response => {
-          console.log('Email is already taken')
+          if (this.env != 'prod') {
+            console.log('Email is already taken')
+          }
           this.email.isTaken = true
         }, response => {
-          console.log('Email is not being used')
+          if (this.env != 'prod') {
+            console.log('Email is not being used')
+            console.log('Valid email')
+          }
           this.email.isTaken = false
-          console.log('Valid email')
           this.email.isValid = true
           let payload = {
             username: this.username.data,
             email: this.email.data
           }
           this.$http.put('users/' + this.session.user_id + '/', payload).then(response => {
-            console.log('Email updated')
+            if (this.env != 'prod') {
+              console.log('Email updated')
+            }
             this.$store.dispatch('getProfile')
             }, response => {
-              console.log('Error updating email')
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log('Error updating email')
+                console.log(response)
+              }
               if (typeof response.body.email !== 'undefined') {
                 this.email.hasError = true
                 this.email.error = response.body.username[0]
@@ -326,14 +347,18 @@ export default {
         })
       } else {
         // return error message on form
-        console.log('Invalid email')
+        if (this.env != 'prod') {
+          console.log('Invalid email')
+        }
         this.email.isValid = false
       }
     },
     changePassword: function () {
       this.password1.data = this.password1.data.trim()
       this.password2.data = this.password2.data.trim()
-      console.log('Validating password')
+      if (this.env != 'prod') {
+        console.log('Validating password')
+      }
       let test = /^(?=.*[A-Za-z]).{8,}/.test(this.password1.data)
       this.password1.isValid = null
       this.password1.hasError = null
@@ -342,10 +367,14 @@ export default {
       this.oldPassword.isValid = null
       this.oldPassword.hasError = null
       if (test) {
-        console.log('Password is strong')
+        if (this.env != 'prod') {
+          console.log('Password is strong')
+        }
         this.password1.isValid = true
         if (this.password1.data === this.password2.data) {
-          console.log('passwords match')
+          if (this.env != 'prod') {
+            console.log('passwords match')
+          }
           this.password2.isValid = true
           let payload = {
             new_password1: this.password1.data,
@@ -353,22 +382,29 @@ export default {
             old_password: this.oldPassword.data
           }
           this.$http.post('rest-auth/password/change/', payload).then(response => {
-            console.log('Password updated')
+            if (this.env != 'prod') {
+              console.log('Password updated')
+              console.log(response)
+            }
             this.oldPassword.isValid = true
-            console.log(response)
             alert('Password successfully updated.  Please log back in with your new password.')
-              console.log('Logging out')
             this.$store.commit('endSession')
             this.$http.post('rest-auth/logout/').then(response => {
-              console.log('Logout successful')
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log('Logout successful')
+                console.log(response)
+              }
               this.$router.push({ path: '/accounts/login' })
             }, response => {
-              console.log('Error logging out user')
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log('Error logging out user')
+                console.log(response)
+              }
             })
           }, response => {
-            console.log('Error updating password')
+            if (this.env != 'prod') {
+              console.log('Error updating password')
+            }
             if (typeof response.body.new_password1 !== 'undefined') {
               this.password1.hasError = true
               this.password1.error = response.body.new_password1[0]
@@ -384,14 +420,18 @@ export default {
           })
 
         } else {
-          console.log('passwords do not match')
+          if (this.env != 'prod') {
+            console.log('passwords do not match')
+          }
           this.password1.hasError = true
           this.password1.error = 'Passwords do not match'
           this.password2.hasError = true
           this.password2.error = 'Passwords do not match'
         }
       } else {
-        console.log('Password is too weak')
+        if (this.env != 'prod') {
+          console.log('Password is too weak')
+        }
         this.password1.isValid = false
         this.password2.isValid = false
       }

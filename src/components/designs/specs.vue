@@ -480,14 +480,18 @@ export default {
   },
   watch: {
     designRefs() {
-      console.log('designRefs watcher has been called in newspecs.vue')
+      if (this.env != 'prod') {
+        console.log('designRefs watcher has been called in newspecs.vue')
+      }
       this.awaitDropDowns()
     }
   },
   methods: {
     getToken() {
       this.$http.get('get_token').then(success => {
-        console.log('Got token')
+        if (this.env != 'prod') {
+          console.log('Got token')
+        }
         let values = success.body
         AWS.config.update({
           region: 'us-west-2',
@@ -497,7 +501,9 @@ export default {
         })
         values = null
       }, error => {
-        console.log('Error getting token')
+        if (this.env != 'prod') {
+          console.log('Error getting token')
+        }
       })
     },
     showSpecs() {
@@ -516,7 +522,9 @@ export default {
       let p3 = this.getSuppliers()
 
       Promise.all([p1, p2, p3]).then(() => {
-        console.log('All promises resolved')
+        if (this.env != 'prod') {
+          console.log('All promises resolved')
+        }
         this.setDropDowns()
       });
     },
@@ -576,18 +584,23 @@ export default {
             data: this.specs.data
           }
         }
-        console.log(this.specs.data)
         this.$store.dispatch('updateSpecs', payload).then(success => {
           // this.$router.push( this.designRefs.design_path + '/specs')
           let design_payload = { design_slug: this.$route.params.design_slug }
           this.$store.dispatch('getDesign', design_payload).then(success => {
-            console.log('Got updated Design after adding updating Specs')
+            if (this.env != 'prod') {
+              console.log('Got updated Design after adding updating Specs')
+            }
           }, error => {
-            console.log('Error getting updating design after adding part to Specs')
+            if (this.env != 'prod') {
+              console.log('Error getting updating design after adding part to Specs')
+            }
           })
           this.setDropDowns()
           this.specsUpdated = true
-          console.log('Reloaded the page')
+          if (this.env != 'prod') {
+            console.log('Reloaded the page')
+          }
           resolve()
           // location.reload()
         }, error => {
@@ -598,8 +611,11 @@ export default {
     getDesignClasses() {
       return new Promise((resolve, reject) => {
         this.$http.get('designclasses/?ordering=code').then(success => {
-          console.log('Got design classes')
-          console.log(success)
+          if (this.env != 'prod') {
+            console.log('Got design classes')
+            console.log(success)
+          }
+
           this.designClasses = success.data.results
           $('.ui.dropdown.classes').dropdown({
             'silent': true,
@@ -607,8 +623,10 @@ export default {
           })
           resolve()
         }, error => {
-          console.log('Error getting design classes')
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error getting design classes')
+            console.log(error)
+          }
           reject()
         })
       })
@@ -616,8 +634,10 @@ export default {
     getSuppliers() {
       return new Promise((resolve, reject) => {
         this.$http.get('suppliers/').then(success => {
-          console.log('Got suppliers')
-          console.log(success)
+          if (this.env != 'prod') {
+            console.log('Got suppliers')
+            console.log(success)
+          }
           this.suppliers = success.body.results
           $('.ui.dropdown.suppliers').dropdown({
             'allowAdditions': true,
@@ -626,8 +646,10 @@ export default {
           })
           resolve()
         }, error => {
-          console.log('Error gettings suppliers')
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error gettings suppliers')
+            console.log(error)
+          }
           reject()
         })
       })
@@ -655,10 +677,15 @@ export default {
          }
          s3.putObject(params, function(err, data) {
            if (err) {
-             console.log(err, err.stack); // an error occurred
-           } else {
-             console.log(data)
+             if (vue.env != 'prod') {
+               console.log(err, err.stack); // an error occurred
 
+             }
+           } else {
+             if (vue.env != 'prod') {
+               console.log(data)
+
+             }
              let image = {
                  name: file.name,
                  type: file.type,
@@ -689,7 +716,9 @@ export default {
         let existingSupplier = this.suppliers.filter(supplier => {
           return supplier.name.toLowerCase() == supplierName
         })[0]
-        console.log('Supplier already exists')
+        if (this.env != 'prod') {
+          console.log('Supplier already exists')
+        }
         this.specs.data.suppliers[index].supplierId = existingSupplier.id
 
         setTimeout(function() {
@@ -704,8 +733,10 @@ export default {
           name: event.target.value
         }
         this.$http.post('suppliers/', payload).then(success => {
-          console.log('New supplier created')
-          console.log(success)
+          if (this.env != 'prod') {
+            console.log('New supplier created')
+            console.log(success)
+          }
           this.suppliers.push(success.data)
           let newSupplier = success.data
 
@@ -716,8 +747,10 @@ export default {
             $(`#${supplierClass}`).click()
           }, 500)
         }, error => {
-          console.log('Error creating new supplier')
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error creating new supplier')
+            console.log(error)
+          }
         })
       }
     },
@@ -787,10 +820,14 @@ export default {
   },
   created() {
     if (this.designRefs.ref) {
-      console.log('NewSpecs.vue created, design data already loaded, getting specs')
+      if (this.env != 'prod') {
+        console.log('NewSpecs.vue created, design data already loaded, getting specs')
+      }
       this.awaitDropDowns()
     } else {
-      console.log('NewSpecs.vue created, no design data present, waiting on watcher')
+      if (this.env != 'prod') {
+        console.log('NewSpecs.vue created, no design data present, waiting on watcher')
+      }
     }
 
     if (this.env == 'prod') {

@@ -260,14 +260,18 @@ export default {
       $('#cancelModal').modal('hide')
     },
 		downgradePlan: function() {
-			console.log('Downgrading plan')
+      if (this.env != 'prod') {
+        console.log('Downgrading plan')
+      }
       // change the profile plan
       // change the customer plan
       // change the plan with stripe
       let payload = {action: 'downgrade'}
 			this.$http.put('customers/' + this.profile.customer_set[0].id + '/', payload).then(function(response) {
 				// on success
-        console.log('downgrade succeeded')
+        if (this.env != 'prod') {
+          console.log('downgrade succeeded')
+        }
         $('#cancelModal').modal('hide')
 
         this.$store.dispatch('getProfile').then(success => {
@@ -279,8 +283,10 @@ export default {
 
       }, function(response) {
 				// on error
-        console.log('downgrade failed')
-				console.log(response)
+        if (this.env != 'prod') {
+          console.log('downgrade failed')
+  				console.log(response)
+        }
 			})
 		},
 		submitPayment: function(action) {
@@ -310,9 +316,9 @@ export default {
           if (action === 'create') {
             vue.$http.post('customers/', formData).then(function(response) {
               // on success
-              console.log(response)
-
-
+              if (this.env != 'prod') {
+                console.log(response)
+              }
               this.$store.dispatch('getProfile').then(success => {
                 // $modal.find('#submit-card').prop('disabled', false) // Re-enable submission
                 $('#paymentModal').modal('hide')
@@ -330,7 +336,9 @@ export default {
               })
 
             }, function(response) {
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log(response)
+              }
               // on error
             })
 
@@ -338,7 +346,9 @@ export default {
             // detect if this is an individual or team account with an if statement, need to pass this in somehow, for now just use individual
             formData.append('action', 'update_card')
             vue.$http.put('customers/' + vue.profile.customer_set[0].id + '/', formData).then(function(response) {
+              if (this.env != 'prod') {
                 console.log(response)
+              }
                 this.$store.dispatch('getProfile').then(success => {
                   // $modal.find('#submit-card').prop('disabled', false) // Re-enable submission
                   $('#paymentModal').modal('hide')
@@ -355,13 +365,12 @@ export default {
                 })
             }, function(response) {
               //on error
-              console.log('error')
-              console.log(response)
-
+              if (this.env != 'prod') {
+                console.log('error')
+                console.log(response)
+              }
             })
           }
-
-
 				}
 			}
 		}

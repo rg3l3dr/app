@@ -99,7 +99,9 @@ export default {
       let vue = this
       setTimeout(function() {
           if (vue.resultSelected) {
-            console.log('Result selected, redirecting to result detail page')
+            if (this.env != 'prod') {
+              console.log('Result selected, redirecting to result detail page')
+            }
             let path = vue.result.creator + '/' + vue.result.slug + '/alpha/latest'
             vue.inputQuery = null
             vue.resultSelected = false
@@ -107,39 +109,47 @@ export default {
             $('.ui.search').search('hide results')
             vue.$router.push('/' + path)
           } else {
-            console.log('No result selected, redirecting to results list page')
+            if (this.env != 'prod') {
+              console.log('No result selected, redirecting to results list page')
+              console.log(vue.inputQuery)
+            }
             vue.$store.commit('setQuery', vue.inputQuery)
-            console.log(vue.inputQuery)
             vue.inputQuery = null
             vue.resultSelected = false
             vue.result = {}
             $('.ui.search').search('hide results')
             vue.$router.push('/search')
           }
-
-
       }, 0);
     },
     getUnreadCount() {
       var self = this
 
       self.$http.get('notifications/get-unread-count/').then(response => {
-        console.log('Got unread count')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Got unread count')
+          console.log(response)
+        }
         self.unread_count = response.body.unread_count
       }, response => {
-        console.log('Error getting unread count')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Error getting unread count')
+          console.log(response)
+        }
       })
 
       setInterval( function () {
         self.$http.get('notifications/get-unread-count/').then(response => {
-          console.log('Got unread count')
-          console.log(response)
+          if (this.env != 'prod') {
+            console.log('Got unread count')
+            console.log(response)
+          }
           self.unread_count = response.body.unread_count
         }, response => {
-          console.log('Error getting unread count')
-          console.log(response)
+          if (this.env != 'prod') {
+            console.log('Error getting unread count')
+            console.log(response)
+          }
         })
       }, 30000)
     },
@@ -147,19 +157,21 @@ export default {
       console.log('Logging out')
       this.$store.commit('endSession')
       this.$http.post('rest-auth/logout/').then(response => {
-        console.log('Logout successful')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Logout successful')
+          console.log(response)
+        }
         // this.$router.go({ path: 'www.omnibuilds.com' })
       }, response => {
-        console.log('Error logging out user')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Error logging out user')
+          console.log(response)
+        }
       })
     },
     setSearch() {
-      console.log('Set search has been called')
       let vue = this
       if (this.env == 'prod') {
-        console.log('Search env is production')
         $('.ui.search').search(
           {
             apiSettings: {
@@ -174,9 +186,7 @@ export default {
               description: 'number'
             },
             onSelect: function(result, response) {
-              console.log(result)
               vue.resultSelected = true
-              console.log('Result selected, set resultSelected to true')
               vue.result = result
             }
           }
@@ -198,9 +208,7 @@ export default {
               description: 'number'
             },
             onSelect: function(result, response) {
-              console.log(result)
               vue.resultSelected = true
-              console.log('Result selected, set resultSelected to true')
               vue.result = result
             }
           }

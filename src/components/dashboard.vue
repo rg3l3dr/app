@@ -226,6 +226,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
     ]),
@@ -243,11 +244,17 @@ export default {
     getDesigns() {
       return new Promise ((resolve, reject) => {
         this.$http.get('designlist/').then(success => {
-          console.log(success)
+          if (this.env != 'prod') {
+            console.log('Got design list')
+            console.log(success)
+          }
           this.designs = success.body.results
           resolve()
         }, error => {
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error getting design list')
+            console.log(error)
+          }
           reject()
         })
       })

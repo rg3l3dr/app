@@ -349,7 +349,9 @@ export default {
   },
   watch: {
     designRefs () {
-      console.log('designRefs watcher has been called in files.vue')
+      if (this.env != 'prod') {
+        console.log('designRefs watcher has been called in files.vue')
+      }
       this.getFilesRecord()
       this.getToken()
 
@@ -374,7 +376,9 @@ export default {
     },
     getToken() {
       this.$http.get('get_token').then(success => {
-        console.log('Got token')
+        if (this.env != 'prod') {
+          console.log('Got token')
+        }
         let values = success.body
         AWS.config.update({
           region: 'us-west-2',
@@ -384,39 +388,56 @@ export default {
         })
         values = null
       }, error => {
-        console.log('Error getting token')
+        if (this.env != 'prod') {
+          console.log('Error getting token')
+        }
       })
     },
     getFilesRecord() {
       this.$http.get('files/' + this.design.files.id + '/?ref=' + this.designRefs.ref + '&type=' + this.designRefs.ref_type + '&config=' + this.designRefs.config_slug).then(success => {
-        console.log('got files')
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log('got files')
+          console.log(success)
+        }
         this.files = success.data
 
+        let vue = this
         setTimeout(function() {
-          console.log('trying to activate drodpdown on files')
+          if (vue.env != 'prod') {
+            console.log('trying to activate drodpdown on files')
+          }
           $('.ui.dropdown.options').dropdown(
             { 'silent': true }
             );
         }, 0);
       }, error => {
-        console.log('error getting files')
-        console.log(error)
+        if (vue.env != 'prod') {
+          console.log('error getting files')
+          console.log(error)
+        }
       })
     },
     putFilesRecord(payload) {
       this.$http.put('files/' + payload.params, payload.data).then(success => {
-        console.log('Files updated')
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log('Files updated')
+          console.log(success)
+        }
         let design_payload = { design_slug: this.$route.params.design_slug }
         this.$store.dispatch('getDesign', design_payload).then(success => {
-          console.log('Got updated Design after updating Files')
+          if (this.env != 'prod') {
+            console.log('Got updated Design after updating Files')
+          }
         }, error => {
-          console.log('Error getting updating design after updating Files')
+          if (this.env != 'prod') {
+            console.log('Error getting updating design after updating Files')
+          }
         })
       }, error => {
-        console.log('Error updating files')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error updating files')
+          console.log(error)
+        }
       })
     },
     selectFilesForUpload() {
@@ -456,10 +477,14 @@ export default {
 
       // update the files record to reflect files input
       for (let file of this.filesInput) {
-        console.log('In first for of loop')
+        if (this.env != 'prod') {
+          console.log('In first for of loop')
+        }
         let s3_key = this.design.creator + '/' + this.design.id + '/' + file.name
         if (this.file_names.includes(file.name)) {
-          console.log('Detected an existing file, checking if the file should be updated')
+          if (this.env != 'prod') {
+            console.log('Detected an existing file, checking if the file should be updated')
+          }
           // edit existing file record
           let index = this.file_names.indexOf(file.name)
           let file_record = this.files.data[index]
@@ -513,7 +538,9 @@ export default {
 
       var index = 0
       for (let file of this.filesInput) {
-        console.log('In second for of loop')
+        if (this.env != 'prod') {
+          console.log('In second for of loop')
+        }
         // get file record for this input
         let file_index = this.file_names.indexOf(file.name)
         let file_record = this.files.data[file_index]
@@ -528,7 +555,9 @@ export default {
 
 
         if (file_record.versions.length == 1) {
-          console.log('Uploading a brand new file')
+          if (this.env != 'prod') {
+            console.log('Uploading a brand new file')
+          }
           // uploaidng a new file or versioning an existing file
           let data = await this.putFileToS3(array_buffer, s3_key )
 
@@ -545,7 +574,12 @@ export default {
           // display success or error message
         } else if (file_record.versions[version_index - 1].sha1 != this.sha1) {
           let data = await this.putFileToS3(array_buffer, s3_key )
-          console.log('Updating an existing file')
+          if (this.env != 'prod') {
+
+          }
+          if (this.env != 'prod') {
+            console.log('Updating an existing file')
+          }
 
           file_record.versions[version_index].s3_version_id = data.VersionId
           file_record.versions[version_index].etag = data.ETag
@@ -558,29 +592,38 @@ export default {
           this.status.data += file_record.versions[version_index].size
 
         } else {
-          console.log('Empty commit to an existing file')
+          if (this.env != 'prod') {
+            console.log('Empty commit to an existing file')
+            console.log(file.name + ' already exists and has not changed since the last version')
+          }
           // no change to the file, skip the upload
           // get the file record and remove the last version
           file_record.uploaded = true
           file_record.commited = true
           file_record.versions.pop()
-          console.log(file.name + ' already exists and has not changed since the last version')
           this.status.empty += 1
         }
       }
 
+      let vue = this
       setTimeout(function() {
-        console.log('trying to activate drodpdown on files')
+        if (vue.env != 'prod') {
+          console.log('trying to activate drodpdown on files')
+        }
         $('.ui.dropdown.options').dropdown(
           { 'silent': true }
           );
       }, 0);
 
       for (let file_record of this.files.data) {
-        console.log('In third for of loop')
+        if (this.env != 'prod') {
+          console.log('In third for of loop')
+        }
         file_record.commited = true
         if(!file_record.uploaded) {
-          console.log('Warning, trying to commit files and a file has not been uploaded to S3 for filename: ' + file_record.name)
+          if (this.env != 'prod') {
+            console.log('Warning, trying to commit files and a file has not been uploaded to S3 for filename: ' + file_record.name)
+          }
         }
         file_record.uploaded = true
       }
@@ -619,10 +662,8 @@ export default {
       this.status.ready = true
 
       // update the status message data
-      let vue = this
       setTimeout(function() {
         $('.message .close').on('click', function() {
-          console.log('Close message clicked')
           $(this)
           .closest('.message')
           .transition('fade')
@@ -646,9 +687,13 @@ export default {
          }
          s3.putObject(params, function(err, data) {
            if (err) {
-             console.log(err, err.stack); // an error occurred
+             if (this.env != 'prod') {
+               console.log(err, err.stack); // an error occurred
+             }
            } else {
-             console.log(data)
+             if (this.env != 'prod') {
+               console.log(data)
+             }
              resolve(data)
            }
         })
@@ -694,12 +739,16 @@ export default {
 
         s3.deleteObject(params, function(err, data) {
           if (err) {
-            console.log('Error');
-            console.log(err, err.stack);  // an error occurred
+            if (this.env != 'prod') {
+              console.log('Error');
+              console.log(err, err.stack);  // an error occurred
+            }
             reject(err)
           } else {
-            console.log('Success');
-            console.log(data);           // successful response
+            if (this.env != 'prod') {
+              console.log('Success');
+              console.log(data);           // successful response
+            }
             resolve(data)
           }
         })
@@ -764,7 +813,9 @@ export default {
           { 'silent': true }
           );
       })
-      console.log('Show versions has been selected')
+      if (this.env != 'prod') {
+        console.log('Show versions has been selected')
+      }
 
     },
     returnToFiles() {
@@ -778,12 +829,16 @@ export default {
   // since we already have a design this
   created() {
     if (this.designRefs.ref) {
-      console.log('Files.vue created, design data already loaded, getting files')
+      if (this.env != 'prod') {
+        console.log('Files.vue created, design data already loaded, getting files')
+      }
       this.getFilesRecord()
       this.getToken()
 
     } else {
-      console.log('Files.vue created, no design data present, waiting on watcher')
+      if (this.env != 'prod') {
+        console.log('Files.vue created, no design data present, waiting on watcher')
+      }
     }
     if (this.env == 'prod') {
       this.bucket='omni-prod-designs'

@@ -105,6 +105,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
       'design',
@@ -123,25 +124,33 @@ export default {
     getLicenses() {
       return new Promise((resolve, reject) => {
         this.$http.get('licenses/').then(success => {
-          console.log('Got licenses')
-          console.log(success)
+          if (this.env != 'prod') {
+            console.log('Got licenses')
+            console.log(success)
+          }
           this.licenses = success.body.results
           resolve()
         }, error => {
-          console.log('Error getting licenses')
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error getting licenses')
+            console.log(error)
+          }
           reject()
         })
       })
     },
     setLicense() {
-      console.log('Filtering through licenses for design license')
+      if (this.env != 'prod') {
+        console.log('Filtering through licenses for design license')
+      }
 
       let selectedLicense = this.licenses.filter(license => {
         return license.id == this.design.license
       })[0]
 
-      console.log(selectedLicense)
+      if (this.env != 'prod') {
+        console.log(selectedLicense)
+      }
 
       $('.ui.dropdown.license').dropdown({'silent': true})
       $('.license').dropdown('set text', selectedLicense.long_name)
@@ -152,8 +161,10 @@ export default {
           {
             'silent': true,
             onChange(value, text, $choice) {
-              console.log('Value is:')
-              console.log(value)
+              if (this.env != 'prod') {
+                console.log('Value is:')
+                console.log(value)
+              }
               this.license = value
             }
           }
@@ -169,29 +180,43 @@ export default {
       this.design.description = this.design.description.trim()
 
       if(this.design.name == '') {
-        console.log("Error: did not enter design name")
+        if (this.env != 'prod') {
+          console.log("Error: did not enter design name")
+        }
         this.design_errors.name.hasError = true
         this.design_errors.name.error = 'You must enter a design name'
       } else {
         let test = /^[A-Za-z0-9-_ ]{1,50}$/.test(this.design.name)
         if (test) {
-          console.log('Name matches regex')
+          if (this.env != 'prod') {
+            console.log('Name matches regex')
+          }
           // must exclude the current name for this design
           // check if this design name is already in use by this user
           this.$http.get('designs/' + this.name_slug + '/').then(response => {
-            console.log(response)
+            if (this.env != 'prod') {
+              console.log(response)
+            }
             if (response.body.id != this.design.id) {
-              console.log('Design name is already taken')
+              if (this.env != 'prod') {
+                console.log('Design name is already taken')
+              }
               this.design_errors.name.hasError = true
               this.design_errors.name.error = "You already have a design with the same name"
             } else {
-              console.log('Design name has not changed')
+              if (this.env != 'prod') {
+                console.log('Design name has not changed')
+              }
             }
           }, response => {
-            console.log('Design name  is available')
+            if (this.env != 'prod') {
+              console.log('Design name  is available')
+            }
           }
         )} else {
-          console.log("Error: not a valid part name")
+          if (this.env != 'prod') {
+            console.log("Error: not a valid part name")
+          }
           this.design_errors.name.hasError = true
           this.design_errors.name.error = 'Not a valid part name: enter a name between 1 and 50 characters, including numbers, letters, _ and - only, spaces are allowed.'
         }
@@ -204,21 +229,31 @@ export default {
           license: this.license,
           visibility: 'PRIVATE'
         }
-        console.log(payload)
+        if (this.env != 'prod') {
+          console.log(payload)
+        }
         this.$http.put('designs/' + this.design.slug + '/', payload).then(response => {
-          console.log(response)
+          if (this.env != 'prod') {
+            console.log(response)
+          }
           if (typeof response.body.non_field_errors !== 'undefined') {
-            console.log('Error updating new design: non-field error')
+            if (this.env != 'prod') {
+              console.log('Error updating new design: non-field error')
+            }
             this.design_errors.name.hasError = true
             this.design_errors.name.error = response.body.non_field_errors[0]
           } else {
-            console.log('Design info updated')
-            console.log(response)
+            if (this.env != 'prod') {
+              console.log('Design info updated')
+              console.log(response)
+            }
             this.$router.push(this.designRefs.design_path + '/specs')
           }
         }, response => {
-          console.log('Error creating new design')
-          console.log(response)
+          if (this.env != 'prod') {
+            console.log('Error creating new design')
+            console.log(response)
+          }
         })
       }
     },
@@ -226,10 +261,14 @@ export default {
   },
   created() {
     this.getLicenses().then(success => {
-      console.log('Got licenses at created')
+      if (this.env != 'prod') {
+        console.log('Got licenses at created')
+      }
       EventBus.$emit('got-licenses')
     }, error => {
-      console.log('Error getting licenses at created')
+      if (this.env != 'prod') {
+        console.log('Error getting licenses at created')
+      }
     })
   },
   mounted: async function() {

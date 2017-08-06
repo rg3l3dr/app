@@ -55,6 +55,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
@@ -67,24 +68,37 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters([
+      'env'
+    ]),
+  },
   methods: {
     submit: function () {
-      console.log('submitting password reset form')
+      if (this.env != 'prod') {
+        console.log('submitting password reset form')
+      }
       // create the payload object
       let email = {'email': this.email.data}
       this.$http.post('rest-auth/password/reset/', email).then(response => {
-        console.log('Password reset')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Password reset')
+          console.log(response)
+        }
         this.$router.push({ path: '/accounts/confirm_reset' })
       }, response => {
-        console.log('Error resetting password')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Error resetting password')
+          console.log(response)
+        }
       })
     },
     validateEmail: function () {
       // check if valid email regex ^[a-zA-Z0-9@.+-_]+$
       this.email.data = this.email.data.trim()
-      console.log('Validating email')
+      if (this.env != 'prod') {
+        console.log('Validating email')
+      }
       let test = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(this.email.data)
       this.email.isValid = null
       this.email.hasError = null
@@ -93,15 +107,21 @@ export default {
         this.email.isValid = true
         // check if unique by getting from the api with a vue-resource call
         this.$http.get('emails/' + this.email.data + '/').then(response => {
-          console.log('This email is associated with a user')
+          if (this.env != 'prod') {
+            console.log('This email is associated with a user')
+          }
           this.email.isActive = true
         }, response => {
-          console.log('This email is not associated with a user')
+          if (this.env != 'prod') {
+            console.log('This email is not associated with a user')
+          }
           this.email.isActive = false
         })
       } else {
+        if (this.env != 'prod') {
+          console.log('Invalid email')
+        }
         // return error message on form
-        console.log('Invalid email')
         this.email.isValid = false
       }
     }

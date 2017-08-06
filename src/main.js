@@ -31,8 +31,6 @@ let my_host = window.location.host
 let parts = my_host.split('.')
 let sub = parts[0]
 
-console.log('Current subdomain is: ' + sub)
-
 // other settings that should be environment specific
   // console logging should be turned off in production
   // stripe API key ...
@@ -45,6 +43,7 @@ if (sub == 'app') {
     .addPlugin(RavenVue, Vue)
     .install();
 } else {
+  console.log('Current subdomain is: ' + sub)
   Vue.http.options.root = 'https://stage.omnibuilds.com'
   Vue.config.devtools = true
   Raven
@@ -63,7 +62,9 @@ Vue.http.interceptors.push((request, next) => {
     next()
   } else {
     // if route is get token then ignore
-    console.log('No token yet')
+    if (sub != 'app') {
+      console.log('No token yet')
+    }
     next()
   }
 })
@@ -151,17 +152,22 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (store.state.session.token) {
       // how to know if token is expired ?
-      console.log('user is authenticated')
+      if (sub != 'app') {
+        console.log('user is authenticated')
+      }
       next()
     } else {
-      console.log('Not authenticated, redirecting to login')
+      if (sub != 'app') {
+        console.log('Not authenticated, redirecting to login')
+      }
       next({
         path: '/accounts/login'
       })
     }
   } else {
-
-    console.log('User is not authenticated, but not in a protected route')
+    if (sub != 'app') {
+      console.log('User is not authenticated, but not in a protected route')
+    }
     next()
   }
 })

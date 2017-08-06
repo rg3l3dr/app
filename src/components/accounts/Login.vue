@@ -102,6 +102,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session'
     ])
   },
@@ -123,15 +124,19 @@ export default {
       }
 
       if (this.username.hasError === null && this.password.hasError === null) {
-        console.log('submitting login form')
+        if (this.env != 'prod') {
+          console.log('submitting login form')
+        }
         // create the payload object
         let login = {
           username: this.username.data,
           password: this.password.data
         }
         this.$http.post('rest-auth/login/', login).then(success => {
-          console.log('Login successful')
-          console.log(success)
+          if (this.env != 'prod') {
+            console.log('Login successful')
+            console.log(success)
+          }
           // get the token and user
           let payload = {
             user_id: success.body.user.pk,
@@ -142,14 +147,18 @@ export default {
           // store user in vuex store
           this.$store.commit('startSession', payload)
           this.$store.dispatch('getProfile').then(success => {
-            console.log('Got profile at login')
+            if (this.env != 'prod') {
+              console.log('Got profile at login')
+            }
             this.$router.push({ path: '/home' })
           }, error => {
 
           })
         }, error => {
-          console.log('Error logging in user')
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error logging in user')
+            console.log(error)
+          }
           if (typeof error.body.non_field_errors !== 'undefined') {
             this.password.hasError = true
             this.password.error = error.body.non_field_errors[0]

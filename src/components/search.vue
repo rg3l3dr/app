@@ -45,6 +45,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
       'query'
@@ -58,12 +59,16 @@ export default {
   methods: {
     getResults: function() {
       this.$http.get('designquery/?q=' + this.query).then(success => {
-        console.log('Got query results')
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log('Got query results')
+          console.log(success)
+        }
         this.results = success.body.results
       }, error => {
-        console.log('Error getting query results')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error getting query results')
+          console.log(error)
+        }
       })
     },
     viewResult: function(index) {

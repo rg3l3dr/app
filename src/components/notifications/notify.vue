@@ -63,6 +63,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
     ]),
@@ -80,28 +81,33 @@ export default {
   methods: {
     getNotifications() {
       this.$http.get('notifications/').then(response => {
-        console.log('Got notifications')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Got notifications')
+          console.log(response)
+        }
         this.notifications = response.body.results
-        console.log('reading notifications')
         var new_notifications = this.notifications.filter(function (notification) {
           return notification.unread === true
         })
-        console.log(new_notifications)
         for (var notification of new_notifications) {
-          console.log(notification)
           let payload = { unread: false}
           this.$http.patch('notifications/' + notification.id + '/', payload).then(response => {
-            console.log('Updated notificaiton to read')
-            console.log(response)
+            if (this.env != 'prod') {
+              console.log('Updated notificaiton to read')
+              console.log(response)
+            }
           }, response => {
-            console.log('Error updating notifications')
-            console.log(response)
+            if (this.env != 'prod') {
+              console.log('Error updating notifications')
+              console.log(response)
+            }
           })
         }
       }, response => {
-        console.log('Error getting notifications')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Error getting notifications')
+          console.log(response)
+        }
       })
     }
   },

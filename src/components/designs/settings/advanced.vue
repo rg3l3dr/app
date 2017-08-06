@@ -60,6 +60,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
       'design'
@@ -67,7 +68,9 @@ export default {
   },
   methods: {
     hideDeleteModal: function() {
-      console.log('Hiding the delete modal')
+      if (this.env != 'prod') {
+        console.log('Hiding the delete modal')
+      }
       $('#deleteModal').modal('hide')
     },
     showDeleteModal: function() {
@@ -80,12 +83,16 @@ export default {
       $('#deleteModal').modal('hide')
       $('body .modals').remove()
       this.$http.delete('designs/' + this.design.slug).then(response => {
-        console.log('Design has been deleted')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Design has been deleted')
+          console.log(response)
+        }
         this.$router.push('/home')
       }, response => {
-        console.log('Error deleting design')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Error deleting design')
+          console.log(response)
+        }
       })
     }
 

@@ -164,6 +164,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
       'design',
@@ -206,12 +207,17 @@ export default {
     },
     deleteBuild: function() {
 
-      console.log('Delete build button clicked')
+      if (this.env != 'prod') {
+        console.log('Delete build button clicked')
+      }
+
 
       this.$http.delete('builds/' + this.deadBuildId).then(response => {
-        console.log('Build successfully deleted')
+        if (this.env != 'prod') {
+          console.log('Build successfully deleted')
+          console.log(response)
+        }
         this.hideDeleteModal()
-        console.log(response)
 
         $('#builds').dropdown('set text', 'Latest')
         $('#builds').dropdown('set selected', 'Latest')
@@ -224,8 +230,10 @@ export default {
           $('.ui.dropdown').dropdown({ 'silent': true })
         }, error => { })
       }, error => {
-        console.log('Error deleting build')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error deleting build')
+          console.log(error)
+        }
       })
     }
   },

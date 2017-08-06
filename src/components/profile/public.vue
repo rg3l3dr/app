@@ -205,6 +205,7 @@ export default {
   },
 	computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile'
     ])
@@ -282,8 +283,9 @@ export default {
       }
 
       this.$http.put('profiles/' + this.profile.name + '/', formData, { headers: { 'Content-Type': 'multipart/form-data'}}).then(response => {
-
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log(response)
+        }
 
         if (typeof response.body.plan === 'undefined') {
           if (typeof response.body.public_email !== 'undefined') {
@@ -321,15 +323,23 @@ export default {
         }
 
         if (this.errors.profile.updated === false) {
-          console.log('Error updating profile')
+          if (this.env != 'prod') {
+            console.log('Error updating profile')
+          }
         } else {
-          console.log('Update profile successful')
+          if (this.env != 'prod') {
+            console.log('Update profile successful')
+          }
           this.$store.dispatch('getProfile').then(response => {
-            console.log('Got profile after updating public profile')
+            if (this.env != 'prod') {
+              console.log('Got profile after updating public profile')
+            }
             // redirect to dashboard
             // this.$router.push({ path: '/home' })
           }, error => {
-            console.log('Error getting profile after updating public profile')
+            if (this.env != 'prod') {
+              console.log('Error getting profile after updating public profile')
+            }
           })
           // this.$router.push('/home')
         }
@@ -337,8 +347,10 @@ export default {
 
         // get the token and user
       }, response => {
-        console.log('Error updating profile')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Error updating profile')
+          console.log(response)
+        }
         this.errors.profile.updated = false
         if (typeof response.body.public_email !== 'undefined') {
           this.errors.profile.public_email.isValid = null

@@ -395,8 +395,10 @@ export default {
   watch: {
     //
     designRefs() {
-      console.log('designRefs watcher has been called in parts.vue')
-      console.log(`Path endpoint is: ${this.designRefs.endpoint}`)
+      if (this.env != 'prod') {
+        console.log('designRefs watcher has been called in parts.vue')
+        console.log(`Path endpoint is: ${this.designRefs.endpoint}`)
+      }
       this.gettingBom = true
       if (this.designRefs.endpoint == 'parts') {
         let bom_payload = {
@@ -405,14 +407,18 @@ export default {
           ref_slug: this.designRefs.ref,
           ref_type: this.designRefs.ref_type
         }
-        console.log('getParts has been called from watcher in parts.vue')
+        if (this.env != 'prod') {
+          console.log('getParts has been called from watcher in parts.vue')
+        }
         this.getBom().then(success => {
           this.getParts(bom_payload)
         }, error => {})
       }
     },
     trail() {
-      console.log('trail watcher has been called in parts.vue')
+      if (this.env != 'prod') {
+        console.log('trail watcher has been called in parts.vue')
+      }
       let bom_payload = {
         design_id: this.design.id,
         config_slug: this.designRefs.config_slug,
@@ -448,7 +454,9 @@ export default {
     },
     getDesigns() {
       this.$http.get('designlist/').then(success => {
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log(success)
+        }
         let designs = success.body.results
         for (let design of designs) {
           let result = {
@@ -460,18 +468,24 @@ export default {
           this.results.push(result)
         }
       }, error => {
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log(error)
+        }
       })
     },
     getDesign(payload) {
       return new Promise ((resolve, reject ) => {
         this.$http.get('designs/' + payload.design_slug).then(success => {
-          console.log('Got design')
-          console.log(success)
+          if (this.env != 'prod') {
+            console.log('Got design')
+            console.log(success)
+          }
           resolve(success)
         }, error => {
-          console.log('Error getting design')
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error getting design')
+            console.log(error)
+          }
           reject(error)
         })
       })
@@ -479,13 +493,17 @@ export default {
     getBom() {
       return new Promise((resolve, reject) => {
         this.$http.get('boms/' + this.design.bom.id + '/?ref=' + this.designRefs.ref + '&type=' + this.designRefs.ref_type + '$config=' + this.designRefs.config_slug).then(response => {
-          console.log('got bom')
-          console.log(response)
+          if (this.env != 'prod') {
+            console.log('got bom')
+            console.log(response)
+          }
           this.bom = response.data
           resolve()
         }, response => {
-          console.log('error getting bom')
-          console.log(response)
+          if (this.env != 'prod') {
+            console.log('error getting bom')
+            console.log(response)
+          }
           reject()
         })
       })
@@ -494,11 +512,13 @@ export default {
     getParts(payload) {
       return new Promise((resolve, reject) => {
         this.$http.get(`get_bom_parts/?design_id=${payload.design_id}&ref_slug=${payload.ref_slug}&ref_type=${payload.ref_type}&config_slug=${payload.config_slug}`).then(success => {
-          console.log('Got Parts')
-          console.log(success)
-          this.parts = success.data
-          console.log('trying to activate drodpdown on parts')
+          if (this.env != 'prod') {
+            console.log('Got Parts')
+            console.log(success)
+            console.log('trying to activate drodpdown on parts')
 
+          }
+          this.parts = success.data
           this.$nextTick(() => {
             var dropdown = document.getElementsByClassName('.ui.dropdown.part')
             if (dropdown) {
@@ -517,8 +537,10 @@ export default {
             })
           })
         }, error => {
-          console.log('Error getting Parts')
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error getting Parts')
+            console.log(error)
+          }
           reject(error)
         })
       })
@@ -529,47 +551,71 @@ export default {
 
     checkNewPartNameOnEnter(index, $event) {
       this.enterPressed = true
-      console.log('Check new part name function started')
+      if (this.env != 'prod') {
+        console.log('Check new part name function started')
+      }
       if (this.newPartName.data) {
-        console.log('New part has been entered');
+        if (this.env != 'prod') {
+          console.log('New part has been entered');
+        }
         this.testNewPart(index)
       } else {
-        console.log('New party input is empty');
+        if (this.env != 'prod') {
+          console.log('New party input is empty');
+        }
         this.partNameError(index, $event)
       }
     },
     newPartBlurTest(index, $event) {
-      console.log('New part blur test function started')
+      if (this.env != 'prod') {
+        console.log('New part blur test function started')
+      }
       if (!this.enterPressed) {
         if ($event.relatedTarget) {
           var target = $event.relatedTarget.id
         } else { var target = null }
         if (target !== 'part-quantity-editable' && target !== 'part-cost-editable' && target !== 'part-name-editable') {
-          console.log('Legit blur event, checking name')
+          if (this.env != 'prod') {
+            console.log('Legit blur event, checking name')
+            console.log('Blur transitioned to another editable div, ignoring')
+          }
           this.checkNewPartNameonBlur(index, $event) } else {
-          console.log('Blur transitioned to another editable div, ignoring')
         }
       } else {
         this.enterPressed = false
-        console.log('Blur triggered by keydown.enter, ignoring')
+        if (this.env != 'prod') {
+          console.log('Blur triggered by keydown.enter, ignoring')
+        }
       }
     },
     checkNewPartNameonBlur(index, $event) {
-      console.log('Check new part name function started')
+      if (this.env != 'prod') {
+        console.log('Check new part name function started')
+      }
       if (this.newPartName.data) {
-        console.log('New part has been entered');
+        if (this.env != 'prod') {
+          console.log('New part has been entered');
+        }
         this.testNewPart(index)
       } else {
-        console.log('New part input is empty');
+
+        if (this.env != 'prod') {
+          console.log('New part input is empty');
+        }
         this.partNameError(index, $event)
       }
     },
     partNameError(index, $event) {
       // focus on the input in question
-      console.log('Part name error function started')
-      console.log($event)
+      if (this.env != 'prod') {
+        console.log('Part name error function started')
+        console.log($event)
+      }
+      let vue = this
       setTimeout(function() {
+        if (vue.env != 'prod') {
           console.log('focusing on name error input')
+        }
           document.getElementById("part-name-editable").focus()
       }, 0);
       // change input class to error
@@ -580,10 +626,14 @@ export default {
       let vue = this
       setTimeout(() => {
         if (vue.resultSelected) {
-          console.log('Enter pressed to select a part from search results')
+          if (vue.env != 'prod') {
+            console.log('Enter pressed to select a part from search results')
+          }
           vue.checkIfInBOM(index, vue.result.slug)
         } else {
-          console.log('Enter pressed to create a new part')
+          if (vue.env != 'prod') {
+            console.log('Enter pressed to create a new part')
+          }
           if (vue.newPartName.data.trim()) {
             let bc_names = vue.trail.map((bc) => {return bc.name})
             if (bc_names.includes(vue.newPartName.data.trim())) {
@@ -625,25 +675,36 @@ export default {
               return
             }
             // test if it is an exisiting name,
-            console.log(vue.newPartName.data)
-            console.log(vue.name_slug)
-            console.log('A name has been entered')
+            if (vue.env != 'prod') {
+              console.log(vue.newPartName.data)
+              console.log(vue.name_slug)
+              console.log('A name has been entered')
+            }
+
             vue.$http.get('designs/' + vue.name_slug + '/').then(success => {
-              console.log('Name refers to an existing design')
-              console.log(success)
+              if (vue.env != 'prod') {
+                console.log('Name refers to an existing design')
+                console.log(success)
+              }
               // they have typed in an existing part
               vue.checkIfInBOM(index, vue.name_slug)
             }, error => {
               // need to create a new design
-              console.log('This name is not in use, creating a new part')
-              console.log(error)
+              if (vue.env != 'prod') {
+                console.log('This name is not in use, creating a new part')
+                console.log(error)
+              }
               vue.testNewPart(index)
             })
           } else {
-            console.log('Part name not typed in')
+            if (vue.env != 'prod') {
+              console.log('Part name not typed in')
+            }
             vue.partNameError(index)
           }
-          console.log('No result selected, adding new part (if not existing part)')
+          if (vue.env != 'prod') {
+            console.log('No result selected, adding new part (if not existing part)')
+          }
           vue.resultSelected = false
           vue.result = {}
           $('.ui.search').search('hide results')
@@ -658,15 +719,21 @@ export default {
       let part_slugs = this.parts.map((part) => {return part.design_slug})
       part_slugs.pop()
       if (part_slugs.includes(result)) {
-        console.log('New part being added is already in the BOM, checking to see if they have the same ref')
+        if (this.env != 'prod') {
+          console.log('New part being added is already in the BOM, checking to see if they have the same ref')
+        }
         let matched_part_index = part_slugs.indexOf(result)
         let matched_part = this.parts[matched_part_index]
         // check to see if they are being tracked at the same ref
         if (matched_part.ref_slug != 'alpha') {
-          console.log('New part is being tracked at a different ref, adding new part')
+          if (this.env != 'prod') {
+            console.log('New part is being tracked at a different ref, adding new part')
+          }
           this.addExistingDesign(index, result)
         } else {
-          console.log('New part is being tracked at the same ref, incrementing orignal party quantity instead of adding new part')
+          if (this.env != 'prod') {
+            console.log('New part is being tracked at the same ref, incrementing orignal party quantity instead of adding new part')
+          }
 
           matched_part.quantity += 1
           this.parts.pop()
@@ -713,7 +780,9 @@ export default {
           })
         }
       } else {
-        console.log('New part being added is not in the BOM, adding a new part')
+        if (this.env != 'prod') {
+          console.log('New part being added is not in the BOM, adding a new part')
+        }
         this.addExistingDesign(index, result)
       }
     },
@@ -721,14 +790,12 @@ export default {
 
       // get the design for the existing part by the slug
       let existingPart = this.parts[index]
-      console.log(existingPart)
       let design_payload = {design_slug: result}
       let response = await this.getDesign(design_payload)
       let design = response.data
 
       // check to see if any parts in the current trail are already inside the full bom of the new design
       let trail_ids = this.trail.map(breadcrumb => {return breadcrumb.design_id} )
-      console.log(trail_ids)
 
       let bom_check_payload = {
         design_refs: {
@@ -741,8 +808,10 @@ export default {
       }
 
       this.$http.post('bom_check/', bom_check_payload).then(async (success) => {
-        console.log('Got a value from bom check')
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log('Got a value from bom check')
+          console.log(success)
+        }
         // get the response value and react
         if (success.body.inBom == true) {
           this.parts.pop()
@@ -750,7 +819,10 @@ export default {
           let button = document.getElementById('add-part-button')
           if (button) { button.disabled=false }
 
-          console.log('trail is in bom for added part')
+          if (this.env != 'prod') {
+            console.log('trail is in bom for added part')
+          }
+
           // a part in the bom is in the trail
           // reject adding the part and return an error message
 
@@ -784,7 +856,9 @@ export default {
 
         } else if (success.body.inBom == false) {
           // continue with adding the part
-          console.log('trail is not in bom for added part')
+          if (this.env != 'prod') {
+            console.log('trail is not in bom for added part')
+          }
 
           // append it to the BOM
           let new_item = {
@@ -837,14 +911,14 @@ export default {
           }, error => {})
         }
       }, error => {
-        console.log('Error getting a value form bom check')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error getting a value form bom check')
+          console.log(error)
+        }
       })
     },
 
     testNewPart(index, $event) {
-      console.log($event)
-      console.log('Test new part function called');
       this.newPartName.nameHasError = false
       this.newPartName.error = null
       this.newPartName.data = this.newPartName.data.trim()
@@ -852,33 +926,47 @@ export default {
       // regex check for legal project name
       let test = /^[A-Za-z0-9-_/\,;:'" ]{1,50}$/.test(this.newPartName.data)
       if (test) {
-        console.log('Name matches regex')
+        if (this.env != 'prod') {
+          console.log('Name matches regex')
+        }
         // check if this design name is already in use by this user
         this.$http.get('designs/' + this.name_slug + '/').then(response => {
-          console.log('Design name is already taken')
+          if (this.env != 'prod') {
+            console.log('Design name is already taken')
+          }
           this.newPartName.hasError = true
           this.newPartName.error = "You already have a design with the same name"
           this.newPartName.data = null
 
+          let vue = this
           setTimeout(function() {
+            if (vue.env != 'prod') {
               console.log('focusing on name error input')
+            }
               document.getElementById("part-name-editable").focus()
           }, 0);
           // change input class to error
           document.getElementById("part-name-editable-div").className = 'ui input error'
           document.getElementById("part-name-editable").placeholder = 'Part name already exists'
         }, response => {
-          console.log('Part/Design name  is available')
+          if (this.env != 'prod') {
+            console.log('Part/Design name  is available')
+          }
           this.saveNewPart(index)
         })
       } else {
-        console.log("Error: not a valid part name")
+        if (this.env != 'prod') {
+          console.log("Error: not a valid part name")
+        }
         this.newPartName.hasError = true
         this.newPartName.error = 'Not a valid part name: enter a name between 1 and 50 characters, including numbers, letters, _ and - only, spaces are allowed.'
         this.newPartName.data = null
 
+        let vue = this
         setTimeout(function() {
+          if (vue.env != 'prod') {
             console.log('focusing on name error input')
+          }
             document.getElementById("part-name-editable").focus()
         }, 0);
         // change input class to error
@@ -888,7 +976,9 @@ export default {
     },
     saveNewPart(index) {
       // saves a new part that has been added to BOM
-      console.log('Save new part function called');
+      if (this.env != 'prod') {
+        console.log('Save new part function called');
+      }
       let newPart = this.parts[index]
 
       // create the actual design
@@ -902,13 +992,19 @@ export default {
       }
       let vue = this
       this.$http.post('designs/', payload).then(response => {
-        console.log(response)
+        if (vue.env != 'prod') {
+          console.log(response)
+        }
         if (typeof response.body.non_field_errors !== 'undefined') {
-          console.log('Error creating new design: non-field error')
+          if (vue.env != 'prod') {
+            console.log('Error creating new design: non-field error')
+          }
           this.name.hasError = true
           this.name.error = response.body.non_field_errors[0]
         } else {
-          console.log('New design created')
+          if (vue.env != 'prod') {
+            console.log('New design created')
+          }
           // update the part data
           // update the part to reflect the design data and that it is created
           newPart.design_id = response.data.id
@@ -970,13 +1066,17 @@ export default {
           let import_step = 1
           vue.updateBOM(action, message, import_id, import_step)
           if (newPart.cost > 0) {
-            this.updateSpecs(index)
+            vue.updateSpecs(index)
           }
-          console.log('commited part to bom')
+          if (vue.env != 'prod') {
+            console.log('commited part to bom')
+          }
         }
       }, response => {
-        console.log('Error creating new design')
-        console.log(response)
+        if (vue.env != 'prod') {
+          console.log('Error creating new design')
+          console.log(response)
+        }
       })
     },
     addEmptyPart() {
@@ -1036,7 +1136,9 @@ export default {
               onSelect: function(result, response) {
                 vue.resultSelected = true
                 vue.result = result
-                console.log('Result selected, set result Selected to true')
+                if (vue.env != 'prod') {
+                  console.log('Result selected, set result Selected to true')
+                }
               }
             }
           )
@@ -1058,13 +1160,18 @@ export default {
               onSelect: function(result, response) {
                 vue.resultSelected = true
                 vue.result = result
-                console.log('Result selected, set result Selected to true')
+                if (vue.env != 'prod') {
+                  console.log('Result selected, set result Selected to true')
+                }
               }
             }
           )
         }
 
-        console.log('focusing')
+        if (this.env != 'prod') {
+          console.log('focusing')
+        }
+
         $('#part-name-editable').focus()
       })
     },
@@ -1162,7 +1269,10 @@ export default {
       }, error => {})
     },
     changeBomLevel(index) {
-      console.log('Change BOM level clicked')
+      if (this.env != 'prod') {
+        console.log('Change BOM level clicked')
+
+      }
 
       // change the trail
       this.trail = this.trail.slice(0, index + 1)
@@ -1199,8 +1309,11 @@ export default {
       this.selectedPart = JSON.parse(JSON.stringify(revisedPart))
       this.changeEditableIndex(index);
       // focus on the name input
+      let vue = this
       setTimeout(function() {
+        if (vue.env != 'prod') {
           console.log('focusing on part edit input -> ', target)
+        }
           document.getElementById("part-" + target + "-editable").focus()
       }, 0);
     },
@@ -1209,7 +1322,9 @@ export default {
     },
     updateBlurTest(index, event) {
       if (!this.enterPressed) {
-        console.log('Update blur test called from ', index)
+        if (this.env != 'prod') {
+          console.log('Update blur test called from ', index)
+        }
 
         if (event.relatedTarget) {
           var target = event.relatedTarget.id
@@ -1220,10 +1335,14 @@ export default {
         // have to know if the target is wihin the same
 
         if (target !== 'part-quantity-editable' && target !== 'part-cost-editable' && target !== 'part-name-editable' ) {
-          console.log('Not an editable div(', event, '), testing part')
+          if (this.env != 'prod') {
+            console.log('Not an editable div(', event, '), testing part')
+          }
           this.testEditedPartDesign(index)
         } else {
-          console.log('Target is an editable div, passing')
+          if (this.env != 'prod') {
+            console.log('Target is an editable div, passing')
+          }
         }
       } else {
         this.enterPressed = false
@@ -1279,7 +1398,9 @@ export default {
 
         this.testEditedPartBOM(index);
       } else {
-        console.log('No change detected for this part update')
+        if (this.env != 'prod') {
+          console.log('No change detected for this part update')
+        }
         this.changeEditableIndex(null);
       }
     },
@@ -1287,7 +1408,9 @@ export default {
       // test if bom (qty or ref) has changed -> update the bom record
       let testPart = this.parts[index]
       if (testPart.quantity != this.selectedPart.quantity || testPart.ref_slug != this.selectedPart.ref_slug) {
-        console.log('Bom change detected in update part')
+        if (this.env != 'prod') {
+          console.log('Bom change detected in update part')
+        }
 
         this.bom.data[index] =  {
           design_id: testPart.design_id,
@@ -1297,13 +1420,17 @@ export default {
           quantity: testPart.quantity
         }
 
-        console.log('About to call update bom with update part replaced by index')
-        console.log(this.bom)
+        if (this.env != 'prod') {
+          console.log('About to call update bom with update part replaced by index')
+          console.log(this.bom)
+        }
 
         let action = `changed qty of ${testPart.design_name} to ${testPart.quantity} in BOM`
         let message = null
         this.updateBOM(action, message).then(success => {
-          console.log('Updated BOM record after editing an existing part')
+          if (this.env != 'prod') {
+            console.log('Updated BOM record after editing an existing part')
+          }
           this.changeEditableIndex(null)
           this.editedPartUpdated = true
           this.testEditedPartSpecs(index)
@@ -1311,7 +1438,9 @@ export default {
 
         })
       } else {
-        console.log('No change to BOM in edited part, testing specs')
+        if (this.env != 'prod') {
+          console.log('No change to BOM in edited part, testing specs')
+        }
         this.testEditedPartSpecs(index)
       }
     },
@@ -1319,11 +1448,15 @@ export default {
       // test if specs (cost) have changed -> updae the specs record
       let testPart = this.parts[index]
       if (testPart.cost != testPart.specs.data.suppliers[0].partSchedules[0].unitCost) {
-        console.log('Specs changed detected in update part')
+        if (this.env != 'prod') {
+          console.log('Specs changed detected in update part')
+        }
 
         testPart.specs.data.suppliers[0].partSchedules[0].unitCost = testPart.cost
         this.updateSpecs(index).then(success => {
-          console.log('Updated Specs record after editing an existing part')
+          if (this.env != 'prod') {
+            console.log('Updated Specs record after editing an existing part')
+          }
           let breadcrumb = this.trail[this.trail.length - 1]
 
           let bom_payload = {
@@ -1338,10 +1471,16 @@ export default {
         }, error => {})
       } else {
         if (this.editedPartUpdated = false) {
+          if (this.env != 'prod') {
             console.log('ALERT --- when testing the update for this part, the objects are not equal but no specific change was detected...')
+          }
+
         } else {
-          console.log('No change to specs in edited part')
-          console.log('Completing part update, un update actually occurred :-)')
+          if (this.env != 'prod') {
+            console.log('No change to specs in edited part')
+            console.log('Completing part update, un update actually occurred :-)')
+          }
+
           // let design_payload = { design_slug: this.$route.params.design_slug }
           // this.$store.dispatch('getDesign', design_payload)
         }
@@ -1357,18 +1496,25 @@ export default {
         creator: updatedPart.design_creator,
       }
       this.$http.put('designs/' + updatedPart.design_slug + '/', payload).then(response => {
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log(response)
+        }
         if (typeof response.body.non_field_errors !== 'undefined') {
-          console.log('Error updating new design: non-field error')
-
+          if (this.env != 'prod') {
+            console.log('Error updating new design: non-field error')
+          }
         } else {
-          console.log('Design info updated')
+          if (this.env != 'prod') {
+            console.log('Design info updated')
+          }
           updatedPart.design = response.data
           EventBus.$emit('part-design-updated')
         }
       }, response => {
-        console.log('Error updating design')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Error updating design')
+          console.log(response)
+        }
       })
     },
     updateBOM(action, message, import_id, import_step) {
@@ -1379,19 +1525,27 @@ export default {
         }
         this.$http.put('boms/' + this.bom.id +'/?ref=' + this.$route.params.config_slug + '&action=' + action + '&message=' + message + '&import_id=' + import_id + '&import_step=' + import_step,
         payload).then(success => {
-          console.log('BOM updated')
-          console.log(success)
+          if (this.env != 'prod') {
+            console.log('BOM updated')
+            console.log(success)
+          }
           this.bom = success.data
           let design_payload = { design_slug: this.design.slug }
           this.$store.dispatch('getDesign', design_payload).then(success => {
-            console.log('Got updated Design after updating BOM')
+            if (this.env != 'prod') {
+              console.log('Got updated Design after updating BOM')
+            }
           }, error => {
-            console.log('Error getting updating design after adding part to BOM')
+            if (this.env != 'prod') {
+              console.log('Error getting updating design after adding part to BOM')
+            }
           })
           resolve(success)
         }, error => {
-          console.log('Error updating BOM when adding new part')
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error updating BOM when adding new part')
+            console.log(error)
+          }
           reject(error)
         })
       })
@@ -1407,18 +1561,26 @@ export default {
         let message = null
         this.$http.put('specs/' + updated_part.specs.id + '/?ref=' + updated_part.ref_slug +
         '&action=' + action + '&message=' + message, payload).then(success => {
-          console.log('Specs updated')
-          console.log(success)
+          if (this.env != 'prod') {
+            console.log('Specs updated')
+            console.log(success)
+          }
           let design_payload = { design_slug: this.design.slug }
           this.$store.dispatch('getDesign', design_payload).then(success => {
-            console.log('Got updated Design after updating Specs')
+            if (this.env != 'prod') {
+              console.log('Got updated Design after updating Specs')
+            }
           }, error => {
-            console.log('Error getting updating design after updating Specs')
+            if (this.env != 'prod') {
+              console.log('Error getting updating design after updating Specs')
+            }
           })
           resolve(success)
         }, error => {
-          console.log('Error updating specs')
-          console.log(error)
+          if (this.env != 'prod') {
+            console.log('Error updating specs')
+            console.log(error)
+          }
           reject(error)
         })
       })
@@ -1430,8 +1592,9 @@ export default {
           this.parts.pop()
           let button = document.getElementById('add-part-button')
           if (button) { button.disabled=false }
-          console.log('New unsaved part has been removed from the BOM')
-
+          if (this.env != 'prod') {
+            console.log('New unsaved part has been removed from the BOM')
+          }
           this.newPartName = {
             data: null,
             hasError: null,
@@ -1452,23 +1615,29 @@ export default {
             let import_id = removed_part.design_id
             let import_step = -1
             this.updateBOM(action, message, import_id, import_step)
-            console.log('Existing part has been removed from the BOM')
+            if (this.env != 'prod') {
+              console.log('Existing part has been removed from the BOM')
+            }
             // if last part in an assembly, remove the assembly from the bom
           })
         })
       }
     },
     tabOver() {
-      console.log('In tabover function')
+      if (this.env != 'prod') {
+        console.log('In tabover function')
+        console.log('Part name is: ' + partName)
+      }
       let partName = $('#part-name-editable').parent().parent().next().next().children()
       $('#part-name-editable').parent().parent().next().next().children().focus()
-      console.log('Part name is: ' + partName)
     },
     tabDown() {
-      console.log('In tabdown function')
+      if (this.env != 'prod') {
+        console.log('In tabdown function')
+        console.log('Part name is: ' + partName)
+      }
       let partName = $('#part-name-editable').parent().parent().next().next().children()
       $('#part-name-editable').parent().parent().next().next().children().focus()
-      console.log('Part name is: ' + partName)
     },
 
     indentBom() {
@@ -1509,20 +1678,24 @@ export default {
     // design.vue will clear itself on created but not on, back (updated)
     // have to detect in the design if the route params do not match the store params, if so then clear and get new context
     if (this.designRefs.ref) {
-      console.log('Parts.vue created, design data already loaded, getting bom')
+      if (this.env != 'prod') {
+        console.log('Parts.vue created, design data already loaded, getting bom')
+        console.log('getParts has been called in part.vue created')
+      }
       let bom_payload = {
         design_id: this.design.id,
         config_slug: this.designRefs.config,
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type
       }
-      console.log('getParts has been called in part.vue created')
       this.getBom().then(success => {
         this.getParts(bom_payload)
       }, error => {})
 
     } else {
-      console.log('Parts.vue created, no design data present, waiting on watcher')
+      if (this.env != 'prod') {
+        console.log('Parts.vue created, no design data present, waiting on watcher')
+      }
     }
   },
   mounted() {

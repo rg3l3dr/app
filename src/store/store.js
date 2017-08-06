@@ -1,4 +1,3 @@
-// require('../main.js')
 import Vue from 'vue'
 import Vuex from 'vuex'
 import VueResource from 'vue-resource'
@@ -34,7 +33,6 @@ export const store = new Vuex.Store({
       pre_endpoint: ''
     },
     trail: [],
-    // parts: [],
     bom: {},
     specs: {},
     files: null,
@@ -68,18 +66,12 @@ export const store = new Vuex.Store({
     trail: state => {
       return state.trail
     },
-    // parts: state => {
-    //   return state.parts
-    // },
     bom: state => {
       return state.bom
     },
     specs: state => {
       return state.specs
-    },
-    // files: state => {
-    //   return state.files
-    // }
+    }
   },
   mutations: {
     setEnv (state, payload) {
@@ -94,8 +86,9 @@ export const store = new Vuex.Store({
       state.session.token = payload.token
       state.session.username = payload.username
       state.session.user_id = payload.user_id
-      console.log('Session opened in store')
-
+      if (state.env != 'prod') {
+        console.log('Session opened in store')
+      }
       // Set a timer and assign to new session variable
 
     },
@@ -126,35 +119,46 @@ export const store = new Vuex.Store({
       state.parts = null
       state.part = null
       state.partRefs = null
-      console.log('Session closed in store')
+      if (state.env != 'prod') {
+        console.log('Session closed in store')
+      }
     },
     setQuery (state, data) {
       state.query = data
     },
     setDesignRefs (state) {
-      console.log('Set Design refs has been called in store')
+      if (state.env != 'prod') {
+        console.log('Set Design refs has been called in store')
+      }
       let config = store.state.route.params.config_slug ? store.state.route.params.config_slug : null
       let build = store.state.route.params.build_slug ? store.state.route.params.build_slug : null
       let rev = store.state.route.params.rev_slug ? store.state.route.params.rev_slug : null
-
       let ref, ref_type, design_path, splits, endpoint, pre_endpoint
 
       if (build) {
         ref = build
         ref_type = 'build'
-        console.log('set ref to build')
+        if (state.env != 'prod') {
+          console.log('set ref to build')
+        }
       } else if (rev && (rev != 'latest' && rev != 'Latest')) {
         ref = rev
         ref_type = 'rev'
-        console.log('set ref to rev')
+        if (state.env != 'prod') {
+          console.log('set ref to rev')
+        }
       } else if (config && (config != 'alpha' && config != 'Alpha')) {
         ref = config
         ref_type = 'config'
-        console.log('set ref to config')
+        if (state.env != 'prod') {
+          console.log('set ref to config')
+        }
       } else {
         ref = 'alpha'
         ref_type = 'config'
-        console.log('set ref to Alpha (default)')
+        if (state.env != 'prod') {
+          console.log('set ref to Alpha (default)')
+        }
       }
       if (ref_type == 'config' || ref_type == 'rev') {
          design_path =
@@ -180,7 +184,9 @@ export const store = new Vuex.Store({
         pre_endpoint: pre_endpoint,
         endpoint: endpoint,
       }
-      console.log('Design Refs set in store')
+      if (state.env != 'prod') {
+        console.log('Design Refs set in store')
+      }
     },
     clearDesignRefs (state) {
       state.designRefs = {
@@ -190,11 +196,15 @@ export const store = new Vuex.Store({
         pre_endpoint: null,
         endpoint: null
       }
-      console.log('refs cleared in store')
+      if (state.env != 'prod') {
+        console.log('refs cleared in store')
+      }
     },
     clearDesign (state) {
       state.design = {}
-      console.log('design cleared in store')
+      if (state.env != 'prod') {
+        console.log('design cleared in store')
+      }
     },
     extendTrail(state, breadcrumb) {
       state.trail.push(breadcrumb)
@@ -211,128 +221,146 @@ export const store = new Vuex.Store({
     },
     setProfile (state, data) {
       state.profile = data
-      console.log('profile set in store')
+      if (state.env != 'prod') {
+        console.log('profile set in store')
+      }
     },
     setDesign(state, data) {
       state.design = data
-      console.log('design set in store')
+      if (state.env != 'prod') {
+        console.log('design set in store')
+      }
     },
-    // setParts(state, data) {
-    //   state.parts = data
-    //   console.log('bom parts set in store')
-    // },
-    // addPart(state, part) {
-    //   state.parts.push(part)
-    // },
-    // clearParts(state) {
-    //   state.parts = []
-    // },
     setSpecs(state, data) {
       state.specs = data
-      console.log('specs set in store')
+      if (state.env != 'prod') {
+        console.log('specs set in store')
+      }
     },
     setBom(state, data) {
       state.bom = data
-      console.log('bom set in store')
+      if (state.env != 'prod') {
+        console.log('bom set in store')
+      }
     },
-    // setFiles(state, data) {
-    //   state.files = data
-    //   console.log('files set in store')
-    // }
   },
   actions: {
     getProfile ({commit, state}) {
       return new Promise((resolve, reject) => {
         Vue.http.get('profiles/' + state.session.username + '/').then(success => {
-          console.log(success)
+          if (state.env != 'prod') {
+            console.log('Got profile')
+            console.log(success)
+          }
           commit('setProfile', success.data)
           resolve(success)
         }, error => {
-          console.log(error)
+          if (state.env != 'prod') {
+            console.log('Error getting profile')
+            console.log(error)
+          }
           reject(error)
         })
       })
     },
-    getDesign ({commit}, payload) {
+    getDesign ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
         Vue.http.get('designs/' + payload.design_slug).then(success => {
-          console.log('Got design')
-          console.log(success)
+          if (state.env != 'prod') {
+            console.log('Got design')
+            console.log(success)
+          }
           commit('setDesign', success.data)
-          // commit('setDesignRefs')
           resolve(success)
         }, error => {
-          console.log('Error getting design')
-          console.log(error)
+          if (state.env != 'prod') {
+            console.log('Error getting design')
+            console.log(error)
+          }
           reject(error)
         })
       })
     },
-    updateDesign ({commit}, payload) {
+    updateDesign ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
         Vue.http.put('designs/' + payload.params, payload.data).then(success => {
-          console.log('updated design')
-          console.log(success)
+          if (state.env != 'prod') {
+            console.log('updated design')
+            console.log(success)
+          }
           commit('setDesign', success.data)
           resolve(success)
         }, error => {
-          console.log('error updating design')
-          console.log(error)
+          if (state.env != 'prod') {
+            console.log('error updating design')
+            console.log(error)
+          }
           reject(error)
         })
       })
     },
-    // getParts({commit}, payload) {
-    //   return new Promise((resolve, reject) => {
-    //
-    //   })
-    // },
-    getSpecs ({commit}, payload) {
+    getSpecs ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
         Vue.http.get('specs/' + payload.id + '/?ref=' + payload.ref + '&type=' + payload.ref_type + '&config=' + payload.config_slug).then(success => {
-          console.log('got specs')
-          console.log(success)
+          if (state.env != 'prod') {
+            console.log('got specs')
+            console.log(success)
+          }
           commit('setSpecs', success.data)
           resolve(success)
         }, error => {
-          console.log('error getting specs')
-          console.log(error)
+          if (state.env != 'prod') {
+            console.log('error getting specs')
+            console.log(error)
+          }
           reject(error)
         })
       })
     },
-    updateSpecs ({commit}, payload) {
+    updateSpecs ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
         Vue.http.put('specs/' + payload.params, payload.data).then(success => {
-          console.log('Specs updated')
-          console.log(success)
+          if (state.env != 'prod') {
+            console.log('Specs updated')
+            console.log(success)
+          }
           commit('setSpecs', success.data)
           resolve(success)
         }, error => {
-          console.log('Error updating specs')
-          console.log(error)
+          if (state.env != 'prod') {
+            console.log('Error updating specs')
+            console.log(error)
+          }
           reject(error)
         })
       })
     },
-    getBom ({commit}, payload) {
+    getBom ({commit, state}, payload) {
       Vue.http.get('boms/' + payload.id + '/?ref=' + payload.ref + '&type=' + payload.ref_type).then(success => {
-        console.log('got BOM')
-        console.log(success)
+        if (state.env != 'prod') {
+          console.log('got BOM')
+          console.log(success)
+        }
         commit('setBom', success.data)
       }, error => {
-        console.log('error getting BOM')
-        console.log(error)
+        if (state.env != 'prod') {
+          console.log('error getting BOM')
+          console.log(error)
+        }
       })
     },
-    updateBom ({commit}, payload) {
+    updateBom ({commit, state}, payload) {
       Vue.http.put('boms/' + payload.params, payload.data).then(response => {
-        console.log('BOM updated')
-        console.log(success)
+        if (state.env != 'prod') {
+          console.log('BOM updated')
+          console.log(success)
+        }
         commit('setBom', success.data)
       }, error => {
-        console.log('Error updating BOM')
-        console.log(error)
+        if (state.env != 'prod') {
+          console.log('Error updating BOM')
+          console.log(error)
+        }
       })
     },
     // getFiles ({commit}, payload) {

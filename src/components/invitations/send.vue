@@ -156,6 +156,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile'
     ]),
@@ -224,18 +225,26 @@ export default {
         else if (valid_email) {
           // check if email is tied to an active user
           self.$http.get('emails/' + invite.email + '/').then(response => {
-            console.log('Email is already taken')
+            if (this.env != 'prod') {
+              console.log('Email is already taken')
+            }
             invite.isValid = false
             invite.error = 'This email is already associated with a OmniBuilds user'
           }, response => {
-            console.log('Email is not being used by a user')
+            if (this.env != 'prod') {
+              console.log('Email is not being used by a user')
+            }
             // check if email is tied to a pending invite
             self.$http.get('invites/' + invite.email + '/').then(response => {
-              console.log('Email is already tied to an invite')
+              if (this.env != 'prod') {
+                console.log('Email is already tied to an invite')
+              }
               invite.isValid = false
               invite.error = 'This email is already associated with a pending invitation'
             }, response => {
-              console.log('Email is not tied to an existing invite')
+              if (this.env != 'prod') {
+                console.log('Email is not tied to an existing invite')
+              }
               invite.isValid = true
             })
           })
@@ -254,11 +263,12 @@ export default {
       for (let invite of this.valid_invites) {
           payload.emails.push(invite.email)
         }
-      console.log(payload)
 
       vue.$http.post('custom_invites/', payload).then(response => {
-        console.log('Invitations sent')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Invitations sent')
+          console.log(response)
+        }
         this.$store.dispatch('getProfile').then(success => {
           $('#successModal').modal('show')
           $('#successModal').on('hidden.bs.modal', function (e) {
@@ -269,8 +279,10 @@ export default {
         })
 
       }, response => {
-        console.log('Error sending invitations')
-        console.log(response)
+        if (this.env != 'prod') {
+          console.log('Error sending invitations')
+          console.log(response)
+        }
         for (var failed_invite in response.body.invalid_invites) {
           for (var invite in this.invites) {
             if (invite.email === failed_invite.email) {

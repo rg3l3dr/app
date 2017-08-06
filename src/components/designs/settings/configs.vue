@@ -119,6 +119,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile',
       'design',
@@ -153,15 +154,19 @@ export default {
         name: 1
       }
       this.$http.post('configs/', payload ).then(success => {
-        console.log('New config created')
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log('New config created')
+          console.log(success)
+        }
         let design_payload = { design_slug: this.design.slug }
         this.$store.dispatch('getDesign', design_payload).then(success => {
           $('.ui.dropdown').dropdown({ 'silent': true })
         }, error => {})
       }, error => {
-        console.log('Error creating new config')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error creating new config')
+          console.log(error)
+        }
       })
     },
     showDeleteModal: function() {
@@ -179,12 +184,16 @@ export default {
     },
     deleteConfig: function() {
 
-      console.log('Delete config button clicked')
+      if (this.env != 'prod') {
+        console.log('Delete config button clicked')
+      }
 
       this.$http.delete('configs/' + this.deadConfigID).then(response => {
-        console.log('Config successfully deleted')
+        if (this.env != 'prod') {
+          console.log('Config successfully deleted')
+          console.log(response)
+        }
         this.hideDeleteModal()
-        console.log(response)
 
         $('#configs').dropdown('set text', 'Alpha')
         $('#configs').dropdown('set selected', 'Alpha')
@@ -208,8 +217,10 @@ export default {
 
         })
       }, error => {
-        console.log('Error deleting config')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error deleting config')
+          console.log(error)
+        }
       })
     }
   },

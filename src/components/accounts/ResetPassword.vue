@@ -90,8 +90,6 @@ function getParameterByName(name, url) {
 let token = getParameterByName('token'); // "lorem"
 let uid = getParameterByName('uid'); // "lorem"
 
-
-
 import { mapGetters } from 'vuex'
 export default {
   name: 'ResetPassword',
@@ -115,6 +113,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile'
     ]),
@@ -123,17 +122,23 @@ export default {
     forgotPassword: function () {
       this.password1.data = this.password1.data.trim()
       this.password2.data = this.password2.data.trim()
-      console.log('Validating password')
+      if (this.env != 'prod') {
+        console.log('Validating password')
+      }
       let test = /^(?=.*[A-Za-z]).{8,}/.test(this.password1.data)
       this.password1.isValid = null
       this.password1.hasError = null
       this.password2.isValid = null
       this.password2.hasError = null
       if (test) {
-        console.log('Password is strong')
+        if (this.env != 'prod') {
+          console.log('Password is strong')
+        }
         this.password1.isValid = true
         if (this.password1.data === this.password2.data) {
-          console.log('passwords match')
+          if (this.env != 'prod') {
+            console.log('passwords match')
+          }
           this.password2.isValid = true
           let payload = {
             uid: uid,
@@ -141,23 +146,29 @@ export default {
             new_password1: this.password1.data,
             new_password2: this.password2.data,
           }
-          console.log(payload)
           this.$http.post('rest-auth/password/reset/confirm/', payload).then(response => {
-            console.log('Password updated')
-            console.log(response)
+            if (this.env != 'prod') {
+              console.log('Password updated')
+              console.log(response)
+            }
             alert('Password successfully updated.  Please log back in with your new password.')
-              console.log('Logging out')
             this.$store.commit('endSession')
             this.$http.post('rest-auth/logout/').then(response => {
-              console.log('Logout successful')
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log('Logout successful')
+                console.log(response)
+              }
               this.$router.push({ path: '/accounts/login' })
             }, response => {
-              console.log('Error logging out user')
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log('Error logging out user')
+                console.log(response)
+              }
             })
           }, response => {
-            console.log('Error updating password')
+            if (this.env != 'prod') {
+              console.log('Error updating password')
+            }
             if (typeof response.body.new_password1 !== 'undefined') {
               this.password1.hasError = true
               this.password1.error = response.body.new_password1[0]
@@ -169,14 +180,18 @@ export default {
           })
 
         } else {
-          console.log('passwords do not match')
+          if (this.env != 'prod') {
+            console.log('passwords do not match')
+          }
           this.password1.hasError = true
           this.password1.error = 'Passwords do not match'
           this.password2.hasError = true
           this.password2.error = 'Passwords do not match'
         }
       } else {
-        console.log('Password is too weak')
+        if (this.env != 'prod') {
+          console.log('Password is too weak')
+        }
         this.password1.isValid = false
         this.password2.isValid = false
       }
