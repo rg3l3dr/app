@@ -741,12 +741,11 @@ export default {
         var path = `/${this.design.creator_slug}/${this.design.slug}/${this.current_config.slug}/${this.current_rev.slug}/parts`
       }
 
-      this.$router.push('/' + path, onComplete => {
+      this.$router.push(path, onComplete => {
         let button = document.getElementById('add-part-button')
         if (button) { button.disabled=true }
-      }, onAbort => {
-
-      })
+        this.setRootDesign()
+      }, onAbort => {})
     },
     toggleRev(step) {
       this.current_rev_index += step
@@ -790,10 +789,37 @@ export default {
       let button = document.getElementById('add-part-button')
       if (button) { button.disabled=false }
     },
+
     showImports() {},
     importDesign() {},
     showCopies() {},
-    copyDesign() {}
+    copyDesign() {},
+    setRootDesign() {
+      this.$store.commit('clearDesignRefs')
+      this.$store.commit('clearDesign')
+      this.$store.commit('clearTrail')
+
+      $('.ui.dropdown').dropdown({'silent': true})
+
+      // get the design instance from route params
+      let design_payload = { design_slug: this.$route.params.design_slug }
+      this.$store.dispatch('getDesign', design_payload).then(success => {
+
+        // this.updateDesignRefs()
+        this.$store.commit('setDesignRefs')
+        EventBus.$emit('design-refs-updated')
+
+        let breadcrumb = {
+          name: this.design.name,
+          slug: this.design.slug,
+          design_id: this.design.id,
+          ref_slug: this.designRefs.ref,
+          ref_type: this.designRefs.ref_type,
+          config_slug: this.designRefs.config_slug,
+        }
+        this.$store.commit('extendTrail', breadcrumb)
+      }, error => {})
+    }
   },
   created() {
     console.log('Design.vue has been created')

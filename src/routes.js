@@ -274,11 +274,13 @@ export const routes = [
   },
   {
     path: '/:profile_slug/:design_slug',
-    redirect: '/:profile_slug/:design_slug/alpha/latest/parts'
+    redirect: '/:profile_slug/:design_slug/alpha/latest/parts',
+    meta: { requiresAuth: true },
   },
   {
     path: '/:profile_slug/:design_slug/:config_slug/:rev_slug',
-    redirect: '/:profile_slug/:design_slug/:config_slug/:rev_slug/parts'
+    redirect: '/:profile_slug/:design_slug/:config_slug/:rev_slug/parts',
+    meta: { requiresAuth: true }
   },
   {
     path: '/:profile_slug/:design_slug/:config_slug/:rev_slug',
