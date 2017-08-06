@@ -708,14 +708,17 @@ export default {
 
       // get the design for the existing part by the slug
       let existingPart = this.parts[index]
+      console.log(existingPart)
       let design_payload = {design_slug: result}
       let response = await this.getDesign(design_payload)
       let design = response.data
 
       // check to see if any parts in the current trail are already inside the full bom of the new design
+      let trail_ids = this.trail.map(breadcrumb => {return breadcrumb.design_id} )
+      console.log(trail_ids)
 
       let bom_check_payload = {
-        imported_design: {
+        design_refs: {
           design_id: design.id,
           ref_slug: existingPart.ref_slug,
           ref_type: existingPart.ref_type,
@@ -724,70 +727,96 @@ export default {
         trail_ids: trail_ids
       }
 
-      this.$http.get('bom_check/', payload).then(success => {
+      this.$http.post('bom_check/', bom_check_payload).then(async (success) => {
+        console.log('Got a value from bom check')
+        console.log(success)
+        // get the response value and react
+        if (success.body.inBom == true) {
+          this.parts.pop()
 
-      }, error => {
-
-      })
-
-
-
-      let parts_payload = {
-        design_id: design.id,
-        ref_slug: breadcrumb.ref_slug,
-        ref_type: breadcrumb.ref_type,
-        config_slug: breadcrumb.config_slug
-      }
-      let parts = this.getParts()
-
-      // append it to the BOM
-      let new_item = {
-        design_id: design.id,
-        ref_slug: 'alpha',
-        ref_type: 'config',
-        config_slug: 'alpha',
-        quantity: existingPart.quantity
-      }
-      this.bom.data.push(new_item)
-
-      // update the BOM
-      let action = `added ${design.name} to BOM`
-      let message = null
-      let import_id = design.id
-      let import_step = 1
-      let newBom = await this.updateBOM(action, message, import_id, import_step)
-      if (existingPart.cost > 0) {
-        this.updateSpecs(index)
-      }
-
-      // get the new design record (for the current breadcrumb)
-      design_payload = {design_slug: this.design.slug}
-      this.getDesign(design_payload)
-
-      // get the parts for just this part
-      let breadcrumb = this.trail[this.trail.length - 1]
-      let payload = {
-        design_id: breadcrumb.design_id,
-        ref_slug: breadcrumb.ref_slug,
-        ref_type: breadcrumb.ref_type,
-        config_slug: breadcrumb.config_slug
-      }
-      // get bom parts returns
-      this.getParts(payload).then(success => {
-        this.newPartName = {
-          data: null,
-          hasError: null,
-          error: null
-        }
-        this.resultSelected = false
-        this.result = {}
-        $('.ui.search').search('hide results')
-        this.$nextTick(() => {
           let button = document.getElementById('add-part-button')
           if (button) { button.disabled=false }
-          this.addEmptyPart()
-        })
-      }, error => {})
+
+          console.log('trail is in bom for added part')
+          // a part in the bom is in the trail
+          // reject adding the part and return an error message
+
+          this.message.active = true
+          this.message.title = "Cannot add a part to its own BOM"
+          this.message.body = 'A nested part in the part you are tying to add is already a part in this assembly, and sits above it in the assembly tree.  You cannot add a part to its own bom!'
+          let vue = this
+          setTimeout(function() {
+            $('.message .close').on('click', function() {
+              console.log('Close message clicked')
+              $(this)
+              .closest('.message')
+              .transition('fade')
+              vue.message = {
+                active: false,
+                title: null,
+                body: null
+              }
+            })
+          }, 0);
+
+        } else if (success.body.inBom == false) {
+          // continue with adding the part
+          console.log('trail is not in bom for added part')
+
+          // append it to the BOM
+          let new_item = {
+            design_id: design.id,
+            ref_slug: 'alpha',
+            ref_type: 'config',
+            config_slug: 'alpha',
+            quantity: existingPart.quantity
+          }
+          this.bom.data.push(new_item)
+
+          // update the BOM
+          let action = `added ${design.name} to BOM`
+          let message = null
+          let import_id = design.id
+          let import_step = 1
+          let newBom = await this.updateBOM(action, message, import_id, import_step)
+
+          if (existingPart.cost > 0) {
+            this.updateSpecs(index)
+          }
+
+          // get the new design record (for the current breadcrumb)
+          design_payload = {design_slug: this.design.slug}
+          this.getDesign(design_payload)
+
+          // get the parts for just this part
+          let breadcrumb = this.trail[this.trail.length - 1]
+          let payload = {
+            design_id: breadcrumb.design_id,
+            ref_slug: breadcrumb.ref_slug,
+            ref_type: breadcrumb.ref_type,
+            config_slug: breadcrumb.config_slug
+          }
+          // get bom parts returns
+          this.getParts(payload).then(success => {
+            this.newPartName = {
+              data: null,
+              hasError: null,
+              error: null
+            }
+            this.resultSelected = false
+            this.result = {}
+            $('.ui.search').search('hide results')
+            this.$nextTick(() => {
+              let button = document.getElementById('add-part-button')
+              if (button) { button.disabled=false }
+              this.addEmptyPart()
+            })
+          }, error => {})
+        }
+      }, error => {
+        console.log('Error getting a value form bom check')
+        console.log(error)
+      })
     },
 
     testNewPart(index, $event) {
