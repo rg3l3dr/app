@@ -154,6 +154,7 @@
                     type="number"
                     style='width:50px'
                     min='1'
+                    step='1'
                     v-model='part.quantity'
                     id='part-quantity-editable'
                     @keyup.enter='checkNewPartNameOnEnter(index, $event)'
@@ -173,6 +174,7 @@
                     id='part-quantity-editable'
                     v-model='part.quantity'
                     min='1'
+                    step='1'
                     @keyup.enter='part.design_name ? testEditedPartDesign(index) : partNameError(index)'
                     @blur='part.design_name ? updateBlurTest(index, $event) : partNameError(index)'
                   >
