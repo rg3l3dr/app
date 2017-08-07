@@ -1123,7 +1123,9 @@ export default {
               ref_slug: vue.designRefs.ref,
               ref_type: vue.designRefs.ref_type
             }
-            vue.getParts(payload)
+            vue.getParts(payload).then(success => {
+              vue.addEmptyPart()
+            }, error => {})
           }, error => {})
           if (newPart.cost > 0) {
             vue.updateSpecs(index)
