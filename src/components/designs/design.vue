@@ -218,14 +218,6 @@
               {{ design.copys }}
             </a>
           </div>
-          <div class="ui labeled button tiny" tabindex="0">
-            <div class="ui button tiny">
-              <i class="balance scale icon"></i>Vote
-            </div>
-            <a class="ui basic left pointing label">
-              112
-            </a>
-          </div>
         </div> -->
       </div>
     </div>

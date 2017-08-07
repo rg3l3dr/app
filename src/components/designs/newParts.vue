@@ -4,12 +4,65 @@
     <div class="ui top attached grey header">
       BILL OF MATERIALS &#8212; Add parts and create nested assemblies
     </div>
-    <div class="ui bottom attached segment">
+    <div class="ui bottom attached clearing segment">
     <!--   <div class="ui big breadcrumb">
       <div class="section">
         {{ design.name }}
       </div>
     </div> -->
+    <!-- <button
+      class="ui right floated basic icon button"
+      data-tooltip="View all Specs"
+      @click='viewAllSpecs'
+    >
+      <i class="list icon"></i>
+    </button>
+
+    <button
+      class="ui right floated basic icon button"
+      data-tooltip="Export to CSV"
+      @click='exportBom'
+      style='margin-right:15px'
+    >
+      <i class="file excel outline icon"></i>
+    </button>
+
+    <button
+      class="ui right floated basic icon button"
+      data-tooltip="Import from CSV"
+      @click='importBom'
+    >
+      <i class="file excel outline icon"></i>
+    </button>
+
+    <button
+      class="ui right floated basic icon button"
+      data-tooltip="Flat BOM"
+      @click='showFlatBom'
+      style='margin-right: 15px'
+    >
+      <i class="ordered list icon"></i>
+    </button>
+
+    <button
+      class="ui right floated basic icon button"
+      data-tooltip="Indented BOM"
+      @click='showIndentedBom'
+    >
+      <i class="indent icon"></i>
+    </button>
+
+    <button
+      class="ui right floated basic icon button"
+      data-tooltip="Standard BOM"
+      @click='showRegularBom'
+    >
+      <i class="table icon"></i>
+    </button> -->
+
+<!--     <div class="row">
+  <br><br>
+</div> -->
       <transition name='fade'>
         <table class="ui striped selectable table" id='bomTable' v-if='parts.length > 0'>
           <thead>
@@ -1640,15 +1693,15 @@ export default {
       $('#part-name-editable').parent().parent().next().next().children().focus()
     },
 
-    indentBom() {
+    showRegularBom() {},
+    showIndentedBom() {
       // client side
       // basically a tree view
       // this is really just a rendering quesiton once you have the full BOM
       // easiest would be to display it as an ordered list
       // there are some packages for making this collapsible
-
     },
-    flattenBom() {
+    showFlatBom() {
       // client side
       // traverse the full bom tree and collect the parts into a single list
       // you at least know there cannot be any duplicates within the same parent and parents and children cannot be duplicates
@@ -1668,7 +1721,7 @@ export default {
       // mapping full properties list will be tricky
 
     },
-    showAllSpecs() {
+    viewAllSpecs() {
       // takes all properties from specs and correlate for each part
       // all should be editable as well
     },

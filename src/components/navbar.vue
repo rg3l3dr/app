@@ -126,13 +126,13 @@ export default {
       var self = this
 
       self.$http.get('notifications/get-unread-count/').then(response => {
-        if (this.env != 'prod') {
+        if (self.env != 'prod') {
           console.log('Got unread count')
           console.log(response)
         }
         self.unread_count = response.body.unread_count
       }, response => {
-        if (this.env != 'prod') {
+        if (self.env != 'prod') {
           console.log('Error getting unread count')
           console.log(response)
         }
