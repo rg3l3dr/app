@@ -159,13 +159,13 @@ export default {
         path = 'https://stage.omnibuilds.com'
         console.log('Logging out')
       }
-    
+
       this.$http.post('rest-auth/logout/').then(response => {
         if (this.env != 'prod') {
           console.log('Logout successful')
           console.log(response)
         }
-        this.$router.push(path, onComplete => {
+        this.$router.push('/' + path, onComplete => {
           this.$store.commit('endSession')
         }, onAbort => {})
       }, response => {

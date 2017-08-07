@@ -840,7 +840,6 @@ export default {
       }
     },
     addExistingDesign: async function(index, result) {
-
       // get the design for the existing part by the slug
       let existingPart = this.parts[index]
       let design_payload = {design_slug: result}
@@ -1117,13 +1116,22 @@ export default {
           let message = null
           let import_id = newPart.design_id
           let import_step = 1
-          vue.updateBOM(action, message, import_id, import_step)
+          vue.updateBOM(action, message, import_id, import_step).then(success => {
+            let payload = {
+              design_id: vue.design.id,
+              config_slug: vue.designRefs.config,
+              ref_slug: vue.designRefs.ref,
+              ref_type: vue.designRefs.ref_type
+            }
+            vue.getParts(payload)
+          }, error => {})
           if (newPart.cost > 0) {
             vue.updateSpecs(index)
           }
           if (vue.env != 'prod') {
             console.log('commited part to bom')
           }
+
         }
       }, response => {
         if (vue.env != 'prod') {
