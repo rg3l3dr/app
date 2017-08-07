@@ -97,6 +97,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'env',
       'session',
       'profile'
     ]),
@@ -107,12 +108,16 @@ export default {
   methods: {
     getLicenses() {
       this.$http.get('licenses/').then(success => {
-        console.log('Got licenses')
-        console.log(success)
+        if (this.env != 'prod') {
+          console.log('Got licenses')
+          console.log(success)
+        }
         this.licenses = success.body.results
       }, error => {
-        console.log('Error getting licenses')
-        console.log(error)
+        if (this.env != 'prod') {
+          console.log('Error getting licenses')
+          console.log(error)
+        }
       })
     },
     submit() {
@@ -127,21 +132,29 @@ export default {
 
       // name is required
       if (this.name.data === '') {
-        console.log("Error: did not enter design name")
+        if (this.env != 'prod') {
+          console.log("Error: did not enter design name")
+        }
         this.name.hasError = true
         this.name.error = 'You must enter a design name'
       } else {
         // regex check for legal project name
         let test = /^[A-Za-z0-9-_/\,;:'" ]{1,50}$/.test(this.name.data)
         if (test) {
-          console.log('Name matches regex')
+          if (this.env != 'prod') {
+            console.log('Name matches regex')
+          }
           // check if this design name is already in use by this user
           this.$http.get('designs/' + this.name_slug + '/').then(response => {
-            console.log('Design name is already taken')
+            if (this.env != 'prod') {
+              console.log('Design name is already taken')
+            }
             this.name.hasError = true
             this.name.error = "You already have a design with the same name"
           }, response => {
-            console.log('Design name  is available')
+            if (this.env != 'prod') {
+              console.log('Design name  is available')
+            }
 
             let payload = {
               name: this.name.data,
@@ -152,26 +165,33 @@ export default {
               cost: 0.00
             }
 
-            console.log('payload is')
-            console.log(payload)
-
             this.$http.post('designs/', payload).then(response => {
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log(response)
+              }
               if (typeof response.body.non_field_errors !== 'undefined') {
-                console.log('Error creating new design: non-field error')
+                if (this.env != 'prod') {
+                  console.log('Error creating new design: non-field error')
+                }
                 this.name.hasError = true
                 this.name.error = response.body.non_field_errors[0]
               } else {
-                console.log('New design created')
+                if (this.env != 'prod') {
+                  console.log('New design created')
+                }
                 this.$router.push({ path: '/' + this.session.username + '/' + this.name_slug + '/alpha/latest/parts' })
               }
             }, response => {
-              console.log('Error creating new design')
-              console.log(response)
+              if (this.env != 'prod') {
+                console.log('Error creating new design')
+                console.log(response)
+              }
             })
           })
         } else {
-          console.log("Error: not a valid part name")
+          if (this.env != 'prod') {
+            console.log("Error: not a valid part name")
+          }
           this.name.hasError = true
           this.name.error = 'Not a valid part name: enter a name between 1 and 50 characters, including numbers, letters, _ and - only, spaces are allowed.'
         }
@@ -194,8 +214,6 @@ export default {
         {
           'silent': true,
           onChange(value, text, $choice) {
-            console.log('Value is:')
-            console.log(value)
             vue.license = value
           }
         }
