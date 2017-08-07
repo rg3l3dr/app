@@ -423,7 +423,7 @@ export default {
           console.log('Files updated')
           console.log(success)
         }
-        let design_payload = { design_slug: this.$route.params.design_slug }
+        let design_payload = { design_slug: this.design.slug }
         this.$store.dispatch('getDesign', design_payload).then(success => {
           if (this.env != 'prod') {
             console.log('Got updated Design after updating Files')
@@ -574,9 +574,6 @@ export default {
           // display success or error message
         } else if (file_record.versions[version_index - 1].sha1 != this.sha1) {
           let data = await this.putFileToS3(array_buffer, s3_key )
-          if (this.env != 'prod') {
-
-          }
           if (this.env != 'prod') {
             console.log('Updating an existing file')
           }

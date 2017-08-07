@@ -6,7 +6,7 @@
     </div>
     <div class="ui bottom attached segment">
       <transition name='fade'>
-        <span v-if='specs.data.updated'>
+        <span v-if='isVisible'>
           <form class="ui form">
             <h3 class="ui dividing header">Basic Data</h3>
             <div class="two fields">
@@ -465,7 +465,8 @@ export default {
       dataTypes: [ 'Text', 'Number', 'True/False'],
       newSupplierName: null,
       specsUpdated: false,
-      bucket: null
+      bucket: null,
+      isVisible: false
     }
   },
   computed: {
@@ -507,7 +508,7 @@ export default {
       })
     },
     showSpecs() {
-      this.specs.data.updated = true
+      this.isVisible = true
       this.$nextTick(() => {
         this.setDropDowns()
         $('.ui.dropdown.classes').dropdown({
@@ -562,7 +563,10 @@ export default {
           ref_type: this.designRefs.ref_type
         }
         this.$store.dispatch('getSpecs', payload).then(success => {
-          resolve()
+          if (success.body.data.updated == true) {
+            this.isVisible = true
+          }
+           resolve()
         }, error => {
           reject()
         })
@@ -570,7 +574,7 @@ export default {
     },
     dispatchUpdateSpecs() {
       return new Promise((resolve, reject) => {
-
+        this.specs.data.updated = true
         let action = 'Updated specs'
         let message = null
 
@@ -586,7 +590,7 @@ export default {
         }
         this.$store.dispatch('updateSpecs', payload).then(success => {
           // this.$router.push( this.designRefs.design_path + '/specs')
-          let design_payload = { design_slug: this.$route.params.design_slug }
+          let design_payload = { design_slug: this.design.slug }
           this.$store.dispatch('getDesign', design_payload).then(success => {
             if (this.env != 'prod') {
               console.log('Got updated Design after adding updating Specs')

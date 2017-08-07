@@ -216,7 +216,9 @@ export const store = new Vuex.Store({
       state.trail = state.trail.slice(0, index + 1)
     },
     editTrail(state, payload) {
-      console.log(payload)
+      if (state.env != 'prod') {
+        console.log(payload)
+      }
       state.trail[payload.index] = payload.breadcrumb
     },
     setProfile (state, data) {

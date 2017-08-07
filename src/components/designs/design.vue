@@ -344,27 +344,27 @@ export default {
         this.updateRefSelectors()
       }
     },
-    params: function () {
-      // console.log('Params watcher has been called in design.vue')
-      // if (this.params.design_slug != this.design.slug) {
-      //   this.$store.commit('clearDesign')
-      //   console.log('Design slug has changed, getting new design')
-      //   // this.$store.commit('setDesignRefs')
-      //   let design_payload = { design_slug: this.$route.params.design_slug }
-      //   this.$store.dispatch('getDesign', design_payload).then(success => {
-      //     this.updateDesignRefs()
-      //     this.$store.commit('setDesignRefs')
-      //     this.updateRefSelectors()
-      //   }, error => {
-      //
-      //   })
-      // } else if (this.params.rev_slug) {
-      //   this.updateDesignRefs()
-      //   this.$store.commit('setDesignRefs')
-      //   this.updateRefSelectors()
-      // }
-      // else { console.log('No change to design slug, passing...') }
-    }
+    // params: function () {
+    //   // console.log('Params watcher has been called in design.vue')
+    //   // if (this.params.design_slug != this.design.slug) {
+    //   //   this.$store.commit('clearDesign')
+    //   //   console.log('Design slug has changed, getting new design')
+    //   //   // this.$store.commit('setDesignRefs')
+    //   //   let design_payload = { design_slug: this.$route.params.design_slug }
+    //   //   this.$store.dispatch('getDesign', design_payload).then(success => {
+    //   //     this.updateDesignRefs()
+    //   //     this.$store.commit('setDesignRefs')
+    //   //     this.updateRefSelectors()
+    //   //   }, error => {
+    //   //
+    //   //   })
+    //   // } else if (this.params.rev_slug) {
+    //   //   this.updateDesignRefs()
+    //   //   this.$store.commit('setDesignRefs')
+    //   //   this.updateRefSelectors()
+    //   // }
+    //   // else { console.log('No change to design slug, passing...') }
+    // }
   },
   methods: {
     updateDesignRefs() {

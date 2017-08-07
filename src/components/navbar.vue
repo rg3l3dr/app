@@ -61,8 +61,7 @@
           <!-- <router-link class='item' to='#'><i class='fa fa-users fa-fw'></i>&nbsp Create Team</router-link> -->
           <router-link class='item' to='/profile/public'><i class='fa fa-gear fa-fw'></i>&nbsp My Account</router-link>
           <div class="divider"></div>
-          <a class='item' v-if='env == "prod"' href='http://www.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
-          <a class='item' v-else href='http://stage.omnibuilds.com' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
+          <a class='item' href='#' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
         </div>
       </div>
       <router-link to="/accounts/login" class="item" v-if='session.active===false'>Login</router-link>
@@ -99,7 +98,7 @@ export default {
       let vue = this
       setTimeout(function() {
           if (vue.resultSelected) {
-            if (this.env != 'prod') {
+            if (vue.env != 'prod') {
               console.log('Result selected, redirecting to result detail page')
             }
             let path = vue.result.creator + '/' + vue.result.slug + '/alpha/latest'
@@ -109,7 +108,7 @@ export default {
             $('.ui.search').search('hide results')
             vue.$router.push('/' + path)
           } else {
-            if (this.env != 'prod') {
+            if (vue.env != 'prod') {
               console.log('No result selected, redirecting to results list page')
               console.log(vue.inputQuery)
             }
@@ -123,30 +122,29 @@ export default {
       }, 0);
     },
     getUnreadCount() {
-      var self = this
-
-      self.$http.get('notifications/get-unread-count/').then(response => {
-        if (self.env != 'prod') {
+      this.$http.get('notifications/get-unread-count/').then(response => {
+        if (this.env != 'prod') {
           console.log('Got unread count')
           console.log(response)
         }
         self.unread_count = response.body.unread_count
       }, response => {
-        if (self.env != 'prod') {
+        if (this.env != 'prod') {
           console.log('Error getting unread count')
           console.log(response)
         }
       })
 
+      var self = this
       setInterval( function () {
         self.$http.get('notifications/get-unread-count/').then(response => {
-          if (this.env != 'prod') {
+          if (self.env != 'prod') {
             console.log('Got unread count')
             console.log(response)
           }
           self.unread_count = response.body.unread_count
         }, response => {
-          if (this.env != 'prod') {
+          if (self.env != 'prod') {
             console.log('Error getting unread count')
             console.log(response)
           }
@@ -154,14 +152,22 @@ export default {
       }, 30000)
     },
     logout () {
-      console.log('Logging out')
-      this.$store.commit('endSession')
+      let path
+      if (this.env == 'prod') {
+        path = 'https://www.omnibuilds.com'
+      } else {
+        path = 'https://stage.omnibuilds.com'
+        console.log('Logging out')
+      }
+    
       this.$http.post('rest-auth/logout/').then(response => {
         if (this.env != 'prod') {
           console.log('Logout successful')
           console.log(response)
         }
-        // this.$router.go({ path: 'www.omnibuilds.com' })
+        this.$router.push(path, onComplete => {
+          this.$store.commit('endSession')
+        }, onAbort => {})
       }, response => {
         if (this.env != 'prod') {
           console.log('Error logging out user')
@@ -192,7 +198,6 @@ export default {
           }
         )
       } else {
-        console.log('Search env is development')
         $('.ui.search').search(
           {
             apiSettings: {

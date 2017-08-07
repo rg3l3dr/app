@@ -89,10 +89,6 @@ export default {
           hasError: null,
           error: '',
         },
-        description: {
-          hasError: null,
-          error: ''
-        },
         picture: {
           hasError: null,
           error: ''
@@ -174,10 +170,7 @@ export default {
     submit() {
 
       this.design_errors.name.hasError = null
-      this.design_errors.description.hasError = null
-
       this.design.name = this.design.name.trim()
-      this.design.description = this.design.description.trim()
 
       if(this.design.name == '') {
         if (this.env != 'prod') {
@@ -227,7 +220,9 @@ export default {
           name: this.design.name,
           creator: this.design.creator,
           license: this.license,
-          visibility: 'PRIVATE'
+          visibility: 'PRIVATE',
+          // design_class: this.design.design_class
+
         }
         if (this.env != 'prod') {
           console.log(payload)
