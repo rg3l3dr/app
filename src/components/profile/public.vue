@@ -282,7 +282,7 @@ export default {
         formData.append('picture', $('input[type=file]')[0].files[0]);
       }
 
-      this.$http.put('profiles/' + this.profile.name + '/', formData, { headers: { 'Content-Type': 'multipart/form-data'}}).then(response => {
+      this.$http.put('profiles/' + this.profile.name.toLowerCase() + '/', formData, { headers: { 'Content-Type': 'multipart/form-data'}}).then(response => {
         if (this.env != 'prod') {
           console.log(response)
         }

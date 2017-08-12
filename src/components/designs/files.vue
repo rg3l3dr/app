@@ -137,13 +137,16 @@
             </button>
           </div>
 
-          <div style='text-align:center' v-else-if="$route.params.rev_slug=='latest'" @click='selectFilesForUpload'>
+          <div style='text-align:center' v-else-if="$route.params.rev_slug=='latest'" >
             <br>
             <h2 class="ui icon header" >
               <i class="fa-files-o icon"></i>
               <br>
               <div class="content">
-                Click here to add files
+                <div class="ui huge blue basic button" @click='selectFilesForUpload'>
+                  Click here to add files
+                </div>
+
                 <div class="sub header" >
                   <br>
                   <a href="http://help.omnibuilds.com#files-are-cad-agnostic" style='font-size:18px'>

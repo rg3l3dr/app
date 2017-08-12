@@ -23,7 +23,7 @@
                 </div>
               </div>
 
-              <div class="field" id='design-visbility'>
+              <!-- <div class="field" id='design-visbility'>
                 <label>Visibility Level</label>
                 <div class="ui selection dropdown visibility">
                   <input type="hidden" name="visibility">
@@ -37,15 +37,15 @@
                     <div class="disabled item" data-value="2">Public (coming soon)</div>
                   </div>
                 </div>
-              </div>
+              </div> -->
 
-              <div class="field" id='design-license'>
+              <!-- <div class="field" id='design-license'>
                 <label> Optional License </label>
                 <select class="ui dropdown license" v-model='license'>
                   <option disabled value=""> <i class="file text icon"></i> Choose a License (optional)</option>
                   <option v-for='license in licenses' :value='license.id'> {{ license.long_name }} </option>
                 </select>
-              </div>
+              </div> -->
               <!-- <div class="field" :class="{ 'error': description.hasError}">
                 <label>Description</label>
                 <textarea

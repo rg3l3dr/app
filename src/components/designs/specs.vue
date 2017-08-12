@@ -411,13 +411,15 @@
             <br>
           </span>
         </span>
-        <div style='text-align:center' v-else-if='$route.params.rev_slug=="latest"' @click='showSpecs'>
+        <div style='text-align:center' v-else-if='$route.params.rev_slug=="latest"' >
           <br>
           <h2 class="ui icon header" >
             <i class="list icon"></i>
             <br>
             <div class="content">
-              Click here to add technical specs
+              <div class="ui huge blue basic button" @click='showSpecs'>
+                Click here to add specs
+              </div>
               <div class="sub header">
                 <br>
                 <a href="http://help.omnibuilds.com#specs-describe-designs" style='font-size:18px'>

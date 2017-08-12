@@ -81,13 +81,15 @@
           <br>
         </div>
       </span>
-      <div style='text-align:center' v-else-if='$route.params.rev_slug=="latest"' @click='createBuild'>
+      <div style='text-align:center' v-else-if='$route.params.rev_slug=="latest"'>
         <br>
         <h2 class="ui icon header" >
           <i class="wrench icon"></i>
           <br>
           <div class="content">
-            Click here to create a build
+            <button class="ui huge blue basic button" @click='createBuild'>
+              Click here to create a build
+            </button>
             <div class="sub header">
               <br>
               <a href="http://help.omnibuilds.com#builds" style='font-size: 17px'>

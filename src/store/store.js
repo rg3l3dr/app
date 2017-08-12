@@ -249,7 +249,7 @@ export const store = new Vuex.Store({
   actions: {
     getProfile ({commit, state}) {
       return new Promise((resolve, reject) => {
-        Vue.http.get('profiles/' + state.session.username + '/').then(success => {
+        Vue.http.get('profiles/' + state.session.username.toLowerCase() + '/').then(success => {
           if (state.env != 'prod') {
             console.log('Got profile')
             console.log(success)
@@ -285,13 +285,16 @@ export const store = new Vuex.Store({
     },
     updateDesign ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
-        Vue.http.put('designs/' + payload.params, payload.data).then(success => {
+        Vue.http.patch(`designs/${state.design.slug}/`, payload).then(success => {
           if (state.env != 'prod') {
             console.log('updated design')
             console.log(success)
           }
-          commit('setDesign', success.data)
-          resolve(success)
+          payload = { design_slug: success.body.slug}
+          store.dispatch('getDesign', payload).then(
+            success => {resolve(success)},
+            error => {reject(error)}
+          )
         }, error => {
           if (state.env != 'prod') {
             console.log('error updating design')

@@ -5,64 +5,6 @@
       BILL OF MATERIALS &#8212; Add parts and create nested assemblies
     </div>
     <div class="ui bottom attached clearing segment">
-    <!--   <div class="ui big breadcrumb">
-      <div class="section">
-        {{ design.name }}
-      </div>
-    </div> -->
-    <!-- <button
-      class="ui right floated basic icon button"
-      data-tooltip="View all Specs"
-      @click='viewAllSpecs'
-    >
-      <i class="list icon"></i>
-    </button>
-
-    <button
-      class="ui right floated basic icon button"
-      data-tooltip="Export to CSV"
-      @click='exportBom'
-      style='margin-right:15px'
-    >
-      <i class="file excel outline icon"></i>
-    </button>
-
-    <button
-      class="ui right floated basic icon button"
-      data-tooltip="Import from CSV"
-      @click='importBom'
-    >
-      <i class="file excel outline icon"></i>
-    </button>
-
-    <button
-      class="ui right floated basic icon button"
-      data-tooltip="Flat BOM"
-      @click='showFlatBom'
-      style='margin-right: 15px'
-    >
-      <i class="ordered list icon"></i>
-    </button>
-
-    <button
-      class="ui right floated basic icon button"
-      data-tooltip="Indented BOM"
-      @click='showIndentedBom'
-    >
-      <i class="indent icon"></i>
-    </button>
-
-    <button
-      class="ui right floated basic icon button"
-      data-tooltip="Standard BOM"
-      @click='showRegularBom'
-    >
-      <i class="table icon"></i>
-    </button> -->
-
-<!--     <div class="row">
-  <br><br>
-</div> -->
       <transition name='fade'>
         <table class="ui striped selectable table" id='bomTable' v-if='parts.length > 0'>
           <thead>
@@ -336,13 +278,15 @@
           </tbody>
         </table>
 
-        <div style='text-align:center' v-else-if='$route.params.rev_slug=="latest"' @click='showBomTable'>
+        <div style='text-align:center' v-else-if='$route.params.rev_slug=="latest"'>
           <br>
           <h2 class="ui icon header" >
             <i class="cubes icon"></i>
             <br>
             <div class="content">
-              Click here to add parts
+              <button class="ui huge blue basic button" @click='showBomTable()'>
+                Click here to add parts
+              </button>
               <div class="sub header">
                 <br>
                 <a href="http://help.omnibuilds.com#parts-are-the-building-blocks-of-designs" style='font-size:18px'>

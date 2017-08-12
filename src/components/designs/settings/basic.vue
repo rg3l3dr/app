@@ -30,13 +30,13 @@
           </div>
         </div>
 
-        <div class="field" id='design-license'>
+        <!-- <div class="field" id='design-license'>
           <label> Optional License </label>
           <select class="ui dropdown license" v-model='license'>
             <option disabled value=""> <i class="file text icon"></i> Choose a License (optional)</option>
             <option v-for='license in licenses' :value='license.id'> {{ license.long_name }} </option>
           </select>
-        </div>
+        </div> -->
         <!-- <div class="field" :class="{ 'error': design_errors.description.hasError}">
           <label>Description</label>
           <textarea name='description' cols="8" rows="5" maxlength='250' v-model='design.description'></textarea>
@@ -105,7 +105,8 @@ export default {
       'session',
       'profile',
       'design',
-      'designRefs'
+      'designRefs',
+      'trail'
     ]),
     name_slug: function() {
       return this.design.name.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
@@ -218,38 +219,67 @@ export default {
       if (this.design_errors.name.hasError == null) {
         let payload = {
           name: this.design.name,
-          creator: this.design.creator,
           license: this.license,
           visibility: 'PRIVATE',
           // design_class: this.design.design_class
+        }
 
-        }
-        if (this.env != 'prod') {
-          console.log(payload)
-        }
-        this.$http.put('designs/' + this.design.slug + '/', payload).then(response => {
-          if (this.env != 'prod') {
-            console.log(response)
-          }
-          if (typeof response.body.non_field_errors !== 'undefined') {
+        this.$store.dispatch('updateDesign', payload).then(success => {
+          if (typeof success.body.non_field_errors !== 'undefined') {
             if (this.env != 'prod') {
               console.log('Error updating new design: non-field error')
             }
             this.design_errors.name.hasError = true
-            this.design_errors.name.error = response.body.non_field_errors[0]
+            this.design_errors.name.error = success.body.non_field_errors[0]
           } else {
-            if (this.env != 'prod') {
-              console.log('Design info updated')
-              console.log(response)
+            // have to update the breadcrumb for this design
+            // filter through the trail until you get the breadcrumb with the same id as the current design
+            let trail_ids = this.trail.map(breadcrumb => { return breadcrumb.design_id})
+            let index = trail_ids.indexOf(this.design.id)
+            let breadcrumb = this.trail[index]
+            breadcrumb.name = this.design.name
+            breadcrumb.slug = this.design.slug
+            let payload = {
+              index: index,
+              breadcrumb: breadcrumb
             }
-            this.$router.push(this.designRefs.design_path + '/specs')
+            this.$store.commit('editTrail', breadcrumb)
+
+            // commit editTrail with the new part refs
+
+
+
+            // if (this.env != 'prod') {
+            //   console.log('Design info updated')
+            //   console.log(success)
+            // }
+            // this.$router.push(this.designRefs.design_path + '/specs')
           }
-        }, response => {
-          if (this.env != 'prod') {
-            console.log('Error creating new design')
-            console.log(response)
-          }
-        })
+        }, error => {})
+
+        // this.$http.put('designs/' + this.design.slug + '/', payload).then(response => {
+        //   if (this.env != 'prod') {
+        //     console.log(response)
+        //   }
+        //   if (typeof response.body.non_field_errors !== 'undefined') {
+        //     if (this.env != 'prod') {
+        //       console.log('Error updating new design: non-field error')
+        //     }
+        //     this.design_errors.name.hasError = true
+        //     this.design_errors.name.error = response.body.non_field_errors[0]
+        //   } else {
+        //     if (this.env != 'prod') {
+        //       console.log('Design info updated')
+        //       console.log(response)
+        //     }
+        //     this.$router.push(this.designRefs.design_path + '/specs')
+        //   }
+        // }, response => {
+        //   if (this.env != 'prod') {
+        //     console.log('Error creating new design')
+        //     console.log(response)
+        //   }
+        // })
       }
     },
 
