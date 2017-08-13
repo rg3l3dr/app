@@ -37,6 +37,10 @@ export default {
       console.log(sub)
     }
 
+    window.Intercom("boot", {
+      app_id: "k7ou8jph"
+    });
+
   }
 }
 </script>
