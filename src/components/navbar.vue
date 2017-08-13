@@ -60,6 +60,8 @@
           <router-link class='item' to='/create_design'><i class='fa fa-folder-o fa-fw'></i>&nbsp Create Design</router-link>
           <!-- <router-link class='item' to='#'><i class='fa fa-users fa-fw'></i>&nbsp Create Team</router-link> -->
           <router-link class='item' to='/profile/public'><i class='fa fa-gear fa-fw'></i>&nbsp My Account</router-link>
+          <router-link class='item' to='/omni-admin' v-if='profile.owner.is_superuser'><i class='dashboard icon'></i>Admin Dashboard
+          </router-link>
           <div class="divider"></div>
           <a class='item' href='#' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
         </div>

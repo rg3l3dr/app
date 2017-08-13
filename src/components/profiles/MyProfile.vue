@@ -31,6 +31,11 @@
                 <i class="fa fa-folder-open-o"></i> &nbsp; My Designs
               </a>
             </router-link>
+            <router-link tag='a' class='item' to='/profile/admin'>
+              <a>
+                <i class="dashboard icon"></i> &nbsp; Admin Dashboard
+              </a>
+            </router-link>
             <!-- <router-link tag='a' class='item' to='/profile/teams'>
               <a>
                 <i class="fa fa-users"></i> &nbsp; Teams Leading

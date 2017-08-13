@@ -15,6 +15,7 @@ import Account from './components/profile/account.vue'
 import Plan from './components/profile/plan.vue'
 import Teams from './components/profile/teams.vue'
 import Designs from './components/profile/designs.vue'
+import Admin from './components/profile/admin.vue'
 import ListProfiles from './components/profiles/ListProfiles.vue'
 import RetrieveProfile from './components/profiles/RetrieveProfile.vue'
 import Invite from './components/invitations/invite.vue'
@@ -154,6 +155,11 @@ export const routes = [
   {
     path: '/search',
     component: Search,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/omni-admin',
+    component: Admin,
     meta: { requiresAuth: true },
   },
   {
