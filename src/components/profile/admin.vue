@@ -1,5 +1,6 @@
 <template lang="html">
   <div id='users'>
+    <br>
     <div class="ui small top attached header">
       <i class="dashboard icon" aria-hidden="true"></i>
       <div class="content">
@@ -8,22 +9,71 @@
       </div>
     </div>
     <div class="ui bottom attached segment">
+      <div class="ui small statistics">
+        <div class="statistic">
+          <div class="value"></div>
+          <div class="label"></div>
+        </div>
+        <div class="statistic">
+          <div class="value"></div>
+          <div class="label"></div>
+        </div>
+        <div class="statistic">
+          <div class="value">{{ profiles.length }}</div>
+          <div class="label">User Accounts</div>
+        </div>
+        <!-- <div class="statistic">
+          <div class="value">{{ team_members }}</div>
+          <div class="label">Team Members</div>
+        </div> -->
+        <div class="statistic">
+          <div class="value">{{ last_24 }}</div>
+          <div class="label">Active 24 Hours</div>
+        </div>
+        <div class="statistic">
+          <div class="value">{{ last_7 }}</div>
+          <div class="label">Active 7 Days</div>
+        </div>
+
+        <div class="statistic">
+          <div class="value">{{ freelancers }}</div>
+          <div class="label">Freelancers</div>
+        </div>
+        <div class="statistic">
+          <div class="value">{{ invites }}</div>
+          <div class="label">Invites</div>
+        </div>
+
+        <div class="statistic">
+          <div class="value">{{ designs }}</div>
+          <div class="label">Designs</div>
+        </div>
+        <div class="statistic">
+          <div class="value">{{ formatBytes(data, 1) }}</div>
+          <div class="label">Data</div>
+        </div>
+
+      </div>
+
       <table class="ui striped selectable table">
         <thead>
-          <td @click='sortBy("user")'>User</td>
-          <td>Name</td>
-          <td>Email</td>
-          <td>Joined</td>
-          <td>Last Active</td>
-          <td>Invites</td>
-          <td>Designs</td>
-          <td>Data</td>
-          <td>Plan</td>
+          <tr>
+            <th></th>
+            <th @click='sortBy("user")'>User</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Joined</th>
+            <th>Last Active</th>
+            <th>Invites</th>
+            <th>Designs</th>
+            <th>Data</th>
+            <th>Plan</th>
+          </tr>
         </thead>
         <tbody>
-          <tr v-for='profile in profiles' v-if='profile.owner.username != "AnonymousUser"'>
+          <tr v-for='profile in profiles'>
 
-            <td id='profile-username'>
+            <td id='profile-avatar'>
               <img
                 v-if='profile.picture'
                 class="ui large avatar image"
@@ -31,6 +81,9 @@
                 style='max-height:30px;max-width:30px'
               >
               <i class="big user icon" v-else></i>
+            </td>
+
+            <td id='profile-username'>
               <router-link :to="'/' + profile.owner.username">
                 {{ profile.owner.username }}
               </router-link>
@@ -91,11 +144,19 @@
 
 <script>
 import { mapGetters } from 'vuex'
+var moment = require('moment')
 export default {
   name: 'admin',
   data() {
     return {
       profiles: [],
+      designs: 0,
+      data: 0,
+      freelancers: 0,
+      team_members: 0,
+      last_24: 0,
+      last_7: 0,
+      invites: 0,
       reverseSort: false,
       sortKey: 'user',
     }
@@ -123,12 +184,43 @@ export default {
           console.log(success)
         }
         this.profiles = success.body.results
+        this.getStats()
       }, error => {
         if (this.env != 'prod') {
           console.log('Error getting profiles')
           console.log(error)
         }
       })
+    },
+    getStats() {
+      let index = 0
+      let test_users = ['AnonymousUser', 'jwagstaff']
+      for (let profile of this.profiles) {
+        if (test_users.includes(profile.name)) {
+          console.log('found a test user')
+          console.log(profile.name)
+          this.profiles.splice(index, 1)
+        } else {
+          this.designs += profile.design_count
+          this.data += profile.data
+          this.invites += profile.owner.invitation_set.length
+          if (profile.plan) {
+            if (profile.plan.name == 'Freelancer') {
+              this.freelancers += 1
+            }
+          }
+          // convert time
+          let ref = moment()
+          let yesterday = ref.clone().subtract(1, 'days').startOf('day')
+          let last_week = ref.clone().subtract(7, 'days').startOf('day')
+          if (moment(profile.owner.last_login).isAfter(yesterday)) {
+            this.last_24 += 1
+          } else if (moment(profile.owner.last_login).isAfter(last_week)) {
+            this.last_7 += 1
+          }
+        }
+        index ++
+      }
     },
     sortBy(sortKey) {
       this.reverseSort = (this.sortKey === sortKey) ? !this.reverseSort : false
