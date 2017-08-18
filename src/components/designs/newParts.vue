@@ -1714,7 +1714,7 @@ export default {
       }
       let bom_payload = {
         design_id: this.design.id,
-        config_slug: this.designRefs.config,
+        config_slug: this.designRefs.config_slug,
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type
       }
