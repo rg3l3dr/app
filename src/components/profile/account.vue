@@ -312,39 +312,43 @@ export default {
       this.email.hasError = null
       if (test) {
         // check if unique by getting from the api with a vue-resource call
-        this.$http.get('emails/' + this.email.data + '/').then(response => {
-          if (this.env != 'prod') {
-            console.log('Email is already taken')
-          }
-          this.email.isTaken = true
-        }, response => {
-          if (this.env != 'prod') {
-            console.log('Email is not being used')
-            console.log('Valid email')
-          }
-          this.email.isTaken = false
-          this.email.isValid = true
-          let payload = {
-            username: this.username.data,
-            email: this.email.data
-          }
-          this.$http.put('users/' + this.session.user_id + '/', payload).then(response => {
+
+        let payload = {email: this.email.data}
+        this.$http.post('check_email/', payload).then(response => {
+          if (response.body.active) {
             if (this.env != 'prod') {
-              console.log('Email updated')
+              console.log('Email is already taken')
             }
-            this.$store.dispatch('getProfile')
-            }, response => {
+            this.email.isTaken = true
+          } else {
+            if (this.env != 'prod') {
+              console.log('Email is not being used')
+              console.log('Valid email')
+            }
+            this.email.isTaken = false
+            this.email.isValid = true
+            let payload = {
+              username: this.username.data,
+              email: this.email.data
+            }
+            this.$http.put('users/' + this.session.user_id + '/', payload).then(response => {
               if (this.env != 'prod') {
-                console.log('Error updating email')
-                console.log(response)
+                console.log('Email updated')
               }
-              if (typeof response.body.email !== 'undefined') {
-                this.email.hasError = true
-                this.email.error = response.body.username[0]
+              this.$store.dispatch('getProfile')
+              }, response => {
+                if (this.env != 'prod') {
+                  console.log('Error updating email')
+                  console.log(response)
+                }
+                if (typeof response.body.email !== 'undefined') {
+                  this.email.hasError = true
+                  this.email.error = response.body.username[0]
+                }
               }
-            }
-          )
-        })
+            )
+          }
+        }, response => {})
       } else {
         // return error message on form
         if (this.env != 'prod') {

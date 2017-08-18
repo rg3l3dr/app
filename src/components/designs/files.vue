@@ -426,7 +426,10 @@ export default {
           console.log('Files updated')
           console.log(success)
         }
-        let design_payload = { design_slug: this.design.slug }
+        let design_payload = {
+          design_slug: this.design.slug,
+          creator_slug: this.design.creator_slug
+        }
         this.$store.dispatch('getDesign', design_payload).then(success => {
           if (this.env != 'prod') {
             console.log('Got updated Design after updating Files')

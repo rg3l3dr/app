@@ -5,11 +5,16 @@
       &nbsp
       <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
     </router-link>
-    <router-link  v-else class='item' to='/' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
+    <a href='https://www.omnibuilds.com' v-else-if='env == "prod"' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
       <i class="fa fa-cogs" style='font-size:30px; color:#555'></i>
       &nbsp
       <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
-    </router-link>
+    </a>
+    <a href='https://stage.omnibuilds.com' v-else style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
+      <i class="fa fa-cogs" style='font-size:30px; color:#555'></i>
+      &nbsp
+      <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
+    </a>
     <!-- <a href="#" class="item">Features</a>
     <a href="#" class="item">Mission</a>
     <a href="#" class="item">Pricing</a> -->
@@ -63,7 +68,10 @@
           <router-link class='item' to='/omni-admin' v-if='profile.owner.is_superuser'><i class='dashboard icon'></i>Admin Dashboard
           </router-link>
           <div class="divider"></div>
-          <a class='item' href='#' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
+          <router-link tag='a' to='/accounts/login'>
+
+          </router-link>
+          <a class='item' href='/accounts/login' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
         </div>
       </div>
       <router-link to="/accounts/login" class="item" v-if='session.active===false'>Login</router-link>
@@ -156,9 +164,9 @@ export default {
     logout () {
       let path
       if (this.env == 'prod') {
-        path = 'https://www.omnibuilds.com'
+        path = 'accounts/login'
       } else {
-        path = 'https://stage.omnibuilds.com'
+        path = 'accounts/login'
         console.log('Logging out')
       }
 
@@ -167,9 +175,8 @@ export default {
           console.log('Logout successful')
           console.log(response)
         }
-        this.$router.push('/' + path, onComplete => {
-          this.$store.commit('endSession')
-        }, onAbort => {})
+        this.$store.commit('endSession')
+        this.$router.push('/' + path)
       }, response => {
         if (this.env != 'prod') {
           console.log('Error logging out user')

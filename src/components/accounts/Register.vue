@@ -169,14 +169,6 @@ export default {
     ]),
   },
   methods: {
-    // setUsernameTimer: function (event) {
-    //   if (event.key === 'Tab' || event.key === 'Enter') {
-    //     return
-    //   } else {
-    //     clearTimeout(this.username.timer)
-    //     this.username.timer = setTimeout(this.validateUsername, 750)
-    //   }
-    // },
     validateUsername: function () {
       if (this.username.data != '' && this.username.data != null) {
         this.username.data = this.username.data.trim()
@@ -191,19 +183,24 @@ export default {
 
         if (test) {
           // check if unique by getting from the api with a vue-resource call
-          this.$http.get('profiles/' + this.username.data + '/').then(response => {
-            if (this.env != 'prod') {
-              console.log('Username is already taken')
+          let payload = {username: this.username.data}
+          this.$http.post('check_username/', payload).then(response => {
+            if (response.body.active) {
+              if (this.env != 'prod') {
+                console.log('Username is already taken')
+                console.log(response)
+              }
+              this.username.isTaken = true
+            } else {
+              if (this.env != 'prod') {
+                console.log('Username is available')
+                console.log('Valid Username')
+                console.log(response)
+              }
+              this.username.isTaken = false
+              this.username.isValid = true
             }
-            this.username.isTaken = true
-          }, response => {
-            if (this.env != 'prod') {
-              console.log('Username is available')
-              console.log('Valid Username')
-            }
-            this.username.isTaken = false
-            this.username.isValid = true
-          })
+          }, response => {})
         } else {
           if (this.env != 'prod') {
             console.log('Invalid username')
@@ -217,14 +214,6 @@ export default {
         this.username.hasError = null
       }
     },
-    // setEmailTimer: function (event) {
-    //   if (event.key === 'Tab' || event.key === 'Enter') {
-    //     return
-    //   } else {
-    //     clearTimeout(this.email.timer)
-    //     this.email.timer = setTimeout(this.validateEmail, 750)
-    //   }
-    // },
     validateEmail: function () {
       if (this.email.data != '' && this.email.data != null) {
         this.email.data = this.email.data.trim()
@@ -238,40 +227,37 @@ export default {
         this.email.hasError = null
         if (test) {
           // check if unique by getting from the api with a vue-resource call
-          this.$http.get('emails/' + this.email.data + '/').then(response => {
-            if (this.env != 'prod') {
-              console.log('Email is already taken')
+          let payload = {email: this.email.data}
+          this.$http.post('check_email/', payload).then(response => {
+            if (response.body.active) {
+              if (this.env != 'prod') {
+                console.log('Email is already taken')
+                console.log(response)
+              }
+              this.email.isTaken = true
+            } else {
+              if (this.env != 'prod') {
+                console.log('Email is not being used')
+                console.log('Valid email')
+                console.log(response)
+              }
+              this.email.isTaken = false
+              this.email.isValid = true
             }
-            this.email.isTaken = true
           }, response => {
             if (this.env != 'prod') {
-              console.log('Email is not being used')
-              console.log('Valid email')
+              console.log('Invalid email')
             }
-            this.email.isTaken = false
-            this.email.isValid = true
+            // return error message on form
+            this.email.isValid = false
           })
         } else {
-          if (this.env != 'prod') {
-            console.log('Invalid email')
-          }
-          // return error message on form
-          this.email.isValid = false
+          this.email.isValid = null
+          this.email.isTaken = null
+          this.email.hasError = null
         }
-      } else {
-        this.email.isValid = null
-        this.email.isTaken = null
-        this.email.hasError = null
       }
     },
-    // setPasswordTimer: function (event) {
-    //   if (event.key === 'Tab' || event.key === 'Enter') {
-    //     return
-    //   } else {
-    //     clearTimeout(this.password.timer)
-    //     this.password.timer = setTimeout(this.validatePassword, 750)
-    //   }
-    // },
     validatePassword: function () {
       if (this.password.data != null && this.password.data != '' ) {
         this.password.data = this.password.data.trim()

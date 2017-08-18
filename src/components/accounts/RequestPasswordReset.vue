@@ -106,17 +106,20 @@ export default {
       if (test) {
         this.email.isValid = true
         // check if unique by getting from the api with a vue-resource call
-        this.$http.get('emails/' + this.email.data + '/').then(response => {
-          if (this.env != 'prod') {
-            console.log('This email is associated with a user')
+        let payload = {email: this.email.data}
+        this.$http.post('check_email/', payload).then(response => {
+          if (response.body.active) {
+            if (this.env != 'prod') {
+              console.log('This email is associated with a user')
+            }
+            this.email.isActive = true
+          } else {
+            if (this.env != 'prod') {
+              console.log('This email is not associated with a user')
+            }
+            this.email.isActive = false
           }
-          this.email.isActive = true
-        }, response => {
-          if (this.env != 'prod') {
-            console.log('This email is not associated with a user')
-          }
-          this.email.isActive = false
-        })
+        }, response => {})
       } else {
         if (this.env != 'prod') {
           console.log('Invalid email')

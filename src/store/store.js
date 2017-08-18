@@ -267,7 +267,7 @@ export const store = new Vuex.Store({
     },
     getDesign ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
-        Vue.http.get('designs/' + payload.design_slug).then(success => {
+        Vue.http.get('designs/' + payload.design_slug + '?creator_slug=' + payload.creator_slug).then(success => {
           if (state.env != 'prod') {
             console.log('Got design')
             console.log(success)
@@ -285,12 +285,15 @@ export const store = new Vuex.Store({
     },
     updateDesign ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
-        Vue.http.patch(`designs/${state.design.slug}/`, payload).then(success => {
+        Vue.http.patch(`designs/${state.design.slug}/?creator_slug=${state.design.creator_slug}`, payload).then(success => {
           if (state.env != 'prod') {
             console.log('updated design')
             console.log(success)
           }
-          payload = { design_slug: success.body.slug}
+          payload = {
+            design_slug: success.body.slug,
+            creator_slug: success.body.creator_slug
+          }
           store.dispatch('getDesign', payload).then(
             success => {resolve(success)},
             error => {reject(error)}

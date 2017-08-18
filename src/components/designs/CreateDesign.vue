@@ -145,48 +145,58 @@ export default {
             console.log('Name matches regex')
           }
           // check if this design name is already in use by this user
-          this.$http.get('designs/' + this.name_slug + '/').then(response => {
-            if (this.env != 'prod') {
-              console.log('Design name is already taken')
+          let payload = {design_slug: this.name_slug}
+          this.$http.post('check_design/', payload).then(response => {
+            if (response.body.active) {
+              if (this.env != 'prod') {
+                console.log('Design name is already taken')
+                console.log(response)
+              }
+              this.name.hasError = true
+              this.name.error = "You already have a design with the same name"
+            } else {
+              if (this.env != 'prod') {
+                console.log('Design name is available')
+                console.log(response)
+              }
+
+              let design_payload = {
+                name: this.name.data,
+                active: true,
+                creator: this.profile.id,
+                license: this.license,
+                design_class: 1,
+                cost: 0.00
+              }
+
+              this.$http.post('designs/', design_payload).then(response => {
+                if (this.env != 'prod') {
+                  console.log(response)
+                }
+                if (typeof response.body.non_field_errors !== 'undefined') {
+                  if (this.env != 'prod') {
+                    console.log('Error creating new design: non-field error')
+                  }
+                  this.name.hasError = true
+                  this.name.error = response.body.non_field_errors[0]
+                } else {
+                  if (this.env != 'prod') {
+                    console.log('New design created')
+                  }
+                  this.$router.push({ path: '/' + this.session.username + '/' + this.name_slug + '/alpha/latest/parts' })
+                }
+              }, response => {
+                if (this.env != 'prod') {
+                  console.log('Error creating new design')
+                  console.log(response)
+                }
+              })
             }
-            this.name.hasError = true
-            this.name.error = "You already have a design with the same name"
           }, response => {
             if (this.env != 'prod') {
-              console.log('Design name  is available')
+              console.log('Error checking new design name')
+              console.log(response)
             }
-
-            let payload = {
-              name: this.name.data,
-              active: true,
-              creator: this.profile.id,
-              license: this.license,
-              design_class: 1,
-              cost: 0.00
-            }
-
-            this.$http.post('designs/', payload).then(response => {
-              if (this.env != 'prod') {
-                console.log(response)
-              }
-              if (typeof response.body.non_field_errors !== 'undefined') {
-                if (this.env != 'prod') {
-                  console.log('Error creating new design: non-field error')
-                }
-                this.name.hasError = true
-                this.name.error = response.body.non_field_errors[0]
-              } else {
-                if (this.env != 'prod') {
-                  console.log('New design created')
-                }
-                this.$router.push({ path: '/' + this.session.username + '/' + this.name_slug + '/alpha/latest/parts' })
-              }
-            }, response => {
-              if (this.env != 'prod') {
-                console.log('Error creating new design')
-                console.log(response)
-              }
-            })
           })
         } else {
           if (this.env != 'prod') {

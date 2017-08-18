@@ -85,19 +85,19 @@
   								<i class="fa fa-folder-open-o text-primary" aria-hidden="true"></i>
                   <div class="content">
                     &nbsp
-    								My Designs
+    								My Projects
                   </div>
   						</div>
   						<div class="ui bottom attached clearing segment">
                 <div class="ui relaxed divided list">
-                  <div class="item" v-if='designs.length == 0'>
-                    You have not created any designs yet
+                  <div class="item" v-if='projects.length == 0'>
+                    You have not created any design projects yet
                   </div>
-                  <div v-else class="item" v-for='design in designs'>
+                  <div v-else class="item" v-for='project in projects'>
                     <i class="folder icon"></i>
                     <div class="content">
-                      <router-link tag='a' :to=' "/" + session.username + "/" + design.slug + "/alpha/latest/parts" '>
-                        {{ design.name }}
+                      <router-link tag='a' :to=' "/" + project.creator + "/" + project.slug + "/alpha/latest/parts" '>
+                        {{ project.name }}
                       </router-link>
                     </div>
                   </div>
@@ -133,7 +133,7 @@
   				</div> -->
         </div>
   			<div class='eleven wide column'>
-          <div class="sixteen wide column" id='welcome-message'>
+          <div class="sixteen wide column" id='welcome-message' v-if='parts.length == 0'>
             <div class="ui small top attached header">
               <i class="cogs icon text-primary"></i>
               <div class="content">
@@ -144,7 +144,7 @@
             <div class="ui bottom attached clearing segment">
               <div style='text-align:center'>
                 <br>
-                <h2 class="ui icon header" >
+                <h2 class="ui icon header">
                   <i class="fa-cogs icon"></i>
                   <br>
                   <div class="content">
@@ -166,6 +166,59 @@
                     </div>
                   </div>
                 </h2>
+              </div>
+            </div>
+          </div>
+          <div class="sixteen wide column" id='welcome-message' v-else>
+            <div class="ui small top attached header">
+              <i class="cubes icon text-primary"></i>
+              <div class="content">
+                &nbsp
+                My Parts
+              </div>
+            </div>
+            <div class="ui bottom attached clearing segment">
+              <div>
+                <div class="ui relaxed divided list">
+                  <div class="item" v-for='part in parts'>
+                    <i class="large cubes middle aligned icon" v-if='part.parts'></i>
+                    <i class="large cube middle aligned icon" v-else></i>
+                    <div class="content">
+                      <router-link tag='a' class='header' :to=' "/" + part.creator + "/" + part.slug + "/alpha/latest/parts" '> {{ part.name }}
+                      </router-link>
+                      <div class="description">
+                        {{ part.number }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ui pagination menu" v-if='parts.length > 10'>
+                  <a
+                    class="item"
+                    :class='{disabled: !previous}'
+                    @click='selectPage(pageIndex - 1)'
+                  >
+                    Previous
+                  </a>
+                  <a
+                    class="item"
+                    v-for='page in pages'
+                    :class='{active: page === pageIndex}'
+                    @click='selectPage(page)'
+                  >
+                    {{ page }}
+                  </a>
+                <!--   <a class="disabled item" v-else>
+                  ...
+                </a> -->
+                  <a
+                    class="item"
+                    :class='{disabled: !next}'
+                    @click='selectPage(pageIndex + 1)'
+                  >
+                    Next
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -221,7 +274,13 @@ export default {
   },
   data() {
     return {
-      designs: []
+      projects: [],
+      parts: [],
+      pages: [],
+      previous: null,
+      next: null,
+      pageIndex: null,
+      pageRange: null
     }
   },
   computed: {
@@ -243,12 +302,12 @@ export default {
   methods: {
     getDesigns() {
       return new Promise ((resolve, reject) => {
-        this.$http.get('designlist/').then(success => {
+        this.$http.get('privateprojects/').then(success => {
           if (this.env != 'prod') {
             console.log('Got design list')
             console.log(success)
           }
-          this.designs = success.body.results
+          this.projects = success.body.results
           resolve()
         }, error => {
           if (this.env != 'prod') {
@@ -258,6 +317,39 @@ export default {
           reject()
         })
       })
+    },
+    getParts(page) {
+      return new Promise((resolve, reject) => {
+        this.$http.get('privateparts/?page=' + page).then(success => {
+          if (this.env != 'prod') {
+            console.log('Got users private parts')
+            console.log(success)
+          }
+          this.parts = success.body.results
+          this.previous = success.body.previous
+          this.next = success.body.next
+          if (this.pages.length == 0) {
+            this.pageIndex = 1
+            let count = Math.ceil(success.body.count / 10)
+            console.log(count)
+            for (let i = 1; i <= count; i++) {
+              this.pages.push(i)
+            }
+            this.pageRange = 5
+          }
+          resolve(success)
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('Error getting users private parts')
+            console.log(error)
+          }
+          reject(error)
+        })
+      })
+    },
+    selectPage(index) {
+      this.getParts(index)
+      this.pageIndex = index
     },
     startCalHeatMap() {
       var cal = new CalHeatMap()
@@ -286,6 +378,7 @@ export default {
     this.getDesigns().then( () => {
       // this.startCalHeatMap()
     })
+    this.getParts(1)
   },
 }
 

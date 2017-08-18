@@ -158,7 +158,10 @@ export default {
           console.log('New config created')
           console.log(success)
         }
-        let design_payload = { design_slug: this.design.slug }
+        let design_payload = {
+          design_slug: this.design.slug,
+          creator_slug: this.design.creator_slug
+        }
         this.$store.dispatch('getDesign', design_payload).then(success => {
           $('.ui.dropdown').dropdown({ 'silent': true })
         }, error => {})
@@ -210,7 +213,10 @@ export default {
         this.$route.params.config_slug = 'alpha'
         this.$route.params.rev_slug = 'latest'
         this.$route.params.build_slug = null
-        let design_payload = { design_slug: this.$route.params.design_slug }
+        let design_payload = {
+          design_slug: this.$route.params.design_slug,
+          creator_slug: this.$route.params.profile_slug
+        }
         this.$store.dispatch('getDesign', design_payload).then(success => {
           $('.ui.dropdown').dropdown({ 'silent': true })
         }, error => {

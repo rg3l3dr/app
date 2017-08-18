@@ -28,8 +28,11 @@
         <div class="item">
           <transition name='fade'>
             <div class="ui massive breadcrumb" style='padding: 0px 0px 10px 0px 'v-if='trail.length > 0'>
-              <router-link tag='a' to='/home'>
+              <router-link tag='a' to='/home' v-if='profile.slug == $route.params.profile_slug'>
                 {{ profile.name }}
+              </router-link>
+              <router-link tag='a' :to='`/${$route.params.profile_slug}`'  v-else>
+                {{ $route.params.profile_slug }}
               </router-link>
               <span  class='divider'>/</span>
               <span v-for='(breadcrumb, index) in trail'>
@@ -142,8 +145,8 @@
               </div>
               <div class="divider"></div>
               <div v-if='new_build.hasError' class="header" style='color: red'> {{new_build.error}} </div>
-              <div  v-else-if='$route.params.rev_slug == "latest"' class="header">Create a new Build</div>
-              <div class="ui input" :class="{'error': new_build.hasError}" v-if='$route.params.rev_slug == "latest"'>
+              <div class="header">Create a new Build</div>
+              <div class="ui input" :class="{'error': new_build.hasError}">
                 <input
                   type="text"
                   placeholder='Choose a name...'
@@ -446,6 +449,7 @@ export default {
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type,
         config_slug: this.designRefs.config_slug,
+        creator_slug: this.design.creator_slug
       }
 
       let index = this.trail.length - 1
@@ -486,6 +490,7 @@ export default {
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type,
         config_slug: this.designRefs.config_slug,
+        creator_slug: this.design.creator_slug
       }
 
       let index = this.trail.length - 1
@@ -520,7 +525,10 @@ export default {
         this.$route.params.build_slug = breadcrumb.ref_slug
       }
 
-      let payload = { design_slug: breadcrumb.slug }
+      let payload = {
+        design_slug: breadcrumb.slug,
+        creator_slug: breadcrumb.creator_slug
+      }
       this.$store.dispatch('getDesign', payload).then(success => {
         this.$store.commit('resetTrail', index)
         this.$store.commit('setDesignRefs')
@@ -646,7 +654,10 @@ export default {
         this.$route.params.build_slug = null
 
         // get the updated design with new config_set
-        let design_payload = { design_slug: this.design.slug}
+        let design_payload = {
+          design_slug: this.design.slug,
+          creator_slug: this.design.creator_slug
+        }
         this.$store.commit('setDesignRefs')
         this.$store.dispatch('getDesign', design_payload).then(success => {
 
@@ -669,6 +680,7 @@ export default {
             ref_slug: this.designRefs.ref,
             ref_type: this.designRefs.ref_type,
             config_slug: this.designRefs.config_slug,
+            creator_slug: this.design.creator_slug
           }
 
           let index = this.trail.length - 1
@@ -715,7 +727,10 @@ export default {
         this.$route.params.rev_slug = null
 
         // set payload and get updated design with new rev_set
-        let design_payload = { design_slug: this.design.slug }
+        let design_payload = {
+          design_slug: this.design.slug,
+          creator_slug: this.design.creator_slug
+        }
         this.$store.commit('setDesignRefs')
         this.$store.dispatch('getDesign', design_payload).then(success => {
           $('#builds').dropdown('hide')
@@ -798,6 +813,7 @@ export default {
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type,
         config_slug: this.designRefs.config_slug,
+        creator_slug: this.design.creator_slug
       }
 
       let index = this.trail.length - 1
@@ -828,7 +844,11 @@ export default {
       $('.ui.dropdown').dropdown({'silent': true})
 
       // get the design instance from route params
-      let design_payload = { design_slug: this.$route.params.design_slug }
+      let design_payload = {
+        design_slug: this.$route.params.design_slug,
+        creator_slug: this.$route.params.profile_slug
+
+      }
       this.$store.dispatch('getDesign', design_payload).then(success => {
 
         // this.updateDesignRefs()
@@ -842,6 +862,7 @@ export default {
           ref_slug: this.designRefs.ref,
           ref_type: this.designRefs.ref_type,
           config_slug: this.designRefs.config_slug,
+          creator_slug: this.design.creator_slug
         }
         this.$store.commit('extendTrail', breadcrumb)
       }, error => {})
@@ -868,7 +889,10 @@ export default {
 
 
     // get the design instance from route params
-    let design_payload = { design_slug: this.$route.params.design_slug }
+    let design_payload = {
+      design_slug: this.$route.params.design_slug,
+      creator_slug: this.$route.params.profile_slug
+    }
     this.$store.dispatch('getDesign', design_payload).then(success => {
 
 
@@ -883,10 +907,16 @@ export default {
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type,
         config_slug: this.designRefs.config_slug,
+        creator_slug: this.design.creator_slug
       }
       this.$store.commit('extendTrail', breadcrumb)
 
     }, error => {
+      if (error.body == 'Unauthorized') {
+        this.$router.push('/unauthorized')
+      } else if (error.body.detail == 'Not found.') {
+        this.$router.push('/404')
+      }
 
     })
   },

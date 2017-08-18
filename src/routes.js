@@ -39,6 +39,10 @@ import Configs from './components/designs/settings/configs.vue'
 import Revs from './components/designs/settings/revs.vue'
 import Builds from './components/designs/settings/builds.vue'
 import CreateDesign from './components/designs/CreateDesign.vue'
+import Unauthorized from './components/redirects/unauthorized.vue'
+import PageNotFound from './components/redirects/pagenotfound.vue'
+
+import { store } from './store/store'
 
 let config_names = [
   'alpha',
@@ -150,7 +154,13 @@ let DesignChildren =
 export const routes = [
   {
     path: '/',
-    component: home,
+    redirect: to => {
+      if (store.getters.session.active) {
+        return {path: '/home'}
+      } else {
+        return {path: '/accounts/login'}
+      }
+    }
   },
   {
     path: '/search',
@@ -244,7 +254,8 @@ export const routes = [
     ]
   },
   {path: '/home', component: dashboard, meta: { requiresAuth: true }},
-  // {path: '/design', component: design},
+  {path: '/unauthorized', component: Unauthorized},
+  { path: "/404", component: PageNotFound },
   {path: '/create_design', component: CreateDesign, meta: { requiresAuth: true }},
   {path: '/accounts/register', component: Register},
   {path: '/accounts/login', component: Login},
@@ -294,8 +305,5 @@ export const routes = [
     component: Design,
     meta: { requiresAuth: true },
     children: DesignChildren
-  },
-
-
-  { path: "*", component: home }
+  }
 ]

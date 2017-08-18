@@ -592,7 +592,10 @@ export default {
         }
         this.$store.dispatch('updateSpecs', payload).then(success => {
           // this.$router.push( this.designRefs.design_path + '/specs')
-          let design_payload = { design_slug: this.design.slug }
+          let design_payload = {
+            design_slug: this.design.slug,
+            creator_slug: this.design.creator_slug
+          }
           this.$store.dispatch('getDesign', design_payload).then(success => {
             if (this.env != 'prod') {
               console.log('Got updated Design after adding updating Specs')
