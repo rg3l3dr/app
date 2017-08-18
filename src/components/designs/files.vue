@@ -688,13 +688,15 @@ export default {
           Bucket: this.bucket,
           Key: s3_key
          }
+         let vue = this
          s3.putObject(params, function(err, data) {
            if (err) {
-             if (this.env != 'prod') {
+             if (vue.env != 'prod') {
                console.log(err, err.stack); // an error occurred
              }
+             reject()
            } else {
-             if (this.env != 'prod') {
+             if (vue.env != 'prod') {
                console.log(data)
              }
              resolve(data)

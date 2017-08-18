@@ -560,7 +560,7 @@ export default {
       return new Promise((resolve, reject) => {
         let payload = {
           id: this.design.specs.id,
-          config_slug: this.designRefs.config,
+          config_slug: this.designRefs.config_slug,
           ref: this.designRefs.ref,
           ref_type: this.designRefs.ref_type
         }
