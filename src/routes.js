@@ -158,10 +158,20 @@ export const routes = [
       if (store.getters.session.active) {
         return {path: '/home'}
       } else {
-        return {path: '/accounts/login'}
+        return {path: '/accounts/login', component: Login}
       }
     }
   },
+  // {
+  //   path: '/accounts/login',
+  //   redirect: to => {
+  //     if (store.getters.session.active) {
+  //       return {path: '/home'}
+  //     } else {
+  //       return {path: '/accounts/login', component: Login}
+  //     }
+  //   }
+  // },
   {
     path: '/search',
     component: Search,
@@ -255,7 +265,7 @@ export const routes = [
   },
   {path: '/home', component: dashboard, meta: { requiresAuth: true }},
   {path: '/unauthorized', component: Unauthorized},
-  { path: "/404", component: PageNotFound },
+  {path: "/404", component: PageNotFound },
   {path: '/create_design', component: CreateDesign, meta: { requiresAuth: true }},
   {path: '/accounts/register', component: Register},
   {path: '/accounts/login', component: Login},

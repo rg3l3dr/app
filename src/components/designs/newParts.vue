@@ -200,7 +200,7 @@
                 </div>
               </td>
 
-              <td v-else-if='part.created && isEditable(index) && $route.params.rev_slug == "latest"' class='collapsing' >
+              <td v-else-if='part.created && isEditable(index) && $route.params.rev_slug == "latest" && part.parts.length == 0' class='collapsing' >
                 <div class="ui transparent input" style='width:50px'>
                   <input
                     id='part-cost-editable'

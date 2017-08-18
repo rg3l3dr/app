@@ -267,7 +267,7 @@ export const store = new Vuex.Store({
     },
     getDesign ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
-        Vue.http.get('designs/' + payload.design_slug + '?creator_slug=' + payload.creator_slug).then(success => {
+        Vue.http.get('designs/' + payload.design_slug + '?creator_slug=' + payload.creator_slug.toLowerCase()).then(success => {
           if (state.env != 'prod') {
             console.log('Got design')
             console.log(success)

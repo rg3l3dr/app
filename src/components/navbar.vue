@@ -52,7 +52,7 @@
           <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
         </span>
       </router-link> -->
-      <div class="ui top right pointing dropdown" id='nav-profile' v-if='session.active===true'>
+      <div class="ui top right pointing dropdown" id='nav-profile' v-if='session.active'>
         <span v-if='profile.picture'>
           <img :src='profile.picture' style='height:33px'>
         </span>
