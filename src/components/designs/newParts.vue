@@ -876,6 +876,9 @@ export default {
           let import_step = 1
           let newBom = await this.updateBOM(action, message, import_id, import_step)
 
+          let part_ids = [design.id]
+          this.shareParts(this.design.id, part_ids)
+
           if (existingPart.cost > 0) {
             this.updateSpecs(index)
           }
@@ -1070,6 +1073,10 @@ export default {
           let import_id = newPart.design_id
           let import_step = 1
           vue.updateBOM(action, message, import_id, import_step).then(success => {
+
+            let part_ids = [newPart.design_id]
+            vue.shareParts(vue.design.id, part_ids)
+
             let payload = {
               design_id: vue.design.id,
               config_slug: vue.designRefs.config,
@@ -1511,7 +1518,27 @@ export default {
         this.changeEditableIndex(null)
       }
     },
-
+    shareParts(design_id, part_ids) {
+      return new Promise ((resolve, reject) => {
+        let payload = {
+          design_id: design_id,
+          part_ids: part_ids
+        }
+        this.$http.post('share_parts/', payload).then(success => {
+          if (this.env != 'prod') {
+            console.log('Shared parts with collaborators')
+            console.log(success)
+            resolve()
+          }
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('Error sharing parts with collaborators')
+            console.log(error)
+            reject()
+          }
+        })
+      })
+    },
     updateDesign(index) {
       let updatedPart = this.parts[index]
 

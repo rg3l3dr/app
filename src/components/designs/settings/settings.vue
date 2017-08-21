@@ -11,7 +11,12 @@
         </div>
         <div class="ui bottom attached clearing segment">
           <div class="ui secondary vertical menu">
-            <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/basic"'>
+            <router-link
+              v-if='!design.is_collaborator'
+              tag='a'
+              class='item'
+              :to=' this.designRefs.design_path + "/settings/basic"'
+            >
               <a id='basic'>
                 <i class="fa fa-info-circle"></i> &nbsp; Info
               </a>
@@ -46,12 +51,22 @@
                 <i class="fa fa-tags"></i> &nbsp; Revs
               </a>
             </router-link>
-            <!-- <router-link tag='a' class='item' :to=' this.designRefs.design_path + "/settings/collaborators"'>
+            <router-link
+              v-if='!design.is_collaborator'
+              tag='a'
+              class='item'
+              :to=' this.designRefs.design_path + "/settings/collaborators"'
+            >
               <a>
                 <i class="fa fa-users"></i> &nbsp; Collaborators
               </a>
-            </router-link> -->
-            <router-link tag='a' class='item' :to='this.designRefs.design_path + "/settings/advanced"'>
+            </router-link>
+            <router-link
+              v-if='!design.is_collaborator'
+              tag='a'
+              class='item'
+              :to='this.designRefs.design_path + "/settings/advanced"'
+            >
               <a>
                 <i class="warning sign icon"></i> &nbsp; Advanced
               </a>

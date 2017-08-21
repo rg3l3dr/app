@@ -74,14 +74,14 @@
                 {{ config.name.name }}
               </div>
               <div class="divider"></div>
-              <div
+              <!-- <div
                 v-if='new_config.hasError'
                 class="header"
                 style='color: red'
               >
                 {{new_config.error}}
-              </div>
-              <div  v-else class="header">
+              </div> -->
+              <div class="header">
                 ADD ANOTHER CONFIG
               </div>
               <!-- <div class='item' @click.prevent='createConfig'>
@@ -103,9 +103,7 @@
                 <a href="http://help.omnibuilds.com#configurations-configs">
                   WHAT IS A CONFIG?
                 </a>
-
               </div>
-
 
               <!-- <button class="ui button">
               Create New Config

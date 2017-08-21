@@ -1,5 +1,5 @@
 <template lang="html">
-  <div>
+  <div v-if='design.collaborators'>
 
     <!-- Current Collaborators == 0 -->
     <span v-if='design.collaborators.length == 0 && !showCollaborators'>
@@ -53,16 +53,7 @@
                 Remove
               </div>
             </div>
-            <div class="ui right floated selection dropdown" :id='`collab-${index}`'>
-              <input type="hidden" name="gender">
-              <i class="dropdown icon"></i>
-              <div class="default text">Permissions</div>
-              <div class="menu">
-                <div class="item" data-value="0">Can view design</div>
-                <div class="item" data-value="1">Can edit design</div>
-                <div class="item" data-value="2">Is a design admin</div>
-              </div>
-            </div>
+            
             <img
               v-if='collaborator.picture'
               class="ui large avatar image"
@@ -72,7 +63,8 @@
             <i class="big user icon" v-else></i>
             <div class="content">
               <router-link tag='a' :to='`/${collaborator.slug}`'>
-                <a href="" class="header"> {{ collaborator.owner.first_name }} </a>
+                <a href="" class="header" v-if='collaborator.owner.first_name'> {{ collaborator.owner.first_name }} </a>
+                <a href="" class="header" v-else> Profile </a>
               </router-link>
               <div class="description"> {{ collaborator.name }} </div>
             </div>
@@ -172,7 +164,7 @@ export default {
     return {
       invite: {
         email: null,
-        isValid: null,
+        isValid: true,
         isUser: null,
         hasMessage: null,
         message: null,
@@ -181,6 +173,7 @@ export default {
       invitee: null,
       linkEmail: null,
       showCollaborators: false,
+      isActive: false,
     }
   },
   computed: {
@@ -212,35 +205,52 @@ export default {
             }
           } else if (valid_email) {
             // check if email is tied to an active user
-            self.$http.get('emails/' + invite.email + '/').then(success => {
-              self.invitee = success.body
-              if (self.env != 'prod') {console.log(success)}
-              if (self.invitee.id == self.profile.id) {
-                if (self.env != 'prod') {console.log('User tried to add themselves as a collaborator')}
-                self.invite.isValid = false
-                self.invite.hasMessage = true
-                self.invite.message = `You cannot add yourself as a collaborator to your own project...`
-                // change input class to error
-              } else if (self.collaborators.includes(self.invitee.id)) {
-                if (self.env != 'prod') {console.log('Email belongs to an existing user')}
-                self.invite.isValid = false
-                self.invite.hasMessage = true
-                self.invite.message = `This user is already a collaborator for this project`
+            let payload = {email: invite.email}
+            self.$http.post('check_email/', payload).then(success => {
+              if (success.body.active) {
+                // this is a current user, get their profile info
+                self.$http.get('emails/' + invite.email + '/').then(success => {
+                  self.invitee = success.body
+                  if (self.env != 'prod') {console.log(success)}
+                  if (self.invitee.id == self.profile.id) {
+                    if (self.env != 'prod') {console.log('User tried to add themselves as a collaborator')}
+                    self.invite.isValid = false
+                    self.invite.hasMessage = true
+                    self.invite.message = `You cannot add yourself as a collaborator to your own project...`
+                    // change input class to error
+                  } else if (self.collaborators.includes(self.invitee.id)) {
+                    if (self.env != 'prod') {console.log('Email belongs to an existing user')}
+                    self.invite.isValid = false
+                    self.invite.hasMessage = true
+                    self.invite.message = `This user is already a collaborator for this project`
+                  } else {
+                    if (this.env != 'prod') {console.log('Email belongs to an existing user')}
+                    self.invite.isUser = true
+                    self.invite.isValid = true
+                    self.invite.hasMessage = true
+                    self.invite.message = `This email belongs to user ${self.invitee.username}.  Click invite to add them to this project.`
+                    resolve()
+                  }
+                }, error => {
+                  if (self.env != 'prod') {
+                    console.log('Error getting email for existing user')
+                    console.log(error)
+                  }
+                })
               } else {
-                if (this.env != 'prod') {console.log('Email belongs to an existing user')}
-                self.invite.isUser = true
+                // this is not a current user, they will have to be invited
+                if (self.env != 'prod') {console.log('Email does not belong to an existing user')}
+                self.invite.isUser = false
                 self.invite.isValid = true
                 self.invite.hasMessage = true
-                self.invite.message = `This email belongs to user ${self.invitee.username}.  Click invite to add them to this project.`
-                resolve()
+                self.invite.message = 'This email does not belong to a current user, click invite to send them an invitation email.'
+                // check if email is tied to a pending invite?
               }
             }, error => {
-              if (self.env != 'prod') {console.log('Email does not belong to an existing user')}
-              self.invite.isUser = false
-              self.invite.isValid = true
-              self.invite.hasMessage = true
-              self.invite.message = 'This email does not belong to a current user, click invite to send them an invitation email.'
-              // check if email is tied to a pending invite?
+              if (self.env != 'prod') {
+                console.log('Error checking email for collaborator')
+                console.log(error)
+              }
             })
           } else {
             self.invite.isValid = false
@@ -250,19 +260,88 @@ export default {
         }, 1000)
       })
     },
-    addCollaborator() {
+    updatePerms(payload) {
+      return new Promise((resolve, reject) => {
+        this.$http.post('update_perms/', payload).then(success => {
+          if (this.env != 'prod') {
+            console.log('successfully updated perms')
+            console.log(success)
+          }
+          resolve()
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('error updating perms')
+            console.log(error)
+          }
+          reject()
+        })
+      })
+    },
+    shareParts(design_id, part_ids) {
+      return new Promise ((resolve, reject) => {
+        let payload = {
+          design_id: design_id,
+          part_ids: part_ids
+        }
+        this.$http.post('share_parts/', payload).then(success => {
+          if (this.env != 'prod') {
+            console.log('Shared parts with collaborators')
+            console.log(success)
+            resolve()
+          }
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('Error sharing parts with collaborators')
+            console.log(error)
+            reject()
+          }
+        })
+      })
+    },
+    unshareParts(design_id, profile_id) {
+      return new Promise ((resolve, reject) => {
+        let payload = {
+          design_id: design_id,
+          profile_id: profile_id
+        }
+        this.$http.post('unshare_parts/', payload).then(success => {
+          if (this.env != 'prod') {
+            console.log('Unshared parts with collaborators')
+            console.log(success)
+            resolve()
+          }
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('Error unsharing parts with collaborators')
+            console.log(error)
+            reject()
+          }
+        })
+      })
+    },
+    addCollaborator: async function() {
       this.collaborators.push(this.invitee.id)
-      if (this.env == 'prod') {
+      if (this.env != 'prod') {
         console.log('Add collaborator clicked')
-        console.log(newCollaborators)
       }
+
+      let perms_payload = {
+        user_id: this.invitee.id,
+        design_id: this.design.id,
+        action: 'add',
+        perm: 'edit'
+      }
+
+      // await this.updatePerms(perms_payload)
 
       let payload = { collaborators: this.collaborators }
 
       this.$store.dispatch('updateDesign', payload).then(success => {
-        if (this.env == 'prod') {
+        if (this.env != 'prod') {
           console.log('Added new collaborator to design')
         }
+        let part_ids = this.design.bom.data.map(part => {return part.design_id})
+        this.shareParts(this.design.id, part_ids)
         // clear out the new inivitee
         this.invite = {
           email: null,
@@ -316,17 +395,16 @@ export default {
         this.invite.isUser ? this.addCollaborator() : this.sendInvite()
       }, error => {})
     },
-    updatePermissions(index) {
-      // update the user profile with the correct permissions
-
-    },
     removeCollaborator(index) {
+      let collaborator_id = this.collaborators[index]
       this.collaborators.splice(index, 1)
       let payload = { collaborators: this.collaborators }
       this.$store.dispatch('updateDesign', payload).then(success => {
         if (this.env != 'prod') {
           console.log('Removed collaborator from design')
+          console.log('Collaborator ID is ' + collaborator_id)
         }
+        this.unshareParts(this.design.id, collaborator_id)
       }, error => {})
     },
     sendPrivateLink() {
@@ -341,7 +419,6 @@ export default {
 
   },
   mounted: function() {
-    $('.ui.dropdown.right.floated').dropdown({ 'silent': true })
   }
 }
 </script>

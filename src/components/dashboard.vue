@@ -95,7 +95,16 @@
                   </div>
                   <div v-else class="item" v-for='project in projects'>
                     <i class="folder icon"></i>
-                    <div class="content">
+                    <div class="content" v-if='project.creator == profile.name'>
+                      <router-link tag='a' :to=' "/" + project.creator + "/" + project.slug + "/alpha/latest/parts" '>
+                        {{ project.name }}
+                      </router-link>
+                    </div>
+                    <div v-else class="content">
+                      <router-link tag='a' :to=' "/" + project.creator'>
+                        {{ project.creator }}
+                      </router-link>
+                      /
                       <router-link tag='a' :to=' "/" + project.creator + "/" + project.slug + "/alpha/latest/parts" '>
                         {{ project.name }}
                       </router-link>

@@ -290,13 +290,22 @@ export const store = new Vuex.Store({
             console.log('updated design')
             console.log(success)
           }
-          payload = {
+          let payload = {
             design_slug: success.body.slug,
-            creator_slug: success.body.creator_slug
+            creator_slug: state.design.creator_slug
           }
+          console.log('getting design after updating design')
           store.dispatch('getDesign', payload).then(
-            success => {resolve(success)},
-            error => {reject(error)}
+            success => {
+              console.log('got design')
+              console.log(success)
+              resolve(success)
+            },
+            error => {
+              console.log('error getting design')
+              console.log(error)
+              reject(error)
+            }
           )
         }, error => {
           if (state.env != 'prod') {

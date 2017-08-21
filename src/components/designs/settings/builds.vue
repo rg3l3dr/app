@@ -56,7 +56,7 @@
                       View Build
                     </div>
                     <div
-                      v-if='$route.params.rev_slug == "latest" && $route.params.config_slug=="alpha"'
+                      v-if='$route.params.rev_slug == "latest" && $route.params.config_slug=="alpha" && !design.is_collaborator'
                       class="item"
                       @click='deleteModal(build)'
                     >
