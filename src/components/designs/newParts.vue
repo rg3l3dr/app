@@ -460,7 +460,7 @@ export default {
             title: design.name,
             id: design.id,
             slug: design.slug,
-            profile: design.creator
+            profile: design.owner,
           }
           this.results.push(result)
         }
@@ -472,7 +472,7 @@ export default {
     },
     getDesign(payload) {
       return new Promise ((resolve, reject ) => {
-        this.$http.get('designs/' + payload.design_slug + '?creator_slug=' + payload.creator_slug).then(success => {
+        this.$http.get('designs/' + payload.design_slug + '?owner_slug=' + payload.owner_slug).then(success => {
           if (this.env != 'prod') {
             console.log('Got design')
             console.log(success)
@@ -626,7 +626,7 @@ export default {
           if (vue.env != 'prod') {
             console.log('Enter pressed to select a part from search results')
           }
-          vue.checkIfInBOM(index, vue.result.slug, vue.result.creator)
+          vue.checkIfInBOM(index, vue.result.slug, vue.result.owner)
         } else {
           if (vue.env != 'prod') {
             console.log('Enter pressed to create a new part')
@@ -684,7 +684,7 @@ export default {
                 console.log(success)
               }
               // they have typed in an existing part
-              vue.checkIfInBOM(index, vue.name_slug, vue.result.creator)
+              vue.checkIfInBOM(index, vue.name_slug, vue.result.owner)
             }, error => {
               // need to create a new design
               if (vue.env != 'prod') {
@@ -708,7 +708,7 @@ export default {
         }
       }, 0)
     },
-    checkIfInBOM(index, result, creator) {
+    checkIfInBOM(index, result, owner) {
 
       let newPart = this.parts[index]
 
@@ -726,7 +726,7 @@ export default {
           if (this.env != 'prod') {
             console.log('New part is being tracked at a different ref, adding new part')
           }
-          this.addExistingDesign(index, result, creator)
+          this.addExistingDesign(index, result, owner)
         } else {
           if (this.env != 'prod') {
             console.log('New part is being tracked at the same ref, incrementing orignal party quantity instead of adding new part')
@@ -780,15 +780,15 @@ export default {
         if (this.env != 'prod') {
           console.log('New part being added is not in the BOM, adding a new part')
         }
-        this.addExistingDesign(index, result, creator)
+        this.addExistingDesign(index, result, owner)
       }
     },
-    addExistingDesign: async function(index, result, creator) {
+    addExistingDesign: async function(index, result, owner) {
       // get the design for the existing part by the slug
       let existingPart = this.parts[index]
       let design_payload = {
         design_slug: result,
-        creator_slug: creator
+        owner_slug: owner
       }
       let response = await this.getDesign(design_payload)
       let design = response.data
@@ -886,7 +886,7 @@ export default {
           // get the new design record (for the current breadcrumb)
           design_payload = {
             design_slug: this.design.slug,
-            creator_slug: this.design.creator_slug
+            owner_slug: this.design.owner_slug
           }
           this.getDesign(design_payload)
 
@@ -935,7 +935,10 @@ export default {
           console.log('Name matches regex')
         }
         // check if this design name is already in use by this user
-        let designCheckPayload = {design_slug: this.name_slug}
+        let designCheckPayload = {
+          design_slug: this.name_slug,
+          owner_slug: this.design.owner_slug
+        }
         this.$http.post('check_design/', designCheckPayload).then(response => {
           if (response.body.active) {
             if (this.env != 'prod') {
@@ -996,7 +999,8 @@ export default {
         creator: this.profile.id,
         license: 1,
         design_class: 3,
-        cost: newPart.cost
+        cost: newPart.cost,
+        owner: this.design.owner,
       }
       let vue = this
       this.$http.post('designs/', payload).then(response => {
@@ -1133,6 +1137,7 @@ export default {
       for (let breadcrumb of this.trail) {
         design_ids += ('&design_id=' + breadcrumb.design_id)
       }
+      let owner_id = `&owner_id=${this.design.owner}`
 
       this.$nextTick(() => {
         $('.ui.dropdown.part').dropdown({ 'silent': true })
@@ -1145,7 +1150,7 @@ export default {
           $('.ui.search').search(
             {
               apiSettings: {
-                  url: 'https://www.omnibuilds.com/designquery/?q={query}' + design_ids,
+                  url: 'https://www.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_ids,
                   beforeXHR: function(xhr) {
                     xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
                     return xhr;
@@ -1169,7 +1174,7 @@ export default {
           $('.ui.search').search(
             {
               apiSettings: {
-                  url: 'https://stage.omnibuilds.com/designquery/?q={query}' + design_ids,
+                  url: 'https://stage.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_ids,
                   beforeXHR: function(xhr) {
                     xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
                     return xhr;
@@ -1209,7 +1214,7 @@ export default {
       } else if (selectedPart.ref_type == 'build') {
         refPath = `${selectedPart.ref_slug}`
       }
-      let path = `${selectedPart.creator_slug}/${selectedPart.design_slug}/${refPath}/parts`
+      let path = `${selectedPart.owner_slug}/${selectedPart.design_slug}/${refPath}/parts`
       this.$router.push('/' + path, onComplete => {
         this.$store.commit('clearDesignRefs')
         this.$store.commit('clearDesign')
@@ -1217,7 +1222,7 @@ export default {
         this.$store.commit('setDesignRefs')
         let payload = {
           design_slug: selectedPart.design_slug,
-          creator_slug: selectedPart.creator_slug
+          owner_slug: selectedPart.owner_slug
         }
         this.$store.dispatch('getDesign', payload).then(success => {
 
@@ -1229,7 +1234,7 @@ export default {
             ref_slug: selectedPart.ref_slug,
             ref_type: selectedPart.ref_type,
             config_slug: selectedPart.config_slug,
-            creator_slug: selectedPart.creator_slug
+            owner_slug: selectedPart.owner_slug
             // path: selectedPart.path
           }
           // this.trail.push(breadcrumb)
@@ -1260,7 +1265,7 @@ export default {
         ref_slug: selectedPart.ref_slug,
         ref_type: selectedPart.ref_type,
         config_slug: selectedPart.config_slug,
-        creator_slug: selectedPart.creator_slug
+        owner_slug: selectedPart.owner_slug
         // path: selectedPart.path
       }
       // this.trail.push(breadcrumb)
@@ -1283,7 +1288,7 @@ export default {
       // get updated design and records
       let design_payload = {
         design_slug: selectedPart.design_slug,
-        creator_slug: selectedPart.creator_slug
+        owner_slug: selectedPart.owner_slug
       }
       this.$store.dispatch('getDesign', design_payload).then(success => {
         let bom_payload = {
@@ -1544,7 +1549,7 @@ export default {
 
       let payload = {
         name: updatedPart.design_name,
-        creator: updatedPart.design_creator,
+        owner: updatedPart.design_owner,
       }
       this.$http.put('designs/' + updatedPart.design_slug + '/', payload).then(response => {
         if (this.env != 'prod') {
@@ -1583,7 +1588,7 @@ export default {
           this.bom = success.data
           let design_payload = {
             design_slug: this.design.slug,
-            creator_slug: this.design.creator_slug
+            owner_slug: this.design.owner_slug
           }
           this.$store.dispatch('getDesign', design_payload).then(success => {
             if (this.env != 'prod') {
@@ -1621,7 +1626,7 @@ export default {
           }
           let design_payload = {
             design_slug: this.design.slug,
-            creator_slug: this.design.creator_slug
+            owner_slug: this.design.owner_slug
           }
           this.$store.dispatch('getDesign', design_payload).then(success => {
             if (this.env != 'prod') {

@@ -267,7 +267,7 @@ export const store = new Vuex.Store({
     },
     getDesign ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
-        Vue.http.get('designs/' + payload.design_slug + '?creator_slug=' + payload.creator_slug.toLowerCase()).then(success => {
+        Vue.http.get('designs/' + payload.design_slug + '?owner_slug=' + payload.owner_slug.toLowerCase()).then(success => {
           if (state.env != 'prod') {
             console.log('Got design')
             console.log(success)
@@ -285,14 +285,14 @@ export const store = new Vuex.Store({
     },
     updateDesign ({commit, state}, payload) {
       return new Promise((resolve, reject) => {
-        Vue.http.patch(`designs/${state.design.slug}/?creator_slug=${state.design.creator_slug}`, payload).then(success => {
+        Vue.http.patch(`designs/${state.design.slug}/?owner_slug=${state.design.owner_slug}`, payload).then(success => {
           if (state.env != 'prod') {
             console.log('updated design')
             console.log(success)
           }
           let payload = {
             design_slug: success.body.slug,
-            creator_slug: state.design.creator_slug
+            owner_slug: state.design.owner_slug
           }
           console.log('getting design after updating design')
           store.dispatch('getDesign', payload).then(

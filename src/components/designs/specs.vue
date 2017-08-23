@@ -594,7 +594,7 @@ export default {
           // this.$router.push( this.designRefs.design_path + '/specs')
           let design_payload = {
             design_slug: this.design.slug,
-            creator_slug: this.design.creator_slug
+            owner_slug: this.design.owner_slug
           }
           this.$store.dispatch('getDesign', design_payload).then(success => {
             if (this.env != 'prod') {
@@ -678,7 +678,7 @@ export default {
         array_buffer = reader.result
         let s3 = new AWS.S3()
         let s3_path = `https://s3-us-west-2.amazonaws.com/${vue.bucket}/Designs`
-        let s3_key = 'designs/' + vue.design.creator + '/' + vue.design.id + '/' + file.name
+        let s3_key = 'designs/' + vue.design.owner + '/' + vue.design.id + '/' + file.name
         let params = {
           Body: array_buffer,
           Bucket: vue.bucket,
@@ -738,7 +738,7 @@ export default {
 
       }  else {
         let payload = {
-          creator: this.profile.id,
+          owner: this.design.owner,
           name: event.target.value
         }
         this.$http.post('suppliers/', payload).then(success => {

@@ -229,7 +229,7 @@ export default {
         this.$route.params.build_slug = null
         let design_payload = {
           design_slug: this.$route.params.design_slug,
-          creator_slug: this.$route.params.profile_slug
+          owner_slug: this.$route.params.owner_slug
         }
         this.$store.dispatch('getDesign', design_payload).then(success => {
           $('.ui.dropdown').dropdown({ 'silent': true })

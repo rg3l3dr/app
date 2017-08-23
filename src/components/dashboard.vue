@@ -95,17 +95,17 @@
                   </div>
                   <div v-else class="item" v-for='project in projects'>
                     <i class="folder icon"></i>
-                    <div class="content" v-if='project.creator == profile.name'>
-                      <router-link tag='a' :to=' "/" + project.creator + "/" + project.slug + "/alpha/latest/parts" '>
+                    <div class="content" v-if='project.owner == profile.name'>
+                      <router-link tag='a' :to=' "/" + project.owner + "/" + project.slug + "/alpha/latest/parts" '>
                         {{ project.name }}
                       </router-link>
                     </div>
                     <div v-else class="content">
-                      <router-link tag='a' :to=' "/" + project.creator'>
-                        {{ project.creator }}
+                      <router-link tag='a' :to=' "/" + project.owner'>
+                        {{ project.owner }}
                       </router-link>
                       /
-                      <router-link tag='a' :to=' "/" + project.creator + "/" + project.slug + "/alpha/latest/parts" '>
+                      <router-link tag='a' :to=' "/" + project.owner + "/" + project.slug + "/alpha/latest/parts" '>
                         {{ project.name }}
                       </router-link>
                     </div>
@@ -192,13 +192,33 @@
                   <div class="item" v-for='part in parts'>
                     <i class="large cubes middle aligned icon" v-if='part.parts'></i>
                     <i class="large cube middle aligned icon" v-else></i>
-                    <div class="content">
-                      <router-link tag='a' class='header' :to=' "/" + part.creator + "/" + part.slug + "/alpha/latest/parts" '> {{ part.name }}
+                    <div class="content" v-if='part.owner == profile.name'>
+                      <router-link tag='a' :to=' "/" + part.owner + "/" + part.slug + "/alpha/latest/parts" '>
+                        {{ part.name }}
                       </router-link>
                       <div class="description">
                         {{ part.number }}
                       </div>
                     </div>
+                    <div v-else class="content">
+                      <router-link tag='a' :to=' "/" + part.owner'>
+                        {{ part.owner }}
+                      </router-link>
+                      /
+                      <router-link tag='a' :to=' "/" + part.owner + "/" + part.slug + "/alpha/latest/parts" '>
+                        {{ part.name }}
+                      </router-link>
+                      <div class="description">
+                        {{ part.number }}
+                      </div>
+                    </div>
+                    <!-- <div class="content">
+                      <router-link tag='a' class='header' :to=' "/" + part.creator + "/" + part.slug + "/alpha/latest/parts" '> {{ part.name }}
+                      </router-link>
+                      <div class="description">
+                        {{ part.number }}
+                      </div>
+                    </div> -->
                   </div>
                 </div>
                 <div class="ui pagination menu" v-if='parts.length > 10'>

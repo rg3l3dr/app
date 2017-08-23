@@ -82,7 +82,7 @@ export default {
       // must test to see if this design is part of any other project
       $('#deleteModal').modal('hide')
       $('body .modals').remove()
-      this.$http.delete('designs/' + this.design.slug + '?creator_slug=' + this.design.creator_slug).then(response => {
+      this.$http.delete('designs/' + this.design.slug + '?owner_slug=' + this.design.owner_slug).then(response => {
         if (this.env != 'prod') {
           console.log('Design has been deleted')
           console.log(response)

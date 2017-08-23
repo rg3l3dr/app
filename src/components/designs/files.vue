@@ -428,7 +428,7 @@ export default {
         }
         let design_payload = {
           design_slug: this.design.slug,
-          creator_slug: this.design.creator_slug
+          owner_slug: this.design.owner_slug
         }
         this.$store.dispatch('getDesign', design_payload).then(success => {
           if (this.env != 'prod') {
@@ -486,7 +486,7 @@ export default {
         if (this.env != 'prod') {
           console.log('In first for of loop')
         }
-        let s3_key = this.design.creator + '/' + this.design.id + '/' + file.name
+        let s3_key = this.design.owner + '/' + this.design.id + '/' + file.name
         if (this.file_names.includes(file.name)) {
           if (this.env != 'prod') {
             console.log('Detected an existing file, checking if the file should be updated')
@@ -551,7 +551,7 @@ export default {
         let file_index = this.file_names.indexOf(file.name)
         let file_record = this.files.data[file_index]
         let version_index = file_record.versions.length - 1
-        var s3_key = 'designs/' + this.design.creator + '/' + this.design.id + '/' + file.name
+        var s3_key = 'designs/' + this.design.owner + '/' + this.design.id + '/' + file.name
 
         // this is where you would add the progress spinner
         file_record.versions[version_index].message = 'Uploading'
@@ -708,7 +708,7 @@ export default {
 
       let file = this.files.data[index]
       let s3 = new AWS.S3()
-      let s3_key = 'designs/' + this.design.creator + '/' + this.design.id + '/' + file.name
+      let s3_key = 'designs/' + this.design.owner + '/' + this.design.id + '/' + file.name
 
       var params = {Bucket: this.bucket, Key: s3_key}
       var url = s3.getSignedUrl('getObject', params)
@@ -717,7 +717,7 @@ export default {
     getVersionFromS3(index) {
       let version = this.selectedFile.versions[index]
       let s3 = new AWS.S3()
-      let s3_key = 'designs/' + this.design.creator + '/' + this.design.id + '/' + this.selectedFile.name
+      let s3_key = 'designs/' + this.design.owner + '/' + this.design.id + '/' + this.selectedFile.name
 
       var params = {
         Bucket: this.bucket,
@@ -731,7 +731,7 @@ export default {
       return new Promise((resolve, reject) => {
         let file = this.files.data[index]
         let s3 = new AWS.S3()
-        let s3_key = 'designs/' + this.design.creator + '/' + this.design.id + '/' + file.name
+        let s3_key = 'designs/' + this.design.owner + '/' + this.design.id + '/' + file.name
 
         let params = {
           Bucket: this.bucket,

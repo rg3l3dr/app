@@ -15,6 +15,7 @@
                   type="text"
                   placeholder="Input a name for your design project"
                   v-model='name.data'
+                  @keydown.enter='submit()'
                 >
                 <div
                   v-if='name.hasError'
@@ -63,7 +64,7 @@
                   > {{description.error}}
                 </div>
               </div> -->
-              <button class='ui basic blue button' @click='submit'>Create Design</button>
+              <button class='ui basic blue button' @click='submit()'>Create Design</button>
             </div>
           </div>
         </div>
@@ -145,7 +146,10 @@ export default {
             console.log('Name matches regex')
           }
           // check if this design name is already in use by this user
-          let payload = {design_slug: this.name_slug}
+          let payload = {
+            design_slug: this.name_slug,
+            owner_slug: this.profile.slug
+          }
           this.$http.post('check_design/', payload).then(response => {
             if (response.body.active) {
               if (this.env != 'prod') {
@@ -164,6 +168,7 @@ export default {
                 name: this.name.data,
                 active: true,
                 creator: this.profile.id,
+                owner: this.profile.id,
                 license: this.license,
                 design_class: 1,
                 cost: 0.00

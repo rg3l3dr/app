@@ -264,6 +264,12 @@
           Settings
         </a>
       </router-link>
+      <router-link v-else-if='design.is_collaborator' tag='a' class='item' :to='this.designRefs.design_path + "/settings/configs"'>
+        <a>
+          <i class="fa-cog icon"></i>
+          Settings
+        </a>
+      </router-link>
       <router-link v-else tag='a' class='item' :to='this.designRefs.design_path + "/settings/basic"'>
         <a>
           <i class="fa-cog icon"></i>
@@ -447,7 +453,7 @@ export default {
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type,
         config_slug: this.designRefs.config_slug,
-        creator_slug: this.design.creator_slug
+        owner_slug: this.design.owner_slug
       }
 
       let index = this.trail.length - 1
@@ -488,7 +494,7 @@ export default {
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type,
         config_slug: this.designRefs.config_slug,
-        creator_slug: this.design.creator_slug
+        owner_slug: this.design.owner_slug
       }
 
       let index = this.trail.length - 1
@@ -525,7 +531,7 @@ export default {
 
       let payload = {
         design_slug: breadcrumb.slug,
-        creator_slug: breadcrumb.creator_slug
+        owner_slug: breadcrumb.owner_slug
       }
       this.$store.dispatch('getDesign', payload).then(success => {
         this.$store.commit('resetTrail', index)
@@ -654,7 +660,7 @@ export default {
         // get the updated design with new config_set
         let design_payload = {
           design_slug: this.design.slug,
-          creator_slug: this.design.creator_slug
+          owner_slug: this.design.owner_slug
         }
         this.$store.commit('setDesignRefs')
         this.$store.dispatch('getDesign', design_payload).then(success => {
@@ -678,7 +684,7 @@ export default {
             ref_slug: this.designRefs.ref,
             ref_type: this.designRefs.ref_type,
             config_slug: this.designRefs.config_slug,
-            creator_slug: this.design.creator_slug
+            owner_slug: this.design.owner_slug
           }
 
           let index = this.trail.length - 1
@@ -727,7 +733,7 @@ export default {
         // set payload and get updated design with new rev_set
         let design_payload = {
           design_slug: this.design.slug,
-          creator_slug: this.design.creator_slug
+          owner_slug: this.design.owner_slug
         }
         this.$store.commit('setDesignRefs')
         this.$store.dispatch('getDesign', design_payload).then(success => {
@@ -775,9 +781,9 @@ export default {
     },
     selectRev() {
       if (this.current_rev_index == (this.current_rev_set.length - 1)) {
-        var path = `/${this.design.creator_slug}/${this.design.slug}/${this.current_config.slug}/latest/parts`
+        var path = `/${this.design.owner_slug}/${this.design.slug}/${this.current_config.slug}/latest/parts`
       } else {
-        var path = `/${this.design.creator_slug}/${this.design.slug}/${this.current_config.slug}/${this.current_rev.slug}/parts`
+        var path = `/${this.design.owner_slug}/${this.design.slug}/${this.current_config.slug}/${this.current_rev.slug}/parts`
       }
 
       this.$router.push(path, onComplete => {
@@ -811,7 +817,7 @@ export default {
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type,
         config_slug: this.designRefs.config_slug,
-        creator_slug: this.design.creator_slug
+        owner_slug: this.design.owner_slug
       }
 
       let index = this.trail.length - 1
@@ -844,7 +850,7 @@ export default {
       // get the design instance from route params
       let design_payload = {
         design_slug: this.$route.params.design_slug,
-        creator_slug: this.$route.params.profile_slug
+        owner_slug: this.$route.params.profile_slug
 
       }
       this.$store.dispatch('getDesign', design_payload).then(success => {
@@ -860,7 +866,7 @@ export default {
           ref_slug: this.designRefs.ref,
           ref_type: this.designRefs.ref_type,
           config_slug: this.designRefs.config_slug,
-          creator_slug: this.design.creator_slug
+          owner_slug: this.design.owner_slug
         }
         this.$store.commit('extendTrail', breadcrumb)
       }, error => {})
@@ -889,7 +895,7 @@ export default {
     // get the design instance from route params
     let design_payload = {
       design_slug: this.$route.params.design_slug,
-      creator_slug: this.$route.params.profile_slug
+      owner_slug: this.$route.params.profile_slug
     }
     this.$store.dispatch('getDesign', design_payload).then(success => {
 
@@ -905,7 +911,7 @@ export default {
         ref_slug: this.designRefs.ref,
         ref_type: this.designRefs.ref_type,
         config_slug: this.designRefs.config_slug,
-        creator_slug: this.design.creator_slug
+        owner_slug: this.design.owner_slug
       }
       this.$store.commit('extendTrail', breadcrumb)
 
