@@ -1,0 +1,5 @@
+/* Removes input field padding for form alignment */
+
+.ui.left.icon.input {
+  padding: 0;
+}
