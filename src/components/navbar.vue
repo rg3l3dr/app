@@ -53,20 +53,25 @@
         </span>
       </router-link> -->
       <div class="ui top right pointing dropdown" id='nav-profile' v-if='session.active'>
-        <span v-if='profile.picture'>
-          <img :src='profile.picture' style='height:33px'>
+        <span v-if='profile'>
+
+          <img :src='profile.picture' style='height:33px' v-if='profile.picture'>
+          <i class='fa fa-user fa-2x' v-else></i>
         </span>
-        <span v-else>
-          <i class='fa fa-user fa-2x'></i>
-        </span>
+<!--         <span v-else>
+
+</span> -->
         <i class="dropdown icon"></i>
         <div class="menu">
           <router-link class='item' to='/home'><i class='fa fa-home fa-fw'></i>&nbsp {{session.username}}</router-link>
           <router-link class='item' to='/create_design'><i class='fa fa-folder-o fa-fw'></i>&nbsp Create Design</router-link>
           <!-- <router-link class='item' to='#'><i class='fa fa-users fa-fw'></i>&nbsp Create Team</router-link> -->
           <router-link class='item' to='/profile/public'><i class='fa fa-gear fa-fw'></i>&nbsp My Account</router-link>
-          <router-link class='item' to='/omni-admin' v-if='profile.owner.is_superuser'><i class='dashboard icon'></i>Admin Dashboard
-          </router-link>
+          <span v-if='profile.owner'>
+            <router-link class='item' to='/omni-admin' v-if='profile.owner.is_superuser'><i class='dashboard icon'></i>Admin Dashboard
+            </router-link>
+          </span>
+
           <div class="divider"></div>
           <router-link tag='a' to='/accounts/login'>
 
@@ -162,26 +167,36 @@ export default {
       }, 30000)
     },
     logout () {
-      let path
-      if (this.env == 'prod') {
-        path = 'accounts/login'
-      } else {
-        path = 'accounts/login'
-        console.log('Logging out')
-      }
+      // let path
+      // if (this.env == 'prod') {
+      //   path = '/accounts/login'
+      // } else {
+      //   path = '/accounts/login'
+      //   console.log('Logging out')
+      // }
+
+      let path = '/accounts/login'
 
       this.$http.post('rest-auth/logout/').then(response => {
-        if (this.env != 'prod') {
-          console.log('Logout successful')
-          console.log(response)
-        }
+        // if (this.env != 'prod') {
+        //   console.log('Logout successful')
+        //   console.log(response)
+        // }
+
+        console.log('Logout successful')
+        console.log(response)
+
+
         this.$store.commit('endSession')
-        this.$router.push('/' + path)
+        this.$router.push(path)
       }, response => {
-        if (this.env != 'prod') {
-          console.log('Error logging out user')
-          console.log(response)
-        }
+        // if (this.env != 'prod') {
+        //   console.log('Error logging out user')
+        //   console.log(response)
+        // }
+
+        console.log('Error logging out user')
+        console.log(response)
       })
     },
     setSearch() {
