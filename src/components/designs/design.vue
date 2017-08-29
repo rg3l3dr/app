@@ -53,14 +53,14 @@
 
 
     </div>
-    <div class="ui text menu five column grid" style='margin: -5px 0px 5px 0px'>
+    <div class="ui three column stackable grid text menu" style='margin: -5px 0px 5px 0px'>
       <div class="column" style='font-size: 13px; padding: 20px 0 0 0; text-align: left'>
         <div class="row">
           CONFIG
         </div>
         <div class="row">
           <div class="item column" id="config-selector">
-            <div class="ui selection dropdown" id='configs' style='font-size:13px'>
+            <div class="ui selection dropdown button-group" id='configs' style='font-size:13px'>
               <i class='fork icon'></i>
               <input type="hidden" name="config">
               <div class="default text"></div>
@@ -130,8 +130,8 @@
           BUILD
         </div>
         <div class="row">
-          <div class="item column" id="build-selector">
-            <div class="ui selection dropdown" id='builds' style='font-size:13px'>
+          <div class="column" id="build-selector">
+            <div class="ui selection dropdown button-group" id='builds' style='font-size:13px'>
               <i class='wrench icon'></i>
               <input type="hidden" name="builds">
               <div class="default text"></div>
@@ -172,8 +172,8 @@
           &nbsp;
         </div>
         <div class="row">
-          <div class="item column" id='part-number' v-if='design.design_class'>
-            <div class="ui basic icon buttons">
+          <div class="column" v-if='design.design_class'>
+            <div class="ui basic icon buttons button-group" id='part-number'>
               <button
                 class="ui button"
                 @click='toggleRev(-1)'
@@ -201,7 +201,7 @@
           </div>
       </div>
         </div>
-        <div class="item column" id='action-buttons'>
+        <div class="column" id='action-buttons'>
           <!-- <div id="import-button" style='padding: 20px 0px 0px 0px'>
             <div class="ui labeled button" tabindex="0">
               <div class="ui basic button">
@@ -233,7 +233,7 @@
         </div>
 
     </div>
-    <div class="ui top attached fluid four item tabular menu" style='padding: 8px 0px 0px 0px'>
+    <div class="ui top attached fluid four item tabular menu" style='padding: 15px 0px 0px 0px'>
       <!-- <router-link tag='a' class='item' :to='this.designRefs.design_path  + "/home"'>
         <a>
           <i class="home icon"></i>

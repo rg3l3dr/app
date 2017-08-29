@@ -10,3 +10,14 @@
 div.column > div.row > div.item.column {
   padding: 0;
 }
+
+
+/* Sets font color for sub menu (config/build/rev) alignment */
+
+div.column > div.row {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.button-group {
+  min-width: 200px;
+}
