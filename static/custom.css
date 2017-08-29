@@ -3,3 +3,10 @@
 .ui.left.icon.input {
   padding: 0;
 }
+
+
+/* Removes input field padding for sub menu (config/build/rev) alignment */
+
+div.column > div.row > div.item.column {
+  padding: 0;
+}
