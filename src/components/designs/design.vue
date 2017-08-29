@@ -54,13 +54,13 @@
 
     </div>
     <div class="ui three column stackable grid text menu" style='margin: -5px 0px 5px 0px'>
-      <div class="column" style='font-size: 13px; padding: 20px 0 0 0; text-align: left'>
+      <div class="button-group" style='font-size: 13px; padding: 20px 0 0 0; text-align: left'>
         <div class="row">
           CONFIG
         </div>
         <div class="row">
           <div class="item column" id="config-selector">
-            <div class="ui selection dropdown button-group" id='configs' style='font-size:13px'>
+            <div class="ui selection dropdown" id='configs' style='font-size:13px'>
               <i class='fork icon'></i>
               <input type="hidden" name="config">
               <div class="default text"></div>
@@ -125,13 +125,13 @@
           </div>
         </div>
       </div>
-      <div class="column" style='font-size: 13px; padding: 20px 0 0 0; text-align: left'>
+      <div class="button-group" style='font-size: 13px; padding: 20px 0 0 0; text-align: left'>
         <div class="row">
           BUILD
         </div>
         <div class="row">
-          <div class="column" id="build-selector">
-            <div class="ui selection dropdown button-group" id='builds' style='font-size:13px'>
+          <div class="item" id="build-selector">
+            <div class="ui selection dropdown" id='builds' style='font-size:13px'>
               <i class='wrench icon'></i>
               <input type="hidden" name="builds">
               <div class="default text"></div>
@@ -167,13 +167,13 @@
           </div>
         </div>
       </div>
-      <div class="column" style='font-size: 13px; padding: 20px 0 0 0; text-align: left'>
+      <div class="button-group" style='font-size: 13px; padding: 20px 0 0 0; text-align: left'>
         <div class="row">
           &nbsp;
         </div>
         <div class="row">
-          <div class="column" v-if='design.design_class'>
-            <div class="ui basic icon buttons button-group" id='part-number'>
+          <div class="item" v-if='design.design_class'>
+            <div class="ui basic icon buttons" id='part-number'>
               <button
                 class="ui button"
                 @click='toggleRev(-1)'
@@ -201,7 +201,7 @@
           </div>
       </div>
         </div>
-        <div class="column" id='action-buttons'>
+        <div class="item" id='action-buttons'>
           <!-- <div id="import-button" style='padding: 20px 0px 0px 0px'>
             <div class="ui labeled button" tabindex="0">
               <div class="ui basic button">

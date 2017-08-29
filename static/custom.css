@@ -5,19 +5,16 @@
 }
 
 
-/* Removes input field padding for sub menu (config/build/rev) alignment */
+/* Input field padding/margins for sub menu (config/build/rev) alignment */
 
-div.column > div.row > div.item.column {
+div.button-group > div.row > div.item.item {
   padding: 0;
+  margin: 0 10px 0 0;
 }
 
 
 /* Sets font color for sub menu (config/build/rev) alignment */
 
-div.column > div.row {
+div.button-group > div.row {
   color: rgba(0, 0, 0, 0.6);
-}
-
-.button-group {
-  min-width: 200px;
 }
