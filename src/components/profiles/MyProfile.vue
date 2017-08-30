@@ -51,10 +51,8 @@
           </div><!-- /.col-xs-9 -->
         </div>
       </div>
-
     </div>
     <div class="one wide column"></div>
-
   </div>
 </template>
 
