@@ -3,3 +3,24 @@
 .ui.left.icon.input {
   padding: 0;
 }
+
+
+/* Sets alignment for project sub menu (config/build/rev) */
+
+div.button-group > div.row > div.item.item {
+  padding: 0;
+  margin: 0 10px 0 0;
+}
+
+.ui.selection.dropdown, .ui.basic.icon.buttons {
+  height: 37px;
+}
+
+
+/* Sets font color for project sub menu (config/build/rev) */
+
+div.button-group > div.row {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+
