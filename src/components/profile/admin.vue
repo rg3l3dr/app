@@ -1,144 +1,151 @@
 <template lang="html">
-  <div id='users'>
-    <br>
-    <div class="ui small top attached header">
-      <i class="dashboard icon" aria-hidden="true"></i>
-      <div class="content">
-        &nbsp
-        Admin Dashboard
+  <div class="ui grid">
+    <div class="one wide column"></div>
+    <div class="fourteen wide column">
+      <div id='users'>
+        <br>
+        <div class="ui small top attached header">
+          <i class="dashboard icon" aria-hidden="true"></i>
+          <div class="content">
+            &nbsp
+            Admin Dashboard
+          </div>
+        </div>
+        <div class="ui bottom attached segment">
+          <div class="ui small statistics">
+            <div class="statistic">
+              <div class="value"></div>
+              <div class="label"></div>
+            </div>
+            <div class="statistic">
+              <div class="value"></div>
+              <div class="label"></div>
+            </div>
+            <div class="statistic">
+              <div class="value">{{ profiles.length }}</div>
+              <div class="label">User Accounts</div>
+            </div>
+            <!-- <div class="statistic">
+              <div class="value">{{ team_members }}</div>
+              <div class="label">Team Members</div>
+            </div> -->
+            <div class="statistic">
+              <div class="value">{{ last_24 }}</div>
+              <div class="label">Active 24 Hours</div>
+            </div>
+            <div class="statistic">
+              <div class="value">{{ last_7 }}</div>
+              <div class="label">Active 7 Days</div>
+            </div>
+
+            <div class="statistic">
+              <div class="value">{{ freelancers }}</div>
+              <div class="label">Freelancers</div>
+            </div>
+            <div class="statistic">
+              <div class="value">{{ invites }}</div>
+              <div class="label">Invites</div>
+            </div>
+
+            <div class="statistic">
+              <div class="value">{{ designs }}</div>
+              <div class="label">Designs</div>
+            </div>
+            <div class="statistic">
+              <div class="value">{{ formatBytes(data, 1) }}</div>
+              <div class="label">Data</div>
+            </div>
+
+          </div>
+
+          <table class="ui striped selectable table">
+            <thead>
+              <tr>
+                <th></th>
+                <th @click='sortBy("user")'>User</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Joined</th>
+                <th>Last Active</th>
+                <th>Invites</th>
+                <th>Designs</th>
+                <th>Data</th>
+                <th>Plan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for='profile in profiles'>
+
+                <td id='profile-avatar'>
+                  <img
+                    v-if='profile.picture'
+                    class="ui large avatar image"
+                    :src='profile.picture'
+                    style='max-height:30px;max-width:30px'
+                  >
+                  <i class="big user icon" v-else></i>
+                </td>
+
+                <td id='profile-username'>
+                  <router-link :to="'/' + profile.owner.username">
+                    {{ profile.owner.username }}
+                  </router-link>
+
+                </td>
+
+                <td id='profile-full-name'>
+                  {{ profile.owner.first_name }}
+                </td>
+
+                <td id='profile-email'>
+                  <a :href="'mailto:' + profile.owner.email">
+                    {{ profile.owner.email }}
+                  </a>
+                </td>
+
+                <td id='project-joined'>
+                  {{ profile.owner.date_joined | moment("from", "now") }}
+                </td>
+
+                <td id='profile-last-active'>
+                  <span v-if='profile.owner.last_login'>
+                    {{ profile.owner.last_login | moment("from", "now") }}
+                  </span>
+                  <span v-else>
+                    Never
+                  </span>
+                </td>
+
+                <td id='profile-invites'>
+                  {{ profile.owner.invitation_set.length }}
+                </td>
+
+                <td id='profile-designs'>
+                  {{ profile.design_count }}
+                </td>
+
+                <td id='project-data'>
+                  {{ formatBytes(profile.data, 1) }}
+                </td>
+
+                <td id='project-plan'>
+                  <span v-if='profile.plan'>
+                    {{ profile.plan.name }}
+                  </span>
+                  <span v-else>
+                    Starter
+                  </span>
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-    <div class="ui bottom attached segment">
-      <div class="ui small statistics">
-        <div class="statistic">
-          <div class="value"></div>
-          <div class="label"></div>
-        </div>
-        <div class="statistic">
-          <div class="value"></div>
-          <div class="label"></div>
-        </div>
-        <div class="statistic">
-          <div class="value">{{ profiles.length }}</div>
-          <div class="label">User Accounts</div>
-        </div>
-        <!-- <div class="statistic">
-          <div class="value">{{ team_members }}</div>
-          <div class="label">Team Members</div>
-        </div> -->
-        <div class="statistic">
-          <div class="value">{{ last_24 }}</div>
-          <div class="label">Active 24 Hours</div>
-        </div>
-        <div class="statistic">
-          <div class="value">{{ last_7 }}</div>
-          <div class="label">Active 7 Days</div>
-        </div>
-
-        <div class="statistic">
-          <div class="value">{{ freelancers }}</div>
-          <div class="label">Freelancers</div>
-        </div>
-        <div class="statistic">
-          <div class="value">{{ invites }}</div>
-          <div class="label">Invites</div>
-        </div>
-
-        <div class="statistic">
-          <div class="value">{{ designs }}</div>
-          <div class="label">Designs</div>
-        </div>
-        <div class="statistic">
-          <div class="value">{{ formatBytes(data, 1) }}</div>
-          <div class="label">Data</div>
-        </div>
-
-      </div>
-
-      <table class="ui striped selectable table">
-        <thead>
-          <tr>
-            <th></th>
-            <th @click='sortBy("user")'>User</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Joined</th>
-            <th>Last Active</th>
-            <th>Invites</th>
-            <th>Designs</th>
-            <th>Data</th>
-            <th>Plan</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for='profile in profiles'>
-
-            <td id='profile-avatar'>
-              <img
-                v-if='profile.picture'
-                class="ui large avatar image"
-                :src='profile.picture'
-                style='max-height:30px;max-width:30px'
-              >
-              <i class="big user icon" v-else></i>
-            </td>
-
-            <td id='profile-username'>
-              <router-link :to="'/' + profile.owner.username">
-                {{ profile.owner.username }}
-              </router-link>
-
-            </td>
-
-            <td id='profile-full-name'>
-              {{ profile.owner.first_name }}
-            </td>
-
-            <td id='profile-email'>
-              <a :href="'mailto:' + profile.owner.email">
-                {{ profile.owner.email }}
-              </a>
-            </td>
-
-            <td id='project-joined'>
-              {{ profile.owner.date_joined | moment("from", "now") }}
-            </td>
-
-            <td id='profile-last-active'>
-              <span v-if='profile.owner.last_login'>
-                {{ profile.owner.last_login | moment("from", "now") }}
-              </span>
-              <span v-else>
-                Never
-              </span>
-            </td>
-
-            <td id='profile-invites'>
-              {{ profile.owner.invitation_set.length }}
-            </td>
-
-            <td id='profile-designs'>
-              {{ profile.design_count }}
-            </td>
-
-            <td id='project-data'>
-              {{ formatBytes(profile.data, 1) }}
-            </td>
-
-            <td id='project-plan'>
-              <span v-if='profile.plan'>
-                {{ profile.plan.name }}
-              </span>
-              <span v-else>
-                Starter
-              </span>
-            </td>
-
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="one wide column"></div>
   </div>
+
 
 </template>
 
