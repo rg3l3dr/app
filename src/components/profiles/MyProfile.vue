@@ -1,6 +1,7 @@
 <template lang="html">
-  <div class="ui grid">
+  <div>
     <div class="one wide column"></div>
+
     <div class="fourteeen wide column">
       <div class="ui grid">
         <div class="row" style='margin: 20px 0px 0px 0px'>
@@ -51,6 +52,10 @@
           </div><!-- /.col-xs-9 -->
         </div>
       </div>
+      <!-- <div class="ui grid">
+
+      </div> -->
+
     </div>
     <div class="one wide column"></div>
   </div>
