@@ -1,88 +1,97 @@
 <template lang="html">
-  <div class="ui large secondary text menu" style='margin-bottom: 0px'>
-    <router-link v-if='session.active' class='item' to='/home' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
-      <i class="fa fa-cogs" style='font-size:26px; color:#555'></i>
-      &nbsp
-      <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
-    </router-link>
-    <a href='https://www.omnibuilds.com' v-else-if='env == "prod"' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
-      <i class="fa fa-cogs" style='font-size:30px; color:#555'></i>
-      &nbsp
-      <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
-    </a>
-    <a href='https://stage.omnibuilds.com' v-else style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
-      <i class="fa fa-cogs" style='font-size:30px; color:#555'></i>
-      &nbsp
-      <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
-    </a>
-    <!-- <a href="#" class="item">Features</a>
-    <a href="#" class="item">Mission</a>
-    <a href="#" class="item">Pricing</a> -->
-    <div class="right menu">
-      <div class="item" style='padding-right: 5rem'>
+  <div class="ui grid">
+    <div class="one wide column"></div>
+    <div class="fourteen wide column">
+      <div class="ui large secondary text menu" style='margin-bottom: 0px'>
+        <router-link v-if='session.active' class='item' to='/home' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
+          <i class="fa fa-cogs" style='font-size:26px; color:#555'></i>
+          &nbsp
+          <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
+        </router-link>
+        <a href='https://www.omnibuilds.com' v-else-if='env == "prod"' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
+          <i class="fa fa-cogs" style='font-size:30px; color:#555'></i>
+          &nbsp
+          <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
+        </a>
+        <a href='https://stage.omnibuilds.com' v-else style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
+          <i class="fa fa-cogs" style='font-size:30px; color:#555'></i>
+          &nbsp
+          <span style='color:red'>Omni</span><span style='color:blue'>Builds</span>
+        </a>
+        <!-- <a href="#" class="item">Features</a>
+        <a href="#" class="item">Mission</a>
+        <a href="#" class="item">Pricing</a> -->
+        <div class="right menu">
+          <div class="item" style='padding-right: 5rem'>
 
-        <div class="ui fluid search" v-show='session.active'>
-          <div class="ui icon input">
-            <input
-              class="prompt"
-              type="text"
-              size='35'
-              placeholder=" Search your parts library..."
-              v-model='inputQuery'
-              @keydown.enter='getResult'
-            >
-            <i class="search icon"></i>
+            <div class="ui fluid search" v-show='session.active'>
+              <div class="ui icon input">
+                <input
+                  class="prompt"
+                  type="text"
+                  size='35'
+                  placeholder=" Search your parts library..."
+                  v-model='inputQuery'
+                  @keydown.enter='getResult'
+                >
+                <i class="search icon"></i>
+              </div>
+              <div class="results" @click='getResult'></div>
+            </div>
+
+            <!-- <div class="ui action left icon input small">
+              <i class="search icon"></i>
+              <input type="text" placeholder="Search projects..." size='35'>
+              <button class="ui button small">Submit</button>
+            </div> -->
           </div>
-          <div class="results" @click='getResult'></div>
-        </div>
+          <!-- <router-link class='item' id='nav-inbox' to='/notify/unread' v-if='session.active===true'>
+            <span v-if='unread_count > 0' class="fa-stack fa-lg has-badge" :data-count='unread_count'>
+              <i class="fa fa-circle fa-stack-2x"></i>
+              <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
+            </span>
+            <span v-else class="fa-stack fa-lg has-badge">
+              <i class="fa fa-circle fa-stack-2x"></i>
+              <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
+            </span>
+          </router-link> -->
+          <div class="ui top right pointing dropdown" id='nav-profile' v-if='session.active'>
+            <span v-if='profile'>
 
-        <!-- <div class="ui action left icon input small">
-          <i class="search icon"></i>
-          <input type="text" placeholder="Search projects..." size='35'>
-          <button class="ui button small">Submit</button>
-        </div> -->
-      </div>
-      <!-- <router-link class='item' id='nav-inbox' to='/notify/unread' v-if='session.active===true'>
-        <span v-if='unread_count > 0' class="fa-stack fa-lg has-badge" :data-count='unread_count'>
-          <i class="fa fa-circle fa-stack-2x"></i>
-          <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
-        </span>
-        <span v-else class="fa-stack fa-lg has-badge">
-          <i class="fa fa-circle fa-stack-2x"></i>
-          <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
-        </span>
-      </router-link> -->
-      <div class="ui top right pointing dropdown" id='nav-profile' v-if='session.active'>
-        <span v-if='profile'>
+              <img :src='profile.picture' style='height:33px' v-if='profile.picture'>
+              <i class='fa fa-user fa-2x' v-else></i>
+            </span>
+    <!--         <span v-else>
 
-          <img :src='profile.picture' style='height:33px' v-if='profile.picture'>
-          <i class='fa fa-user fa-2x' v-else></i>
-        </span>
-<!--         <span v-else>
+    </span> -->
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <router-link class='item' to='/home'><i class='fa fa-home fa-fw'></i>&nbsp {{session.username}}</router-link>
+              <router-link class='item' to='/create_design'><i class='fa fa-folder-o fa-fw'></i>&nbsp Create Design</router-link>
+              <!-- <router-link class='item' to='#'><i class='fa fa-users fa-fw'></i>&nbsp Create Team</router-link> -->
+              <router-link class='item' to='/profile/public'><i class='fa fa-gear fa-fw'></i>&nbsp My Account</router-link>
+              <span v-if='profile.owner'>
+                <router-link class='item' to='/omni-admin' v-if='profile.owner.is_superuser'><i class='dashboard icon'></i>Admin Dashboard
+                </router-link>
+              </span>
 
-</span> -->
-        <i class="dropdown icon"></i>
-        <div class="menu">
-          <router-link class='item' to='/home'><i class='fa fa-home fa-fw'></i>&nbsp {{session.username}}</router-link>
-          <router-link class='item' to='/create_design'><i class='fa fa-folder-o fa-fw'></i>&nbsp Create Design</router-link>
-          <!-- <router-link class='item' to='#'><i class='fa fa-users fa-fw'></i>&nbsp Create Team</router-link> -->
-          <router-link class='item' to='/profile/public'><i class='fa fa-gear fa-fw'></i>&nbsp My Account</router-link>
-          <span v-if='profile.owner'>
-            <router-link class='item' to='/omni-admin' v-if='profile.owner.is_superuser'><i class='dashboard icon'></i>Admin Dashboard
-            </router-link>
-          </span>
+              <div class="divider"></div>
+              <router-link tag='a' to='/accounts/login'>
 
-          <div class="divider"></div>
-          <router-link tag='a' to='/accounts/login'>
-
-          </router-link>
-          <a class='item' href='/accounts/login' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
+              </router-link>
+              <a class='item' href='/accounts/login' @click='logout'><i class='fa fa-home fa-fw'></i>&nbsp Log Out</a>
+            </div>
+          </div>
+          <router-link to="/accounts/login" class="item" v-if='session.active===false'>Login</router-link>
+          <router-link to="/accounts/register" v-if='session.active===false' class="item">Signup</router-link>
         </div>
       </div>
-      <router-link to="/accounts/login" class="item" v-if='session.active===false'>Login</router-link>
-      <router-link to="/accounts/register" v-if='session.active===false' class="item">Signup</router-link>
+
     </div>
+    <div class="one wide column"></div>
+
   </div>
+
 </template>
 
 <script>

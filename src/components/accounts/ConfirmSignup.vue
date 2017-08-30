@@ -1,18 +1,22 @@
 <template lang="html">
-  <div class="ui container">
-    <div class="ui two column centered grid">
-      <div class="row">
-        <div class="column">
-          <br>
-          <br>
-          <h3>
-            Please confirm that <a href="mailto:email">{{ email }}</a> is an email for user {{user}}.
-          </h3>
-          <button class='ui blue basic button' @click="goToSignup">Confirm Signup</button>
+  <div class="ui grid">
+    <div class="one wide column"></div>
+    <div class="fourteen wide column">
+      <div class="ui two column centered grid">
+        <div class="row">
+          <div class="column">
+            <br>
+            <br>
+            <h3>
+              Please confirm that <a href="mailto:email">{{ email }}</a> is an email for user {{user}}.
+            </h3>
+            <button class='ui blue basic button' @click="goToSignup">Confirm Signup</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="one wide column"></div>
   </div>
 </template>
 

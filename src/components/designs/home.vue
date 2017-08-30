@@ -1,11 +1,15 @@
 <template lang="html">
   <div class='ui grid'>
-    <div class="row">
-      <br>
-      <h3>
+    <div class="row" style='padding: 5px 0px 0px 0px'>
+      <h3 v-if='design.description'>
         &nbsp &nbsp
         {{ design.description }}
       </h3>
+      <span v-else style='color: #515a61; font-size: 16px'>
+        <br>
+        &nbsp &nbsp &nbsp
+        Click here to add a short description
+      </span>
     </div>
     <div class="row">
       <div class="eight wide column" id='images'>
@@ -25,7 +29,7 @@
         <div class="ui small top attached header">
           <i class="fa-list-ul icon"></i>
           <div class="content">
-            Specifications
+            Summary
           </div>
         </div>
         <div class="ui bottom attached clearing segment">

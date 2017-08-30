@@ -33,6 +33,7 @@ export const store = new Vuex.Store({
       pre_endpoint: ''
     },
     trail: [],
+    parts: [],
     bom: {},
     specs: {},
     files: null,
@@ -68,6 +69,9 @@ export const store = new Vuex.Store({
     },
     bom: state => {
       return state.bom
+    },
+    parts: state => {
+      return state.parts
     },
     specs: state => {
       return state.specs
@@ -245,6 +249,12 @@ export const store = new Vuex.Store({
         console.log('bom set in store')
       }
     },
+    setParts(state, data) {
+      state.parts = data
+      if (state.env != 'prod') {
+        console.log('parts set in store')
+      }
+    },
   },
   actions: {
     getProfile ({commit, state}) {
@@ -379,6 +389,25 @@ export const store = new Vuex.Store({
           console.log(error)
         }
       })
+    },
+    getParts({commit, state}, payload) {
+      return new Promise((resolve, reject) => {
+        Vue.http.get(`get_bom_parts/?design_id=${payload.design_id}&ref_slug=${payload.ref_slug}&ref_type=${payload.ref_type}&config_slug=${payload.config_slug}`).then(success => {
+          if (state.env != 'prod') {
+            console.log('Got Parts')
+            console.log(success)
+          }
+          commit('setParts', success.data)
+          resolve(success)
+        }, error => {
+          if (state.env != 'prod') {
+            console.log('Error getting Parts')
+            console.log(error)
+          }
+          reject(error)
+        })
+      })
+
     },
     // getFiles ({commit}, payload) {
     //   Vue.http.get('files/' + payload.id + '/?ref=' + payload.ref + '&type=' + payload.ref_type).then(success => {

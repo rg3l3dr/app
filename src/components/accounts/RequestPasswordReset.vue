@@ -1,55 +1,60 @@
 <template lang="html">
-  <div class="ui container">
-    <div class="ui two column centered grid">
-      <div class="row">
-        <div class="column">
-          <br>
-          <br>
-          <br>
-          <div class='reset'>
-            <form class='ui form'>
-              <h1 class="ui dividing header">Request password reset</h1>
-              <div class="field has-feedback"
-              :class="{
-                'has-success': email.isValid && email.isActive,
-                'error': email.isValid == false || email.isActive == false || email.hasError
-                }">
-                <label for="email" class="control-label">Email</label>
-                <input
-                  type="text"
-                  id="username"
-                  placeholder="Enter your email"
-                  v-model='email.data'
-                  @blur='validateEmail'>
-                <span v-if='email.isActive == false || email.hasError || email.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-                <span
-                  v-if='email.isValid == false'
-                  class="help-block"
-                  >Enter a valid email address
-                </span>
-                <span
-                  v-else-if='email.isActive == false'
-                  class="help-block"
-                  >This email address is not associated with a user account
-                </span>
-                <span
-                  v-else-if='email.hasError'
-                  class="help-block"
-                  > {{email.error}}
-                </span>
-              </div>
-              <button
-                type="submit"
-                class="ui button primary"
-                :disabled='email.isValid != true || email.isActive != true'
-                @click.prevent='submit'
-                >Reset Password
-              </button>
-            </form>
+  <div class="ui grid">
+    <div class="one wide column"></div>
+    <div class="fourteen wide column">
+      <div class="ui two column centered grid">
+        <div class="row">
+          <div class="column">
+            <br>
+            <br>
+            <br>
+            <div class='reset'>
+              <form class='ui form'>
+                <h1 class="ui dividing header">Request password reset</h1>
+                <div class="field has-feedback"
+                :class="{
+                  'has-success': email.isValid && email.isActive,
+                  'error': email.isValid == false || email.isActive == false || email.hasError
+                  }">
+                  <label for="email" class="control-label">Email</label>
+                  <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter your email"
+                    v-model='email.data'
+                    @blur='validateEmail'>
+                  <span v-if='email.isActive == false || email.hasError || email.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                  <span
+                    v-if='email.isValid == false'
+                    class="help-block"
+                    >Enter a valid email address
+                  </span>
+                  <span
+                    v-else-if='email.isActive == false'
+                    class="help-block"
+                    >This email address is not associated with a user account
+                  </span>
+                  <span
+                    v-else-if='email.hasError'
+                    class="help-block"
+                    > {{email.error}}
+                  </span>
+                </div>
+                <button
+                  type="submit"
+                  class="ui button primary"
+                  :disabled='email.isValid != true || email.isActive != true'
+                  @click.prevent='submit'
+                  >Reset Password
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="one wide column"></div>
+
   </div>
 
 </template>

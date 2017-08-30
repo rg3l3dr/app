@@ -1,75 +1,80 @@
 <template lang="html">
-  <div class="ui container">
-    <div class="ui two column centered grid">
-      <div class="row">
-        <div class="column">
-          <br>
-          <br>
-          <br>
-          <div class="create_design">
-            <div class="ui form">
-              <h1 class="ui dividing header">Start a New Design Project</h1>
-              <div class="field" :class="{ 'error': name.hasError}" id='design-name'>
-                <label>Name</label>
-                <input
-                  type="text"
-                  placeholder="Input a name for your design project"
-                  v-model='name.data'
-                  @keydown.enter='submit()'
-                >
-                <div
-                  v-if='name.hasError'
-                  class="has-error"
-                  > {{name.error}}
+  <div class="ui grid">
+    <div class="one wide column"></div>
+    <div class="fourteen wide column">
+      <div class="ui two column centered grid">
+        <div class="row">
+          <div class="column">
+            <br>
+            <br>
+            <br>
+            <div class="create_design">
+              <div class="ui form">
+                <h1 class="ui dividing header">Start a New Design Project</h1>
+                <div class="field" :class="{ 'error': name.hasError}" id='design-name'>
+                  <label>Name</label>
+                  <input
+                    type="text"
+                    placeholder="Input a name for your design project"
+                    v-model='name.data'
+                    @keydown.enter='submit()'
+                  >
+                  <div
+                    v-if='name.hasError'
+                    class="has-error"
+                    > {{name.error}}
+                  </div>
                 </div>
+
+                <!-- <div class="field" id='design-visbility'>
+                  <label>Visibility Level</label>
+                  <div class="ui selection dropdown visibility">
+                    <input type="hidden" name="visibility">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">
+                      <i class="lock icon"></i>
+                      Choose a Visibility Level
+                    </div>
+                    <div class="menu">
+                      <div class="item" data-value="1">Private</div>
+                      <div class="disabled item" data-value="2">Public (coming soon)</div>
+                    </div>
+                  </div>
+                </div> -->
+
+                <!-- <div class="field" id='design-license'>
+                  <label> Optional License </label>
+                  <select class="ui dropdown license" v-model='license'>
+                    <option disabled value=""> <i class="file text icon"></i> Choose a License (optional)</option>
+                    <option v-for='license in licenses' :value='license.id'> {{ license.long_name }} </option>
+                  </select>
+                </div> -->
+                <!-- <div class="field" :class="{ 'error': description.hasError}">
+                  <label>Description</label>
+                  <textarea
+                    name="name"
+                    rows="5"
+                    cols="80"
+                    v-model='description.data'
+                    placeholder='Provide an optional description'
+                    maxlength='250'
+                  >
+                  </textarea>
+                  <div
+                    v-if='name.hasError'
+                    class="has-error"
+                    > {{description.error}}
+                  </div>
+                </div> -->
+                <button class='ui basic blue button' @click='submit()'>Create Design</button>
               </div>
-
-              <!-- <div class="field" id='design-visbility'>
-                <label>Visibility Level</label>
-                <div class="ui selection dropdown visibility">
-                  <input type="hidden" name="visibility">
-                  <i class="dropdown icon"></i>
-                  <div class="default text">
-                    <i class="lock icon"></i>
-                    Choose a Visibility Level
-                  </div>
-                  <div class="menu">
-                    <div class="item" data-value="1">Private</div>
-                    <div class="disabled item" data-value="2">Public (coming soon)</div>
-                  </div>
-                </div>
-              </div> -->
-
-              <!-- <div class="field" id='design-license'>
-                <label> Optional License </label>
-                <select class="ui dropdown license" v-model='license'>
-                  <option disabled value=""> <i class="file text icon"></i> Choose a License (optional)</option>
-                  <option v-for='license in licenses' :value='license.id'> {{ license.long_name }} </option>
-                </select>
-              </div> -->
-              <!-- <div class="field" :class="{ 'error': description.hasError}">
-                <label>Description</label>
-                <textarea
-                  name="name"
-                  rows="5"
-                  cols="80"
-                  v-model='description.data'
-                  placeholder='Provide an optional description'
-                  maxlength='250'
-                >
-                </textarea>
-                <div
-                  v-if='name.hasError'
-                  class="has-error"
-                  > {{description.error}}
-                </div>
-              </div> -->
-              <button class='ui basic blue button' @click='submit()'>Create Design</button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="one wide column"></div>
+
   </div>
 
 </template>

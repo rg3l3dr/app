@@ -1,76 +1,81 @@
 <template lang="html">
-  <div class="ui container">
-    <div class="ui two column centered grid">
-      <div class="row">
-        <div class="column">
-          <br>
-          <br>
-          <br>
-          <div class='login'>
-            <form class='ui form'>
-              <h1 class="ui dividing header">Login to OmniBuilds</h1>
-              <div class='ui info icon message' style='text-align:center' v-if='session.signed_up'>
-                <i class="mail icon"></i>
-                <div class="content">
-                  An activation email has been sent to the address provided.
-                  <br>
-                  Please confirm your email and login below.
-                </div>
-              </div>
-              <div
-                class="field"
-                :class="{
-                  'error': password.hasError || username.hasError
-                }">
-                <label for="username">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  placeholder="Enter your username"
-                  v-model='username.data'
-                  >
-                  <span v-if='password.hasError || username.hasError' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-                  <span
-                    v-if='username.hasError'
-                    class="help-block"
-                    >{{username.error}}
-                  </span>
-              </div>
-              <div
-                class="field has-feedback"
-                :class="{
-                  'error': password.hasError
-                  }"
-                >
-                <label for="password" class="control-label">Password</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="password"
-                  placeholder="Enter your password"
-                  v-model='password.data'
-                  >
-                  <span v-if='username.hasError || password.hasError' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-                  <span
-                  <span
-                    v-if='password.hasError'
-                    class="help-block"
-                    >{{password.error}}
-                  </span>
-                </div>
-                <button
-                  type="submit"
-                  class="ui button primary"
-                  @click.prevent='submit'
-                  >Login
-                </button>
-            </form>
+  <div class="ui grid">
+    <div class="one wide column"></div>
+    <div class="fourteen wide column">
+      <div class="ui two column centered grid">
+        <div class="row">
+          <div class="column">
             <br>
-            <router-link to='/accounts/request_reset'>Forgot Password</router-link>
+            <br>
+            <br>
+            <div class='login'>
+              <form class='ui form'>
+                <h1 class="ui dividing header">Login to OmniBuilds</h1>
+                <div class='ui info icon message' style='text-align:center' v-if='session.signed_up'>
+                  <i class="mail icon"></i>
+                  <div class="content">
+                    An activation email has been sent to the address provided.
+                    <br>
+                    Please confirm your email and login below.
+                  </div>
+                </div>
+                <div
+                  class="field"
+                  :class="{
+                    'error': password.hasError || username.hasError
+                  }">
+                  <label for="username">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter your username"
+                    v-model='username.data'
+                    >
+                    <span v-if='password.hasError || username.hasError' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span
+                      v-if='username.hasError'
+                      class="help-block"
+                      >{{username.error}}
+                    </span>
+                </div>
+                <div
+                  class="field has-feedback"
+                  :class="{
+                    'error': password.hasError
+                    }"
+                  >
+                  <label for="password" class="control-label">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    placeholder="Enter your password"
+                    v-model='password.data'
+                    >
+                    <span v-if='username.hasError || password.hasError' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                    <span
+                    <span
+                      v-if='password.hasError'
+                      class="help-block"
+                      >{{password.error}}
+                    </span>
+                  </div>
+                  <button
+                    type="submit"
+                    class="ui button primary"
+                    @click.prevent='submit'
+                    >Login
+                  </button>
+              </form>
+              <br>
+              <router-link to='/accounts/request_reset'>Forgot Password</router-link>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="one wide column"></div>
+
   </div>
 
 </template>

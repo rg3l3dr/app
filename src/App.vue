@@ -1,17 +1,21 @@
 <template>
 
-  <div class='ui container'>
-    <transition appear name='fade'>
-      <app-navbar></app-navbar>
-    </transition>
-    <hr style='margin-top: 0px'>
-    <transition appear name='fade'>
-      <router-view style='min-height:85vh'></router-view>
-    </transition>
-    <transition appear name='fade'>
-      <app-footer></app-footer>
-    </transition>
-  </div>
+    <div class='ui fluid container'>
+
+      <transition appear name='fade'>
+        <app-navbar></app-navbar>
+      </transition>
+      <hr style='margin-top: 0px'>
+      <transition appear name='fade'>
+        <router-view style='min-height:85vh'></router-view>
+      </transition>
+      <transition appear name='fade'>
+        <app-footer></app-footer>
+      </transition>
+    </div>
+
+
+
 </template>
 <script>
 

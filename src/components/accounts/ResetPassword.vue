@@ -1,78 +1,83 @@
 <template lang="html">
-  <div class="ui container">
-    <div class="ui two column centered grid">
-      <div class="row">
-        <div class="column">
-          <br>
-          <br>
-          <br>
-          <div class="reset">
-            <form class='ui form'>
-              <h1 class="ui dividing header">Reset your Password</h1>
-              <div
-                class="field has-feedback"
-                :class="{
-                  'has-success': password1.isValid,
-                  'has-error': password1.isValid == false || password1.hasError
-                  }">
-                <label for="passwor1dInput" class='control-label'>New Password</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="password1Input"
-                  placeholder="Choose a new password"
-                  aria-describedby="emailHelp"
-                  v-model='password1.data'
-                  >
-                <span v-if='password1.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-                <span v-else-if='password1.hasError || password1.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-               <span
-                 v-if='password1.isValid == false'
-                 class="help-block"
-                 >Password must contain at least 8 characters and include at least one number and one letter
-               </span>
-               <span
-                 v-else-if='password1.hasError'
-                 class="help-block"
-                 > {{password1.error}}
-               </span>
-              </div>
-              <div
-                class="field has-feedback"
-                :class="{
-                  'has-success': password2.isValid,
-                  'has-error': password2.isValid == false || password2.hasError
-                  }">
-                <label for="passwor2dInput" class='control-label'>Retype New Password</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="password2Input"
-                  placeholder="Retype your new password"
-                  v-model='password2.data'
-                  >
-                <span v-if='password2.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-                <span v-else-if='password2.hasError || password2.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-               <span
-                 v-if='password2.isValid == false'
-                 class="help-block"
-                 >Password must contain at least 8 characters and include at least one number and one letter
-               </span>
-               <span
-                 v-else-if='password2.hasError'
-                 class="help-block"
-                 > {{password2.error}}
-               </span>
-              </div>
-              <button class='ui small button' @click.prevent='forgotPassword'>
-                Update Password
-              </button>
-              <br>
-            </form>
+  <div class="ui grid">
+    <div class="one wide column"></div>
+    <div class="fourteen wide column">
+      <div class="ui two column centered grid">
+        <div class="row">
+          <div class="column">
+            <br>
+            <br>
+            <br>
+            <div class="reset">
+              <form class='ui form'>
+                <h1 class="ui dividing header">Reset your Password</h1>
+                <div
+                  class="field has-feedback"
+                  :class="{
+                    'has-success': password1.isValid,
+                    'has-error': password1.isValid == false || password1.hasError
+                    }">
+                  <label for="passwor1dInput" class='control-label'>New Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password1Input"
+                    placeholder="Choose a new password"
+                    aria-describedby="emailHelp"
+                    v-model='password1.data'
+                    >
+                  <span v-if='password1.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+                  <span v-else-if='password1.hasError || password1.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                 <span
+                   v-if='password1.isValid == false'
+                   class="help-block"
+                   >Password must contain at least 8 characters and include at least one number and one letter
+                 </span>
+                 <span
+                   v-else-if='password1.hasError'
+                   class="help-block"
+                   > {{password1.error}}
+                 </span>
+                </div>
+                <div
+                  class="field has-feedback"
+                  :class="{
+                    'has-success': password2.isValid,
+                    'has-error': password2.isValid == false || password2.hasError
+                    }">
+                  <label for="passwor2dInput" class='control-label'>Retype New Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password2Input"
+                    placeholder="Retype your new password"
+                    v-model='password2.data'
+                    >
+                  <span v-if='password2.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+                  <span v-else-if='password2.hasError || password2.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                 <span
+                   v-if='password2.isValid == false'
+                   class="help-block"
+                   >Password must contain at least 8 characters and include at least one number and one letter
+                 </span>
+                 <span
+                   v-else-if='password2.hasError'
+                   class="help-block"
+                   > {{password2.error}}
+                 </span>
+                </div>
+                <button class='ui small button' @click.prevent='forgotPassword'>
+                  Update Password
+                </button>
+                <br>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="one wide column"></div>
+
   </div>
 
 </template>

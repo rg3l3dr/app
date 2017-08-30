@@ -1,294 +1,321 @@
 <template lang="html">
-  <div class="design">
-
-<!--     <div class="sixteen wide column">
-  <div class="ui horizontal middle aligned list">
-    <div class="item">
-      <i class="fa fa-lock fa-2x"></i>
-    </div>
-    <div class="item">
-      <img src="images/Rebel_Alliance_logo.png" class="ui circular tiny image">
-      <div class="content">
-        <div class="ui header" style='font-size:22px'>
-          <router-link tag='a' to='/home'>
-            {{ profile.name }}
-          </router-link>
-           / {{ design.name }} / Assembly / SubAssembly / Final Part
-        </div>
-      </div>
-    </div>
-  </div>
-</div> -->
-
-    <div class="sixteen wide column">
-      <div class="ui horizontal middle aligned list">
-        <div class="item">
-          <i class="fa fa-lock fa-2x"></i>
-        </div>
-        <div class="item">
-          <transition name='fade'>
-            <div class="ui massive breadcrumb" style='padding: 0px 0px 10px 0px 'v-if='trail.length > 0'>
-              <router-link tag='a' to='/home' v-if='profile.slug == $route.params.profile_slug'>
-                {{ profile.name }}
-              </router-link>
-              <router-link tag='a' :to='`/${$route.params.profile_slug}`'  v-else>
-                {{ $route.params.profile_slug }}
-              </router-link>
-              <span  class='divider'>/</span>
-              <span v-for='(breadcrumb, index) in trail'>
-                <span v-if='(trail.length - 1) != index'>
-                  <router-link tag='a' to='' @click.native='selectPart(index)'>
-                    {{ breadcrumb.name }}
-                  </router-link>
-                  <span  class='divider'>/</span>
-                </span>
-                <span v-else>
-                  <div class="active section">{{ breadcrumb.name }}</div>
-                </span>
-              </span>
+  <div class="ui grid" style='padding: 0px 10px 0px 10px'>
+    <div class="one wide column"></div>
+    <div class="fourteen wide column">
+      <div class="ui grid">
+        <div class="row" style='padding-bottom: 0px'>
+          <!-- breadcrumb trail -->
+          <div class="sixteen wide column" style='padding-bottom: 0px'>
+            <div class="ui horizontal middle aligned list">
+              <div class="item">
+                <i class="fa fa-lock fa-2x"></i>
+              </div>
+              <div class="item">
+                <transition name='fade'>
+                  <div class="ui massive breadcrumb" style='padding: 0px 0px 10px 0px 'v-if='trail.length > 0'>
+                    <router-link tag='a' to='/home' v-if='profile.slug == $route.params.profile_slug'>
+                      {{ profile.name }}
+                    </router-link>
+                    <router-link tag='a' :to='`/${$route.params.profile_slug}`'  v-else>
+                      {{ $route.params.profile_slug }}
+                    </router-link>
+                    <span  class='divider'>/</span>
+                    <span v-for='(breadcrumb, index) in trail'>
+                      <span v-if='(trail.length - 1) != index'>
+                        <router-link tag='a' to='' @click.native='selectPart(index)'>
+                          {{ breadcrumb.name }}
+                        </router-link>
+                        <span  class='divider'>/</span>
+                      </span>
+                      <span v-else>
+                        <div class="active section">{{ breadcrumb.name }}</div>
+                      </span>
+                    </span>
+                  </div>
+                </transition>
+              </div>
             </div>
-          </transition>
-        </div>
-      </div>
-
-
-    </div>
-    <div class="ui three item large text menu" style='margin: -5px 0px 5px 0px'>
-      <div class="item" id='ref-selectors'>
-        <div id="config-selector">
-          <div style='font-size: 13px; padding: 5px; text-align: left'>
-             CONFIG
           </div>
-          <div class="ui selection dropdown" id='configs' style='font-size:13px'>
-            <i class='fork icon'></i>
-            <input type="hidden" name="config">
-            <div class="default text"></div>
-            <i class="dropdown icon"></i>
-            <div class="menu">
-              <div
-                class="item"
-                v-for='config in design.config_set'
-                :data-value='config.slug'
-                @click='selectConfig(config)'
-              >
-                {{ config.name.name }}
-              </div>
-              <div class="divider"></div>
-              <!-- <div
-                v-if='new_config.hasError'
-                class="header"
-                style='color: red'
-              >
-                {{new_config.error}}
-              </div> -->
-              <div class="header">
-                ADD ANOTHER CONFIG
-              </div>
-              <!-- <div class='item' @click.prevent='createConfig'>
-                <i class="plus icon"></i>
-                Add A Config
-              </div> -->
-              <div class="ui input">
-                <div
-                  class="ui small basic compact grey button"
-                  @click.prevent='createConfig'
-                  style='line-height: 1px; font-size: 14px'
-                >
-                  <i class="plus icon"></i>
-                  Add Conifg
+
+          <!-- user aciton menu -->
+          <div class="sixteen wide column" style='padding-top: 0px; padding-bottom: 0px'>
+            <div class="ui large text menu" style='padding: 0px; margin-top: 0px'>
+              <div class="item" id='ref-selectors'>
+                <div id="config-selector">
+                  <div style='font-size: 13px; padding: 5px; text-align: left'>
+                     CONFIG
+                  </div>
+                  <div class="ui selection dropdown" id='configs' style='font-size:13px'>
+                    <i class='fork icon'></i>
+                    <input type="hidden" name="config">
+                    <div class="default text"></div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                      <div
+                        class="item"
+                        v-for='config in design.config_set'
+                        :data-value='config.slug'
+                        @click='selectConfig(config)'
+                      >
+                        {{ config.name.name }}
+                      </div>
+                      <div class="divider"></div>
+                      <!-- <div
+                        v-if='new_config.hasError'
+                        class="header"
+                        style='color: red'
+                      >
+                        {{new_config.error}}
+                      </div> -->
+                      <div class="header">
+                        ADD ANOTHER CONFIG
+                      </div>
+                      <!-- <div class='item' @click.prevent='createConfig'>
+                        <i class="plus icon"></i>
+                        Add A Config
+                      </div> -->
+                      <div class="ui input">
+                        <div
+                          class="ui small basic compact grey button"
+                          @click.prevent='createConfig'
+                          style='line-height: 1px; font-size: 14px'
+                        >
+                          <i class="plus icon"></i>
+                          Add Conifg
+                        </div>
+                      </div>
+
+                      <div class="header">
+                        <a href="http://help.omnibuilds.com#configurations-configs">
+                          WHAT IS A CONFIG?
+                        </a>
+                      </div>
+
+                      <!-- <button class="ui button">
+                      Create New Config
+                    </button> -->
+                      <!-- <div
+                        class="ui input"
+                        :class="{'error': new_config.hasError}"
+                      >
+                        <input
+                          type="text"
+                          placeholder='Choose a name...'
+                          v-model='new_config.data'
+                          @keydown.enter.prevent='testConfig'
+                        >
+                      </div> -->
+                    </div>
+                  </div>
+                </div>
+                &nbsp&nbsp&nbsp&nbsp
+                <div id="build-selector">
+                  <div style='font-size: 13px; padding: 3px; text-align: left'>
+                    BUILD
+                  </div>
+                  <div class="ui selection dropdown" id='builds' style='font-size:13px'>
+                    <i class='wrench icon'></i>
+                    <input type="hidden" name="builds">
+                    <div class="default text"></div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                      <div
+                        class="item"
+                        v-for='build in current_build_set'
+                        :data-value='build.slug'
+                        @click='selectBuild(build)'
+                      >
+                        {{ build.name }}
+                      </div>
+                      <div class="divider"></div>
+                      <div v-if='new_build.hasError' class="header" style='color: red'> {{new_build.error}} </div>
+                      <div class="header">Create a new Build</div>
+                      <div class="ui input" :class="{'error': new_build.hasError}">
+                        <input
+                          type="text"
+                          placeholder='Choose a name...'
+                          @keydown.enter.prevent='testBuild'
+                          v-model='new_build.data'
+                          id='build-input'
+                        >
+                      </div>
+                      <div class="header">
+                        <a href="http://help.omnibuilds.com#builds">
+                          WHAT IS A BUILD?
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div class="item" id='part-number' v-if='design.design_class'>
+                <div style='padding: 15px 0px 0px 0px'>
+                  <div class="ui basic icon buttons">
+                    <button
+                      class="ui button"
+                      @click='toggleRev(-1)'
+                      :disabled='current_rev_index==0'
+                    >
+                      <i class="left chevron icon"></i>
+                    </button>
+                    <button class="ui button" @click='selectRev'>
+                      <span v-if='$route.params.build_slug'>
+                        {{ `${design.abbreviation}-${design.sequence}-${design.design_class.code}-${current_config.name.letter}${current_rev.number}: ${current_build.name}` }}
+                      </span>
+                      <span v-else style='color:#337ab7; font-size:15px'>
+                        {{ `${design.abbreviation}-${design.sequence}-${design.design_class.code}-${current_config.name.letter}${current_rev.number}`
+                        }}
+                      </span>
+                    </button>
+                    <button
+                      class="ui button"
+                      @click='toggleRev(+1)'
+                      :disabled='current_rev_index == (current_rev_set.length - 1)'
+                    >
+                      <i class="right chevron icon"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="item" id='action-buttons'>
+                <div id="import-button" style='padding: 20px 0px 0px 0px'>
+                  <div class="ui labeled button" tabindex="0">
+                    <div class="ui basic button">
+                      <i class="plus square o icon medium"></i>Import
+                    </div>
+                    <a
+                      class="ui basic left pointing label"
+                      v-if='design.imports > 0'
+                      @click='showImports'
+                    >
+                      {{ design.imports }}
+                    </a>
+                    <div class='ui basic left pointing label' v-else>
+                      0
+                    </div>
+                  </div>
+                </div>
+                <div id='copy-button' style='padding: 20px 0px 0px 0px'>
+                  &nbsp&nbsp
+                  <div class="ui labeled button" tabindex="0">
+                    <div class="ui basic button">
+                      <i class="clone icon"></i>Copy
+                    </div>
+                    <a class="ui basic left pointing label">
+                      {{ design.copys }}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <div class="header">
-                <a href="http://help.omnibuilds.com#configurations-configs">
-                  WHAT IS A CONFIG?
-                </a>
+        </div>
+        <div class="row" style='padding: 0px'>
+          <!-- indented bom navigation pane -->
+          <div class="four wide column" style='padding-top: 10px; padding-bottom: 0px'>
+            <div class="ui basic segment" style='padding: 0px'>
+              <div class="ui sticky">
+                <div class="ui top attached segment">
+                  <i class="large sitemap icon"></i>
+                  <span style='font-size:16px'>
+                    ASSEMBLY TREE
+                  </span>
+                  <button class="mini ui basic blue right floated icon button" @click='openParts(parts)'>
+                    <i class="plus icon"></i>
+                  </button>
+                  <button class="ui mini basic blue right floated icon button" @click='closeParts(parts)'>
+                    <i class="minus icon"></i>
+                  </button>
+                </div>
+                <div class="ui bottom attached clearing segment">
+                  <app-PartsTree :data='parts' :first='true' :bomTrail='setRootTrail()'></app-PartsTree>
+                </div>
               </div>
+            </div>
+          </div>
 
-              <!-- <button class="ui button">
-              Create New Config
-            </button> -->
-              <!-- <div
-                class="ui input"
-                :class="{'error': new_config.hasError}"
-              >
-                <input
-                  type="text"
-                  placeholder='Choose a name...'
-                  v-model='new_config.data'
-                  @keydown.enter.prevent='testConfig'
-                >
-              </div> -->
-            </div>
-          </div>
-        </div>
-        &nbsp&nbsp&nbsp&nbsp
-        <div id="build-selector">
-          <div style='font-size: 13px; padding: 3px; text-align: left'>
-            BUILD
-          </div>
-          <div class="ui selection dropdown" id='builds' style='font-size:13px'>
-            <i class='wrench icon'></i>
-            <input type="hidden" name="builds">
-            <div class="default text"></div>
-            <i class="dropdown icon"></i>
-            <div class="menu">
-              <div
-                class="item"
-                v-for='build in current_build_set'
-                :data-value='build.slug'
-                @click='selectBuild(build)'
-              >
-                {{ build.name }}
-              </div>
-              <div class="divider"></div>
-              <div v-if='new_build.hasError' class="header" style='color: red'> {{new_build.error}} </div>
-              <div class="header">Create a new Build</div>
-              <div class="ui input" :class="{'error': new_build.hasError}">
-                <input
-                  type="text"
-                  placeholder='Choose a name...'
-                  @keydown.enter.prevent='testBuild'
-                  v-model='new_build.data'
-                  id='build-input'
-                >
-              </div>
-              <div class="header">
-                <a href="http://help.omnibuilds.com#builds">
-                  WHAT IS A BUILD?
+          <!-- main design content -->
+          <div class="twelve wide column" style='padding-top: 0px; padding-bottom: 0px' id='context'>
+            <!-- tabular menu (records) -->
+            <div class="ui top attached fuild five item tabular menu" style='padding: 8px 0px 0px 0px'>
+              <!-- <router-link tag='a' class='item' :to='this.designRefs.design_path  + "/home"'>
+                <a>
+                  <i class="home icon"></i>
+                  Home
                 </a>
-              </div>
+              </router-link> -->
+
+              <router-link tag='a' class='item' :to='this.designRefs.design_path + "/parts"'>
+                <a>
+                  <i class="cubes icon"></i>
+                  Parts
+                  <!-- <div class="ui circular mini label"></div> -->
+                </a>
+              </router-link>
+              <router-link tag='a' class='item' :to='this.designRefs.design_path + "/files"'>
+                <a>
+                  <i class="fa-files-o icon"></i>
+                  Files
+                  <!-- <div class="ui circular mini label"></div> -->
+                </a>
+              </router-link>
+              <!-- <router-link tag='a' class='item' to='/project/docs'>
+                <a>
+                  <i class="book icon"></i>
+                  Docs
+                  <div class="ui circular mini label"></div>
+                </a>
+              </router-link> -->
+              <router-link tag='a' class='item' :to='this.designRefs.design_path + "/specs"'>
+                <a>
+                  <i class="list icon"></i>
+                  Specs
+                  <!-- <div class="ui circular mini label"></div> -->
+                </a>
+              </router-link>
+              <router-link v-if='this.endpoints.pre_endpoint == "settings"' tag='a' class='item' :to='this.designRefs.design_path + "/settings/" + this.endpoints.endpoint'>
+                <a>
+                  <i class="fa-cog icon"></i>
+                  Settings
+                </a>
+              </router-link>
+              <router-link v-else-if='design.is_collaborator' tag='a' class='item' :to='this.designRefs.design_path + "/settings/configs"'>
+                <a>
+                  <i class="fa-cog icon"></i>
+                  Settings
+                </a>
+              </router-link>
+              <router-link v-else tag='a' class='item' :to='this.designRefs.design_path + "/settings/basic"'>
+                <a>
+                  <i class="fa-cog icon"></i>
+                  Settings
+                </a>
+              </router-link>
             </div>
+            <!-- tab content (records) -->
+            <transition name='fade'>
+              <router-view name='designContent'></router-view>
+            </transition>
           </div>
+
         </div>
-      </div>
-      <div class="item" id='part-number' v-if='design.design_class'>
-        <div style='padding: 15px 0px 0px 0px'>
-          <div class="ui basic icon buttons">
-            <button
-              class="ui button"
-              @click='toggleRev(-1)'
-              :disabled='current_rev_index==0'
-            >
-              <i class="left chevron icon"></i>
-            </button>
-            <button class="ui button" @click='selectRev'>
-              <span v-if='$route.params.build_slug'>
-                {{ `${design.abbreviation}-${design.sequence}-${design.design_class.code}-${current_config.name.letter}${current_rev.number}: ${current_build.name}` }}
-              </span>
-              <span v-else style='color:#337ab7; font-size:15px'>
-                {{ `${design.abbreviation}-${design.sequence}-${design.design_class.code}-${current_config.name.letter}${current_rev.number}`
-                }}
-              </span>
-            </button>
-            <button
-              class="ui button"
-              @click='toggleRev(+1)'
-              :disabled='current_rev_index == (current_rev_set.length - 1)'
-            >
-              <i class="right chevron icon"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="item" id='action-buttons'>
-        <!-- <div id="import-button" style='padding: 20px 0px 0px 0px'>
-          <div class="ui labeled button" tabindex="0">
-            <div class="ui basic button">
-              <i class="plus square o icon medium"></i>Import
-            </div>
-            <a
-              class="ui basic left pointing label"
-              v-if='design.imports > 0'
-              @click='showImports'
-            >
-              {{ design.imports }}
-            </a>
-            <div class='ui basic left pointing label' v-else>
-              0
-            </div>
-          </div>
-        </div>
-        <div id='copy-button' style='padding: 20px 0px 0px 0px'>
-          &nbsp&nbsp
-          <div class="ui labeled button" tabindex="0">
-            <div class="ui basic button">
-              <i class="clone icon"></i>Copy
-            </div>
-            <a class="ui basic left pointing label">
-              {{ design.copys }}
-            </a>
-          </div>
-        </div> -->
+
       </div>
     </div>
-    <div class="ui top attached fuild four item tabular menu" style='padding: 8px 0px 0px 0px'>
-      <!-- <router-link tag='a' class='item' :to='this.designRefs.design_path  + "/home"'>
-        <a>
-          <i class="home icon"></i>
-          Home
-        </a>
-      </router-link> -->
-
-      <router-link tag='a' class='item' :to='this.designRefs.design_path + "/parts"'>
-        <a>
-          <i class="cubes icon"></i>
-          Parts
-          <!-- <div class="ui circular mini label"></div> -->
-        </a>
-      </router-link>
-      <router-link tag='a' class='item' :to='this.designRefs.design_path + "/files"'>
-        <a>
-          <i class="fa-files-o icon"></i>
-          Files
-          <!-- <div class="ui circular mini label"></div> -->
-        </a>
-      </router-link>
-      <!-- <router-link tag='a' class='item' to='/project/docs'>
-        <a>
-          <i class="book icon"></i>
-          Docs
-          <div class="ui circular mini label"></div>
-        </a>
-      </router-link> -->
-      <router-link tag='a' class='item' :to='this.designRefs.design_path + "/specs"'>
-        <a>
-          <i class="list icon"></i>
-          Specs
-          <!-- <div class="ui circular mini label"></div> -->
-        </a>
-      </router-link>
-      <router-link v-if='this.endpoints.pre_endpoint == "settings"' tag='a' class='item' :to='this.designRefs.design_path + "/settings/" + this.endpoints.endpoint'>
-        <a>
-          <i class="fa-cog icon"></i>
-          Settings
-        </a>
-      </router-link>
-      <router-link v-else-if='design.is_collaborator' tag='a' class='item' :to='this.designRefs.design_path + "/settings/configs"'>
-        <a>
-          <i class="fa-cog icon"></i>
-          Settings
-        </a>
-      </router-link>
-      <router-link v-else tag='a' class='item' :to='this.designRefs.design_path + "/settings/basic"'>
-        <a>
-          <i class="fa-cog icon"></i>
-          Settings
-        </a>
-      </router-link>
-    </div>
-    <transition name='fade'>
-      <router-view name='designContent'></router-view>
-    </transition>
-
+    <div class="one wide column"></div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { EventBus } from '../../event-bus.js'
+import partsTree from './partsTree.vue'
 export default {
   name: 'design',
+  components: {
+    appPartsTree: partsTree,
+  },
   data () {
     return {
       new_config: {
@@ -306,7 +333,7 @@ export default {
       current_build: {},
       current_rev_set: [],
       current_rev_index: 0,
-      current_rev: {}
+      current_rev: {},
     }
   },
   computed: {
@@ -319,6 +346,7 @@ export default {
       'params',
       'path',
       'trail',
+      'parts'
     ]),
     new_build_slug: function() {
       if (this.new_build.data != null) {
@@ -349,6 +377,22 @@ export default {
 
         this.updateDesignRefs()
         this.updateRefSelectors()
+
+        if (this.trail.length > 1) {
+          var root_design = this.trail[0]
+
+          console.log(root_design)
+
+          let parts_payload = {
+            design_id: root_design.design_id,
+            config_slug: root_design.config_slug,
+            ref_slug: root_design.ref_slug,
+            ref_type: root_design.ref_type
+          }
+
+          this.$store.dispatch('getParts', parts_payload)
+
+        }
       }
     },
     // params: function () {
@@ -870,6 +914,35 @@ export default {
         }
         this.$store.commit('extendTrail', breadcrumb)
       }, error => {})
+    },
+    openParts(parts) {
+      for (let part of parts) {
+        if (part.parts.length > 0) {
+          part.isOpen = true
+          this.openParts(part.parts)
+        }
+      }
+    },
+    closeParts(parts) {
+      for (let part of parts) {
+        if (part.parts.length > 0) {
+          part.isOpen = false
+          this.closeParts(part.parts)
+        }
+      }
+    },
+    setRootTrail() {
+      let breadcrumb = {
+        name: this.design.name,
+        slug: this.design.slug,
+        design_id: this.design.id,
+        ref_slug: this.designRefs.ref,
+        ref_type: this.designRefs.ref_type,
+        config_slug: this.designRefs.config_slug,
+        owner_slug: this.design.owner_slug
+      }
+      var rootTrail = [breadcrumb]
+      return rootTrail
     }
   },
   created() {
@@ -899,10 +972,18 @@ export default {
     }
     this.$store.dispatch('getDesign', design_payload).then(success => {
 
-
       // this.updateDesignRefs()
       this.$store.commit('setDesignRefs')
       EventBus.$emit('design-refs-updated')
+
+      let parts_payload = {
+        design_id: this.design.id,
+        config_slug: this.designRefs.config_slug,
+        ref_slug: this.designRefs.ref,
+        ref_type: this.designRefs.ref_type
+      }
+
+      this.$store.dispatch('getParts', parts_payload)
 
       let breadcrumb = {
         name: this.design.name,
@@ -932,6 +1013,9 @@ export default {
 
       })
     })
+    // $('.ui.sticky').sticky(
+    //  {context: '#context'}
+    // )
   },
   updated() {}
 }

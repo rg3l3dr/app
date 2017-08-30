@@ -1,34 +1,39 @@
 <template lang="html">
   <div>
     <div class='ui grid'>
-      <div class="row">
-        <div class="eight wide column">
-          Your search for {{ query }} returned {{ results.length }} results
+      <div class="one wide column"></div>
+      <div class="fourteen wide column">
+        <div class="row">
+          <div class="eight wide column">
+            Your search for {{ query }} returned {{ results.length }} results
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="twelve wide column">
-          <div class="ui relaxed divided list">
-            <div class="item" v-for='(result, index) in results'>
-              <i class="big folder open middle aligned icon"></i>
-              <div class="content">
-                <a class='header' @click='viewResult(index)'>
-                  <h3>
-                    {{ result.name }}
-                  </h3>
+        <div class="row">
+          <div class="twelve wide column">
+            <div class="ui relaxed divided list">
+              <div class="item" v-for='(result, index) in results'>
+                <i class="big folder open middle aligned icon"></i>
+                <div class="content">
+                  <a class='header' @click='viewResult(index)'>
+                    <h3>
+                      {{ result.name }}
+                    </h3>
 
-                </a>
-                <div class="description" >
-                  <h4>
-                    {{ result.number }}
-                  </h4>
+                  </a>
+                  <div class="description" >
+                    <h4>
+                      {{ result.number }}
+                    </h4>
 
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="one wide column"></div>
+
     </div>
   </div>
 

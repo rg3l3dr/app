@@ -1,128 +1,133 @@
 <template lang="html">
-  <div class="ui container">
-    <div class="ui two column centered grid">
-      <div class="row">
-        <div class="column">
-          <br>
-          <br>
-          <br>
-          <div class='register'>
-            <form class='ui form'>
-              <h1 class="ui dividing header">Signup for OmniBuilds</h1>
-              <h4 class="ui header">Starter accounts are free and include 100 MB of private storage</h4>
-              <div
-                class="field has-feedback"
-                :class="{
-                  'has-success': username.isValid,
-                  'error': username.isValid == false || username.isTaken || username.hasError
-                  }"
-                >
-                <label for="username" class="control-label">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  placeholder="Choose a username"
-                  v-model='username.data'
-                  @blur='validateUsername'
+  <div class="ui grid">
+    <div class="one wide columm"></div>
+    <div class="fourteen wide column">
+      <div class="ui two column centered grid">
+        <div class="row">
+          <div class="column">
+            <br>
+            <br>
+            <br>
+            <div class='register'>
+              <form class='ui form'>
+                <h1 class="ui dividing header">Signup for OmniBuilds</h1>
+                <h4 class="ui header">Starter accounts are free and include 100 MB of private storage</h4>
+                <div
+                  class="field has-feedback"
+                  :class="{
+                    'has-success': username.isValid,
+                    'error': username.isValid == false || username.isTaken || username.hasError
+                    }"
                   >
-                <span v-if='username.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-                <span v-else-if='username.isTaken || username.hasError || username.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-                <div
-                  v-if='username.isValid == false'
-                  class="help-block"
-                  >Enter a valid username. This value may contain only English letters, numbers, and @/./+/-/_ characters
+                  <label for="username" class="control-label">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    placeholder="Choose a username"
+                    v-model='username.data'
+                    @blur='validateUsername'
+                    >
+                  <span v-if='username.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+                  <span v-else-if='username.isTaken || username.hasError || username.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                  <div
+                    v-if='username.isValid == false'
+                    class="help-block"
+                    >Enter a valid username. This value may contain only English letters, numbers, and @/./+/-/_ characters
+                  </div>
+                  <div
+                    v-else-if='username.isTaken'
+                    class="help-block"
+                    >This username has already been taken, please choose another
+                  </div>
+                  <div
+                    v-else-if='username.hasError'
+                    class="ui error message"
+                    > {{username.error}}
+                  </div>
                 </div>
                 <div
-                  v-else-if='username.isTaken'
-                  class="help-block"
-                  >This username has already been taken, please choose another
-                </div>
-                <div
-                  v-else-if='username.hasError'
-                  class="ui error message"
-                  > {{username.error}}
-                </div>
-              </div>
-              <div
-                class="field has-feedback"
-                :class="{
-                  'has-success': email.isValid,
-                  'error': email.isValid == false || email.isTaken || email.hasError
-                  }"
-                >
-                <label for="emailInput" class="control-label">Email address</label>
-                <input
-                  type="email"
-                  id="emailInput"
-                  placeholder="Enter your email"
-                  aria-describedby="emailHelp"
-                  v-model='email.data'
-                  @blur='validateEmail'
-                >
-                <span v-if='email.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-                <span v-else-if='email.isTaken || email.hasError || email.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-                <div
-                  v-if='email.isValid == false'
-                  class="help-block"
-                  >Enter a valid email address
-                </div>
-                <div
-                  v-else-if='email.isTaken'
-                  class="help-block"
-                  >This email address is already being used by a member of this site.
-                </div>
-                <div
-                  v-else-if='email.hasError'
-                  class="help-block"
-                  > {{email.error}}
-                </div>
-              </div>
-              <div
-                class="field has-feedback"
-                :class="{
-                  'has-success': password.isValid,
-                  'error': password.isValid == false || password.hasError
-                  }">
-                <label for="passwordInput" class='control-label'>Password</label>
-                <input
-                  type="password"
-                  id="passwordInput"
-                  placeholder="Choose a password"
-                  aria-describedby="emailHelp"
-                  v-model='password.data'
-                  @blur='validatePassword'
+                  class="field has-feedback"
+                  :class="{
+                    'has-success': email.isValid,
+                    'error': email.isValid == false || email.isTaken || email.hasError
+                    }"
                   >
-                <span v-if='password.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-                <span v-else-if='password.hasError || password.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-               <div
-                 v-if='password.isValid == false'
-                 class="has-error"
-                 >Password must contain at least 8 characters and include at least one number and one letter
-               </div>
-               <div
-                 v-else-if='password.hasError'
-                 class="has-error"
-                 > {{password.error}}
-               </div>
-              </div>
-            <!--   <div class='field'>
-              <label for="codeInput">Code</label>
-              <input type="text" v-model='code' class='form-control' placeholder='Type in your registration code'>
+                  <label for="emailInput" class="control-label">Email address</label>
+                  <input
+                    type="email"
+                    id="emailInput"
+                    placeholder="Enter your email"
+                    aria-describedby="emailHelp"
+                    v-model='email.data'
+                    @blur='validateEmail'
+                  >
+                  <span v-if='email.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+                  <span v-else-if='email.isTaken || email.hasError || email.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                  <div
+                    v-if='email.isValid == false'
+                    class="help-block"
+                    >Enter a valid email address
+                  </div>
+                  <div
+                    v-else-if='email.isTaken'
+                    class="help-block"
+                    >This email address is already being used by a member of this site.
+                  </div>
+                  <div
+                    v-else-if='email.hasError'
+                    class="help-block"
+                    > {{email.error}}
+                  </div>
+                </div>
+                <div
+                  class="field has-feedback"
+                  :class="{
+                    'has-success': password.isValid,
+                    'error': password.isValid == false || password.hasError
+                    }">
+                  <label for="passwordInput" class='control-label'>Password</label>
+                  <input
+                    type="password"
+                    id="passwordInput"
+                    placeholder="Choose a password"
+                    aria-describedby="emailHelp"
+                    v-model='password.data'
+                    @blur='validatePassword'
+                    >
+                  <span v-if='password.isValid' class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+                  <span v-else-if='password.hasError || password.isValid == false' class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                 <div
+                   v-if='password.isValid == false'
+                   class="has-error"
+                   >Password must contain at least 8 characters and include at least one number and one letter
+                 </div>
+                 <div
+                   v-else-if='password.hasError'
+                   class="has-error"
+                   > {{password.error}}
+                 </div>
+                </div>
+              <!--   <div class='field'>
+                <label for="codeInput">Code</label>
+                <input type="text" v-model='code' class='form-control' placeholder='Type in your registration code'>
 
-            </div> -->
-              <button
-                type="submit"
-                class="ui button primary"
-                @click.prevent='submit'
+              </div> -->
+                <button
+                  type="submit"
+                  class="ui button primary"
+                  @click.prevent='submit'
 
-                >Signup
-                <!-- :disabled='username.isValid != true || email.isValid != true || password.isValid != true' -->
-              </button>
-            </form>
+                  >Signup
+                  <!-- :disabled='username.isValid != true || email.isValid != true || password.isValid != true' -->
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="one wide column"></div>
+
   </div>
 </template>
 

@@ -5,15 +5,15 @@
       BILL OF MATERIALS &#8212; Add parts and create nested assemblies
     </div>
     <div class="ui bottom attached clearing segment">
-      <transition name='fade'>
-        <table class="ui striped selectable table" id='bomTable' v-if='parts.length'>
+      <!-- <transition name='fade'> -->
+        <table class="ui very basic small compact table" id='bomTable' v-if='parts.length'>
           <thead>
             <tr>
               <th></th>
               <th>Part Name</th>
               <th>Part #</th>
               <th>Last Change</th>
-              <th>Quantity</th>
+              <th>Qty</th>
               <th>Cost</th>
               <th>Total</th>
               <th></th>
@@ -29,7 +29,7 @@
                   @click='addEmptyPart'
                   id='add-part-button'
                 >
-                  Add Another Part
+                  Add New Part
                 </button>
               </td>
               <td></td>
@@ -58,7 +58,7 @@
                       type="text"
                       v-model='newPartName.data'
                       id='part-name-editable'
-                      placeholder=" Search parts library..."
+                      placeholder="Find or create a part..."
                       @keydown.enter='getSearchResult(index)'
                       @blur='result ? null : newPartBlurTest(index, $event)'
                       @keydown.tab.prevent='tabOver($event)'
@@ -226,7 +226,7 @@
                 @click='makePartEditable(index, "cost")'
                 class='collapsing'
               >
-                <span v-if='part.cost'>
+                <span v-if='part.cost && typeof part.cost != "string"'>
                   $ {{ part.cost.toFixed(2) }}
                 </span>
                 <span v-else>
@@ -274,6 +274,26 @@
                 </div>
               </td>
             </tr>
+            <tr v-if='!parts[parts.length - 1].created' key='null'>
+              <td></td>
+              <td colspan='3'  style='color: #848f99'>
+               Press enter to add a part or tab to input qty and cost
+              </td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr key='null'>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
           </tbody>
         </table>
 
@@ -314,7 +334,7 @@
             </div>
           </h2>
         </div>
-      </transition>
+      <!-- </transition> -->
 
       <transition name='fade'>
         <div class="ui success message" v-if='message.active'>
@@ -1030,6 +1050,8 @@ export default {
           newPart.rev_last_updated = response.data.rev_set[0].created_at
           newPart.rev_action = response.data.rev_set[0].action
           newPart.created = true
+          newPart.specs = response.data.specs
+          newPart.specs.data.suppliers[0].partSchedules[0].unitCost = newPart.cost
           newPart.refs = [
             {
               part_number: `${response.data.abbreviation}-${response.data.sequence}-${response.data.design_class.code}-ALPHA`,
@@ -1612,6 +1634,10 @@ export default {
     updateSpecs(index) {
       return new Promise((resolve, reject) => {
         let updated_part = this.parts[index]
+        if (this.env != 'prod') {
+          console.dir(updated_part)
+        }
+
         let payload = {
           editor: this.profile.id,
           data: updated_part.specs.data
@@ -1685,13 +1711,20 @@ export default {
         })
       }
     },
-    tabOver() {
-      if (this.env != 'prod') {
-        console.log('In tabover function')
-        console.log('Part name is: ' + partName)
-      }
-      let partName = $('#part-name-editable').parent().parent().next().next().children()
-      $('#part-name-editable').parent().parent().next().next().children().focus()
+    tabOver(event) {
+      console.dir(event)
+      // let partName = $('#part-name-editable').parent().parent().next().next().next().children()
+      let partName = event.srcElement
+
+      // if (this.env != 'prod') {
+      //   console.log('In tabover function')
+      //   console.log('Part name is: ' + partName)
+      //   console.dir(partName)
+      // }
+
+      let tabbedLocation = $('#part-name-editable').parent().parent().next().next().next().children().children().focus()
+      console.dir(tabbedLocation)
+      // event.srcElement.parent().parent().next().next().next().next().children().focus()
     },
     tabDown() {
       if (this.env != 'prod') {
