@@ -1,7 +1,6 @@
 
 <template lang="html">
-  <div class='ui container'>
-    <div class='ui grid'>
+  <div class='ui grid'>
       <div class="one wide column"></div>
       <div class="fourteen wide column">
         <div class='row'>
@@ -289,7 +288,6 @@
       <div class="one wide column"></div>
 
     </div>
-  </div>
 </template>
 
 <script>

@@ -39,7 +39,7 @@
 
           <!-- user aciton menu -->
           <div class="sixteen wide column" style='padding-top: 0px; padding-bottom: 0px'>
-            <div class="ui large text menu" style='padding: 0px; margin-top: 0px'>
+            <div class="ui three item large text menu" style='padding: 0px; margin-top: 0px'>
               <div class="item" id='ref-selectors'>
                 <div id="config-selector">
                   <div style='font-size: 13px; padding: 5px; text-align: left'>
@@ -177,8 +177,8 @@
                   </div>
                 </div>
               </div>
-              <!-- <div class="item" id='action-buttons'>
-                <div id="import-button" style='padding: 20px 0px 0px 0px'>
+              <div class="item" id='action-buttons'>
+                <!-- <div id="import-button" style='padding: 20px 0px 0px 0px'>
                   <div class="ui labeled button" tabindex="0">
                     <div class="ui basic button">
                       <i class="plus square o icon medium"></i>Import
@@ -205,8 +205,8 @@
                       {{ design.copys }}
                     </a>
                   </div>
-                </div>
-              </div> -->
+                </div> -->
+              </div>
             </div>
           </div>
 
@@ -238,7 +238,7 @@
           <!-- main design content -->
           <div class="twelve wide column" style='padding-top: 0px; padding-bottom: 0px' id='context'>
             <!-- tabular menu (records) -->
-            <div class="ui top attached fuild five item tabular menu" style='padding: 8px 0px 0px 0px'>
+            <div class="ui top attached fuild four item tabular menu" style='padding: 8px 0px 0px 0px'>
               <!-- <router-link tag='a' class='item' :to='this.designRefs.design_path  + "/home"'>
                 <a>
                   <i class="home icon"></i>
