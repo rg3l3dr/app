@@ -177,7 +177,7 @@
                   </div>
                 </div>
               </div>
-              <div class="item" id='action-buttons'>
+              <!-- <div class="item" id='action-buttons'>
                 <div id="import-button" style='padding: 20px 0px 0px 0px'>
                   <div class="ui labeled button" tabindex="0">
                     <div class="ui basic button">
@@ -206,7 +206,7 @@
                     </a>
                   </div>
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
 
@@ -999,7 +999,7 @@ export default {
     }, error => {
       if (error.body == 'Unauthorized') {
         this.$router.push('/unauthorized')
-      } else if (error.body.detail == 'Not found.') {
+      } else if (error.body.detail == 'Not f.') {
         this.$router.push('/404')
       }
 
