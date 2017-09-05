@@ -12,6 +12,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "apollo-client": "^1.9.2",
     "bootstrap": "^3.3.7",
     "bulma": "^0.4.2",
     "cal-heatmap": "^3.6.2",
@@ -22,6 +23,7 @@
     "rusha": "^0.8.6",
     "stripe": "^4.15.0",
     "vue": "^2.1.0",
+    "vue-apollo": "^2.1.0-rc.4",
     "vue-bulma": "0.0.35",
     "vue-bulma-progress-bar": "^1.0.2",
     "vue-head": "^2.0.11",

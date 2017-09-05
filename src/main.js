@@ -8,36 +8,24 @@ import App from './App'
 import { routes } from './routes'
 import { store } from './store/store'
 import { sync } from 'vuex-router-sync'
-import Raven from 'raven-js';
-import RavenVue from 'raven-js/plugins/vue';
+import Raven from 'raven-js'
+import RavenVue from 'raven-js/plugins/vue'
+import { ApolloClient, createNetworkInterface } from 'apollo-client'
+import VueApollo from 'vue-apollo'
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
 Vue.use(VueMoment)
 Vue.use(VueHead)
-
-// a directive for focusing on newly inserted dom elements
-// Vue.directive('focus', {
-//   // When the bound element is inserted into the DOM...
-//   inserted: function (el) {
-//     // Focus the element
-//     el.focus()
-//   }
-// })
-
+Vue.use(VueApollo)
 
 // enviornment detector
-let my_host = window.location.host
-let parts = my_host.split('.')
-let sub = parts[0]
-
-// other settings that should be environment specific
-  // console logging should be turned off in production
-  // stripe API key ...
+let sub = window.location.host.split('.')[0]
 
 if (sub == 'app') {
   Vue.http.options.root = 'https://www.omnibuilds.com'
   Vue.config.devtools = false
+  store.commit('setBucket', {data: 'omni-prod-designs'})
   Raven
     .config('https://cc47c177364e4ca59afc07d083c36356@sentry.io/180771')
     .addPlugin(RavenVue, Vue)
@@ -46,13 +34,12 @@ if (sub == 'app') {
   console.log('Current subdomain is: ' + sub)
   Vue.http.options.root = 'https://stage.omnibuilds.com'
   Vue.config.devtools = true
+  store.commit('setBucket', {data: 'omni-stage-designs'})
   Raven
     .config('https://3def935f457d4f61888ad45450af3d44@sentry.io/180768')
     .addPlugin(RavenVue, Vue)
     .install();
 }
-
-
 
 // Vue Resource Config
 Vue.http.interceptors.push((request, next) => {
@@ -67,6 +54,74 @@ Vue.http.interceptors.push((request, next) => {
     }
     next()
   }
+})
+
+// Vue Router Config
+const router = new VueRouter({
+  routes,
+  mode: 'history',
+  linkActiveClass: 'active'
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (store.state.session.token) {
+      // how to know if token is expired ?
+      if (sub != 'app') {
+        console.log('user is authenticated')
+      }
+      next()
+    } else {
+      if (sub != 'app') {
+        console.log('Not authenticated, redirecting to login')
+      }
+      next({
+        path: '/accounts/auth/login'
+      })
+    }
+  } else {
+    if (sub != 'app') {
+      console.log('User is not authenticated, but not in a protected route')
+    }
+    next()
+  }
+})
+
+// Vue router sync config
+sync(store, router)
+
+// Apollo Config
+const networkInterface = createNetworkInterface({
+  uri: 'https://stage.omnibuilds.com/graphql_token',
+})
+
+networkInterface.use([{
+  applyMiddleware (req, next) {
+    if (!req.options.headers) {
+      req.options.headers = {}
+    }
+    req.options.headers['authorization'] = 'JWT ' + store.state.session.token
+    next()
+  }
+}])
+
+const apolloClient = new ApolloClient({
+  networkInterface: networkInterface,
+  connectToDevTools: true
+})
+
+const apolloProvider = new VueApollo({
+  defaultClient: apolloClient,
+})
+
+/*eslint-disable no-new */
+new Vue({
+  el: '#app',
+  store,
+  router,
+  apolloProvider,
+  template: '<App/>',
+  components: { App }
 })
 
 // Vue.http.interceptors.push((request, next) => {
@@ -96,15 +151,6 @@ Vue.http.interceptors.push((request, next) => {
   // check expiration in interceptors, if within x minutes call refreshToken
   // refresh the Token in the store and reset the timer
   // if timer expires without an intercepotr call, then expire the token
-
-
-
-// Vue Router Config
-const router = new VueRouter({
-  routes,
-  mode: 'history',
-  linkActiveClass: 'active'
-})
 
 // if (response.body.detail == "Signature has expired.")
 
@@ -147,42 +193,3 @@ const router = new VueRouter({
 //     next()
 //   }
 // })
-
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (store.state.session.token) {
-      // how to know if token is expired ?
-      if (sub != 'app') {
-        console.log('user is authenticated')
-      }
-      next()
-    } else {
-      if (sub != 'app') {
-        console.log('Not authenticated, redirecting to login')
-      }
-      next({
-        path: '/accounts/login'
-      })
-    }
-  } else {
-    if (sub != 'app') {
-      console.log('User is not authenticated, but not in a protected route')
-    }
-    next()
-  }
-})
-
-// Vue router sync config
-sync(store, router)
-
-var VueTruncate = require('vue-truncate-filter')
-Vue.use(VueTruncate)
-
-/*eslint-disable no-new */
-new Vue({
-  el: '#app',
-  store,
-  router,
-  template: '<App/>',
-  components: { App }
-})

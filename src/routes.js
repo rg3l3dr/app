@@ -1,319 +1,121 @@
+import ConfirmResetForm from './components/accounts/auth/confirmResetForm.vue'
+import ConfirmSignupForm from './components/accounts/auth/confirmSignupForm.vue'
+import LoginForm from './components/accounts/auth/loginForm.vue'
+import LogoutForm from './components/accounts/auth/logoutForm.vue'
+import RegistrationForm from './components/accounts/auth/registrationForm.vue'
+import RequestPasswordResetForm from './components/accounts/auth/requestPasswordResetForm.vue'
+import ResetPasswordForm from './components/accounts/auth/resetPasswordForm.vue'
 
-import home from './components/home.vue'
-import Search from './components/search.vue'
-import dashboard from './components/dashboard.vue'
-import Register from './components/accounts/Register.vue'
-import Login from './components/accounts/Login.vue'
-import Logout from './components/accounts/Logout.vue'
-import RequestPasswordReset from './components/accounts/RequestPasswordReset.vue'
-import ResetPassword from './components/accounts/ResetPassword'
-import ConfirmReset from './components/accounts/ConfirmReset.vue'
-import ConfirmSignup from './components/accounts/ConfirmSignup.vue'
-import MyProfile from './components/profiles/MyProfile.vue'
-import Public from './components/profile/public.vue'
-import Account from './components/profile/account.vue'
-import Plan from './components/profile/plan.vue'
-import Teams from './components/profile/teams.vue'
-import Designs from './components/profile/designs.vue'
-import Admin from './components/profile/admin.vue'
-import ListProfiles from './components/profiles/ListProfiles.vue'
-import RetrieveProfile from './components/profiles/RetrieveProfile.vue'
-import Invite from './components/invitations/invite.vue'
-import Notify from './components/notifications/notify.vue'
-import Unread from './components/notifications/unread.vue'
-import Read from './components/notifications/read.vue'
-import Send from './components/invitations/send.vue'
-import Accepted from './components/invitations/accepted.vue'
-import Pending from './components/invitations/pending.vue'
+import Invitations from './components/accounts/invitations/invitations.vue'
+import AcceptedInvitesTab from './components/accounts/invitations/acceptedInvitesTab.vue'
+import PendingInvitesTab from './components/accounts/invitations/pendingInvitesTab.vue'
+import SendInvitesTab from './components/accounts/invitations/sendInvitesTab.vue'
+
+import Notifications from './components/accounts/notifications/notifications.vue'
+import ReadNotificationsTab from './components/accounts/notifications/readNotificationsTab.vue'
+import UnreadNotificationsTab from './components/accounts/notifications/unreadNotificationsTab.vue'
+
+import ProfileSettings from './components/accounts/settings/profileSettings.vue'
+import AccountTab from './components/accounts/settings/accountTab.vue'
+import DesignsTab from './components/accounts/settings/designsTab.vue'
+import PlanTab from './components/accounts/settings/planTab.vue'
+import PublicProfileTab from './components/accounts/settings/publicProfileTab.vue'
+import TeamsTab from './components/accounts/settings/teamsTab.vue'
+
+import Search from './components/base/search.vue'
+import PageNotFound from './components/base/pageNotFound.vue'
+import Unauthorized from './components/base/unauthorized.vue'
+
+import CreateDesignForm from './components/designs/createDesignForm.vue'
 import Design from './components/designs/design.vue'
-import Home from './components/designs/home.vue'
-import Specs from './components/designs/specs.vue'
-import Parts from './components/designs/newParts.vue'
-import Files from './components/designs/files.vue'
-import Docs from './components/designs/docs.vue'
-import Settings from './components/designs/settings/settings.vue'
-import Basic from './components/designs/settings/basic.vue'
-import Collaborators from './components/designs/settings/collaborators.vue'
-import Advanced from './components/designs/settings/advanced.vue'
-import Configs from './components/designs/settings/configs.vue'
-import Revs from './components/designs/settings/revs.vue'
-import Builds from './components/designs/settings/builds.vue'
-import CreateDesign from './components/designs/CreateDesign.vue'
-import Unauthorized from './components/redirects/unauthorized.vue'
-import PageNotFound from './components/redirects/pagenotfound.vue'
+import HomeTab from './components/designs/homeTab.vue'
+import PartsTab from './components/designs/partsTab.vue'
+import FilesTab from './components/designs/filesTab.vue'
+import DocsTab from './components/designs/docsTab.vue'
+import SpecsTab from './components/designs/specsTab.vue'
+import SettingsTab from './components/designs/settingsTab.vue'
+import AdvancedTab from './components/designs/settings/advancedTab.vue'
+import BasicTab from './components/designs/settings/BasicTab.vue'
+import CollaboratorsTab from './components/designs/settings/collaboratorsTab.vue'
+import RevisionsTab from './components/designs/settings/revisionsTab.vue'
+
+import AdminDashboard from './components/profiles/adminDashboard.vue'
+import PrivateProfile from './components/profiles/privateProfile.vue'
+import PublicProfile from './components/profiles/publicProfile.vue'
 
 import { store } from './store/store'
-
-let config_names = [
-  'alpha',
-  'beta',
-  'charlie',
-  'delta',
-  'echo',
-  'fox',
-  'golf',
-  'hotel',
-  'india',
-  'juliet',
-  'kilo',
-  'lima',
-  'mike',
-  'oscar',
-  'november',
-  'papa',
-  'quebec',
-  'romeo',
-  'sierra',
-  'tango',
-  'uniform',
-  'victor',
-  'whiskey',
-  'x-ray',
-  'yankee',
-  'zulu'
-]
-
-let DesignChildren =
-[
-  {
-    path: 'home',
-    components: {
-      designContent: Home
-    }
-  },
-  {
-    path: 'specs',
-    components: {
-      designContent: Specs
-    }
-  },
-  {
-    path: 'parts',
-    components: {
-      designContent: Parts
-    }
-  },
-  {
-    path: 'files',
-    components: {
-      designContent: Files
-    }
-  },
-  {
-    path: 'settings',
-    components: {
-      designContent: Settings
-    },
-    children: [
-      {
-        path: 'basic',
-        components: {
-          settingsContent: Basic
-        }
-      },
-      {
-        path: 'specs',
-        components: {
-          settingsContent: Specs
-        }
-      },
-      {
-        path: 'collaborators',
-        components: {
-          settingsContent: Collaborators
-        }
-      },
-      {
-        path: 'configs',
-        components: {
-          settingsContent: Configs
-        }
-      },
-      {
-        path: 'builds',
-        components: {
-          settingsContent: Builds
-        }
-      },
-      {
-        path: 'revs',
-        components: {
-          settingsContent: Revs
-        }
-      },
-      {
-        path: 'advanced',
-        components: {
-          settingsContent: Advanced
-        }
-      },
-    ]
-  }
-]
 
 export const routes = [
   {
     path: '/',
     redirect: to => {
-      if (store.getters.session.active) {
+      if (store.state.session.active) {
         return {path: '/home'}
       } else {
-        return {path: '/accounts/login', component: Login}
+        return {path: '/accounts/auth/login', component: LoginForm}
       }
     }
   },
-  // {
-  //   path: '/accounts/login',
-  //   redirect: to => {
-  //     if (store.getters.session.active) {
-  //       return {path: '/home'}
-  //     } else {
-  //       return {path: '/accounts/login', component: Login}
-  //     }
-  //   }
-  // },
-  {
-    path: '/search',
-    component: Search,
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/omni-admin',
-    component: Admin,
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/profile',
-    component: MyProfile,
-    meta: { requiresAuth: true },
-    children: [
-      {
-        path: 'public',
-        components: {
-          profileContent: Public
-        }
-      },
-      {
-        path: 'account',
-        components: {
-          profileContent: Account
-        }
-      },
-      {
-        path: 'plan',
-        components: {
-          profileContent: Plan
-        }
-      },
-      {
-        path: 'teams',
-        components: {
-          profileContent: Teams
-        }
-      },
-      {
-        path: 'designs',
-        components: {
-          profileContent: Designs
-          }
-      }
-    ]
-  },
-  {
-    path: '/invite',
-    component: Invite,
-    meta: { requiresAuth: true },
-    children: [
-      {
-        path: 'send',
-        components: {
-          inviteContent: Send
-        }
-      },
-      {
-        path: 'accepted',
-        components: {
-          inviteContent: Accepted
-        }
-      },
-      {
-        path: 'pending',
-        components: {
-          inviteContent: Pending
-        }
-      }
-    ]
-  },
-  {
-    path: '/notify',
-    component: Notify,
-    meta: { requiresAuth: true },
-    children: [
-      {
-        path: 'unread',
-        components: {
-          notifyContent: Unread
-        }
-      },
-      {
-        path: 'read',
-        components: {
-          notifyContent: Read
-        }
-      },
-    ]
-  },
-  {path: '/home', component: dashboard, meta: { requiresAuth: true }},
+  {path: '/accounts/auth/register', component: RegistrationForm},
+  {path: '/accounts/auth/login', component: LoginForm},
+  {path: '/accounts/auth/logout', component: LogoutForm},
+  {path: '/accounts/auth/request_reset', component: RequestPasswordResetForm},
+  {path: '/accounts/auth/reset', component: ResetPasswordForm},
+  {path: '/accounts/auth/confirm_reset', component: ConfirmResetForm},
+  {path: '/accounts/auth/confirm_signup', component: ConfirmSignupForm},
+  {path: '/home', component: PrivateProfile, meta: { requiresAuth: true }},
   {path: '/unauthorized', component: Unauthorized},
   {path: "/404", component: PageNotFound },
-  {path: '/create_design', component: CreateDesign, meta: { requiresAuth: true }},
-  {path: '/accounts/register', component: Register},
-  {path: '/accounts/login', component: Login},
-  {path: '/accounts/logout', component: Logout},
-  {path: '/accounts/request_reset', component: RequestPasswordReset},
-  {path: '/accounts/reset', component: ResetPassword},
-  {path: '/accounts/confirm_reset', component: ConfirmReset},
-  {path: '/accounts/confirm_signup', component: ConfirmSignup},
-  {path: '/accounts/profiles', component: ListProfiles},
-  {
-    path: '/:profile_slug',
-    component: RetrieveProfile,
-    meta: { requiresAuth: true },
+  {path: '/designs/create_design', component: CreateDesignForm, meta: { requiresAuth: true }},
+  {path: '/search', component: Search, meta: { requiresAuth: true }},
+  {path: '/profiles/admin', component: AdminDashboard, meta: { requiresAuth: true }},
+  {path: '/accounts/settings', component: ProfileSettings, meta: { requiresAuth: true },
+    children: [
+      {path: 'public', components: {profileContent: PublicProfileTab}},
+      {path: 'account', components: {profileContent: AccountTab}},
+      {path: 'plan', components: {profileContent: PlanTab}},
+      {path: 'teams', components: {profileContent: TeamsTab}},
+      {path: 'designs', components: {profileContent: DesignsTab}}
+    ]
   },
-  {
-    path: '/:profile_slug/:design_slug/:build_slug',
-    // redirect: '/:profile_slug/:design_slug/:build_slug/parts',
-    redirect: to => {
-      const { hash, params, query } = to
-      if (config_names.includes(params.build_slug)) {
-        // on a config
-        params.config_slug = params.build_slug
-        return '/:profile_slug/:design_slug/:config_slug/latest/parts'
-      } else {
-        // on a build
-        return '/:profile_slug/:design_slug/:build_slug/parts'
-      }
-    },
-    name: 'BuildFullRoute',
-    component: Design,
-    meta: { requiresAuth: true },
-    children: DesignChildren
+  {path: '/accounts/invitations', component: Invitations, meta: { requiresAuth: true },
+    children: [
+      {path: 'send', components: {inviteContent: SendInvitesTab}},
+      {path: 'accepted', components: {inviteContent: AcceptedInvitesTab}},
+      {path: 'pending', components: {inviteContent: PendingInvitesTab}}
+    ]
+  },
+  {path: '/accounts/notifications', component: Notifications, meta: { requiresAuth: true },
+    children: [
+      {path: 'unread', components: {notifyContent: UnreadNotificationsTab}},
+      {path: 'read', components: {notifyContent: ReadNotificationsTab}},
+    ]
+  },
+  {path: '/:profile_slug', component: PublicProfile, meta: { requiresAuth: true },
   },
   {
     path: '/:profile_slug/:design_slug',
-    redirect: '/:profile_slug/:design_slug/alpha/latest/parts',
+    redirect: '/:profile_slug/:design_slug/latest/home',
     meta: { requiresAuth: true },
   },
   {
-    path: '/:profile_slug/:design_slug/:config_slug/:rev_slug',
-    redirect: '/:profile_slug/:design_slug/:config_slug/:rev_slug/parts',
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/:profile_slug/:design_slug/:config_slug/:rev_slug',
+    path: '/:profile_slug/:design_slug/:revision_slug',
     name: 'DesignFullRoute',
     component: Design,
     meta: { requiresAuth: true },
-    children: DesignChildren
+    children: [
+      {path: 'home', components: {designContent: HomeTab}},
+      {path: 'parts', components: {designContent: PartsTab}},
+      {path: 'files', components: {designContent: FilesTab}},
+      {path: 'specs', components: {designContent: SpecsTab}},
+      {path: 'settings', components: {designContent: SettingsTab},
+        children: [
+          {path: 'basic', components: {settingsContent: BasicTab}},
+          {path: 'collaborators', components: {settingsContent: CollaboratorsTab}},
+          {path: 'revisions', components: {settingsContent: RevisionsTab}},
+          {path: 'advanced', components: {settingsContent: AdvancedTab}},
+        ]
+      }
+    ]
   }
 ]

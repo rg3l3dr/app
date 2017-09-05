@@ -1,26 +1,21 @@
 <template>
-
-    <div class='ui fluid container'>
-
-      <transition appear name='fade'>
-        <app-navbar></app-navbar>
-      </transition>
-      <hr style='margin-top: 0px'>
-      <transition appear name='fade'>
-        <router-view style='min-height:85vh'></router-view>
-      </transition>
-      <transition appear name='fade'>
-        <app-footer></app-footer>
-      </transition>
-    </div>
-
-
-
+  <div class='ui fluid container'>
+    <transition appear name='fade'>
+      <app-navbar></app-navbar>
+    </transition>
+    <hr style='margin-top: 0px'>
+    <transition appear name='fade'>
+      <router-view style='min-height:85vh'></router-view>
+    </transition>
+    <transition appear name='fade'>
+      <app-footer></app-footer>
+    </transition>
+  </div>
 </template>
 <script>
 
-import navbar from './components/navbar.vue'
-import footer from './components/footer.vue'
+import navbar from './components/base/navbar.vue'
+import footer from './components/base/footer.vue'
 export default {
   name: 'app',
   components: {
@@ -41,9 +36,9 @@ export default {
       console.log(sub)
     }
 
-    window.Intercom("boot", {
-      app_id: "k7ou8jph"
-    });
+    // window.Intercom("boot", {
+    //   app_id: "k7ou8jph"
+    // });
 
   }
 }

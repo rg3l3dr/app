@@ -23,7 +23,7 @@
         >
           {{ part.design_name }}
         </a>
-        <app-PartsTree :data='part.parts' :first='false' :bomTrail='setBomTrail(part)' v-if='part.parts.length > 0 && part.isOpen'></app-PartsTree>
+        <app-PartsTree :data='part.parts' :first='false' v-if='part.parts.length > 0 && part.isOpen'></app-PartsTree>
       </div>
     </div>
   </div>
@@ -32,11 +32,10 @@
 <script>
 export default {
   name: 'appPartsTree',
-  props: ['data', 'first', 'bomTrail'],
+  props: ['data', 'first'],
   data() {
     return {
       parts: this.data,
-      newBomTrail: this.bomTrail,
     }
   },
   computed: {
@@ -51,26 +50,35 @@ export default {
         }
       }
     },
-    setBomTrail(part) {
-      let breadcrumb = {
-        name: part.design_name,
-        slug: part.design_slug,
-        design_id: part.design_id,
-        ref_slug: part.ref_slug,
-        ref_type: part.ref_type,
-        config_slug: part.config_slug,
-        owner_slug: part.owner_slug
-      }
-      // this.newBomTrail.push(breadcrumb)
-      return this.newBomTrail
-    },
+    // setBomTrail(part) {
+    //   let breadcrumb = {
+    //     name: part.design_name,
+    //     slug: part.design_slug,
+    //     design_id: part.design_id,
+    //     ref_slug: part.ref_slug,
+    //     ref_type: part.ref_type,
+    //     config_slug: part.config_slug,
+    //     owner_slug: part.owner_slug
+    //   }
+    //   // this.newBomTrail.push(breadcrumb)
+    //   return this.newBomTrail
+    // },
     selectPart(part) {
-      console.log('Selected Part')
-      console.log(this.setBomTrail(part))
+      // console.log('Selected Part')
+      // console.log(this.setBomTrail(part))
     }
   }
 }
 </script>
 
 <style lang="css">
+  .ui.list {
+    margin-top: 15px;
+    padding-top: 0px;
+  }
+
+  div.item {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 </style>
