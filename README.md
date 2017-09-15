@@ -14,8 +14,11 @@ npm run dev
 # build the vue project
 npm run build
 
-# clear the existing build and deploy new build to S3
-npm run deploy
+# clear the existing build and deploy new build to S3 staging environment (appstage.omnibuilds.com)
+npm run deploy_stage
+
+# clear the existing build and deploy new build to S3 production environment (app.omnibuilds.com)
+npm run deploy_prod
 
 # does the following
 aws s3 rm s3://omni-dev-spa --recursive && aws s3 sync ~/Desktop/app/dist/ s3://omni-dev-spa
