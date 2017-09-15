@@ -16,58 +16,57 @@
                     {{ $route.params.profile_slug }}
                   </router-link>
                   <span  class='divider'>/</span>
-                  <router-link tag='a' to='' @click.native='selectPart()'>
+                  <router-link tag='a' to='' @click.native='selectRootDesign()'>
                     {{ rootDesign.name }}
                   </router-link>
-                  <template v-if='design.name != rootDesign.name'>
+                  <span v-if='design.name != rootDesign.name' style='font-weight: normal; color: black'>
                    ... {{ design.name }}
-                  </template>
+                 </span>
                 </div>
               </div>
               <div class="right floated item" id='action-buttons' style='padding-top: 10px'>
-                <div id="import-button" >
-
-                  <div class="ui labeled button" tabindex="0">
-                    <div class="ui basic button">
+                <div id="revise-button" >
+                  <div class="ui small labeled button" tabindex="0">
+                    <div class="ui small basic button">
                       <i class="repeat icon"></i>Revise
                     </div>
                     <a
-                      class="ui basic left pointing label"
+                      class="ui small basic left pointing label"
                       v-if='design.imports > 0'
                       @click='showImports'
                     >
                       {{ design.imports }}
                     </a>
-                    <div class='ui basic left pointing label' v-else>
+                    <div class='ui small basic left pointing label' v-else>
                       0
                     </div>
                   </div>
                 </div>
                 <div id="import-button" >
                   &nbsp&nbsp
-                  <div class="ui labeled button" tabindex="0">
-                    <div class="ui basic button">
-                      <i class="plus square o icon medium"></i>Import
+                  <div class="ui small labeled button" tabindex="0">
+                    <div class="ui small basic button">
+                      <i class="upload icon"></i>Export
                     </div>
                     <a
-                      class="ui basic left pointing label"
+                      class="ui small basic left pointing label"
                       v-if='design.imports > 0'
                       @click='showImports'
                     >
                       {{ design.imports }}
                     </a>
-                    <div class='ui basic left pointing label' v-else>
+                    <div class='ui small basic left pointing label' v-else>
                       0
                     </div>
                   </div>
                 </div>
                 <div id='copy-button'>
                   &nbsp&nbsp
-                  <div class="ui labeled button" tabindex="0">
-                    <div class="ui basic button">
-                      <i class="clone icon"></i>Copy
+                  <div class="ui small labeled button" tabindex="0">
+                    <div class="ui small basic button">
+                      <i class="clone icon"></i>Clone
                     </div>
-                    <a class="ui basic left pointing label">
+                    <a class="ui small basic left pointing label">
                       0
                     </a>
                   </div>
@@ -102,7 +101,7 @@
                         <i class="plus icon"></i>
                       </button>
                     </div>
-                    <app-PartsTree :data='tree' :first='true'></app-PartsTree>
+                    <app-PartsTree :data='tree' :first='true' style='padding-top: 15px'></app-PartsTree>
                   </template>
                   <div v-else>
                     <br>
@@ -118,11 +117,11 @@
           <!-- main design content -->
           <div class="twelve wide column" style='padding-top: 0px; padding-bottom: 0px' id='context'>
             <!-- tabular menu (records) -->
-            <div class="ui large top attached fuild four item tabular menu" style='padding: 8px 0px 0px 0px'>
+            <div class="ui large top attached fuild five item tabular menu" style='padding: 8px 0px 0px 0px'>
               <router-link tag='a' class='item' :to='this.designRoute  + "/home"'>
                 <a>
                   <i class="home icon"></i>
-                  Home
+                  Summary
                 </a>
               </router-link>
 
@@ -147,14 +146,14 @@
                   <div class="ui circular mini label"></div>
                 </a>
               </router-link> -->
-              <!-- <router-link tag='a' class='item' :to='this.designRoute + "/specs"'>
+              <router-link tag='a' class='item' :to='this.designRoute + "/specs"'>
                 <a>
-                  <i class="ordered list icon"></i>
-                  Docs
-                  <div class="ui circular mini label"></div>
+                  <i class="unordered list icon"></i>
+                  Specs
+                  <!-- <div class="ui circular mini label"></div> -->
                 </a>
               </router-link>
-              <router-link tag='a' class='item' :to='this.designRoute + "/revs"'>
+              <!-- <router-link tag='a' class='item' :to='this.designRoute + "/revs"'>
                 <a>
                   <i class="fa-files-o icon"></i>
                   Revs
@@ -221,147 +220,7 @@ export default {
       current_rev_index: 0,
       current_rev: {},
       part: null,
-      tree: [
-        {
-          isOpen: true,
-    			design_id: 1,
-    			design_name: 'Assembly A',
-    			design_slug: 'assembly-a',
-    			owner_slug: 'awag',
-    			revision_slug: 'latest',
-    			parts: [
-            {
-              isOpen: true,
-        			design_id: 2,
-        			design_name: 'Part A',
-        			design_slug: 'part-a',
-        			owner_slug: 'awag',
-        			revision_slug: 'latest',
-        			parts: []
-            },
-            {
-              isOpen: true,
-        			design_id: 3,
-        			design_name: 'Part B',
-        			design_slug: 'part-b',
-        			owner_slug: 'awag',
-        			revision_slug: 'latest',
-        			parts: [
-                {
-                  isOpen: true,
-            			design_id: 1,
-            			design_name: 'Assembly A',
-            			design_slug: 'assembly-a',
-            			owner_slug: 'awag',
-            			revision_slug: 'latest',
-            			parts: [
-                    {
-                      isOpen: true,
-                			design_id: 2,
-                			design_name: 'Part A',
-                			design_slug: 'part-a',
-                			owner_slug: 'awag',
-                			revision_slug: 'latest',
-                			parts: []
-                    },
-                    {
-                      isOpen: true,
-                			design_id: 3,
-                			design_name: 'Part B',
-                			design_slug: 'part-b',
-                			owner_slug: 'awag',
-                			revision_slug: 'latest',
-                			parts: []
-                    },
-                    {
-                      isOpen: true,
-                			design_id: 4,
-                			design_name: 'Part C',
-                			design_slug: 'part-c',
-                			owner_slug: 'awag',
-                			revision_slug: 'latest',
-                			parts: []
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              isOpen: true,
-        			design_id: 4,
-        			design_name: 'Part C',
-        			design_slug: 'part-c',
-        			owner_slug: 'awag',
-        			revision_slug: 'latest',
-        			parts: []
-            }
-          ]
-        },
-        {
-          isOpen: true,
-    			design_id: 5,
-    			design_name: 'Part D',
-    			design_slug: 'part-d',
-    			owner_slug: 'awag',
-    			revision_slug: 'latest',
-    			parts: []
-        },
-        {
-          isOpen: true,
-    			design_id: 5,
-    			design_name: 'Part D',
-    			design_slug: 'part-d',
-    			owner_slug: 'awag',
-    			revision_slug: 'latest',
-    			parts: []
-        },
-        {
-          isOpen: true,
-    			design_id: 1,
-    			design_name: 'Assembly A',
-    			design_slug: 'assembly-a',
-    			owner_slug: 'awag',
-    			revision_slug: 'latest',
-    			parts: [
-            {
-              isOpen: true,
-        			design_id: 2,
-        			design_name: 'Part A',
-        			design_slug: 'part-a',
-        			owner_slug: 'awag',
-        			revision_slug: 'latest',
-        			parts: []
-            },
-            {
-              isOpen: true,
-        			design_id: 3,
-        			design_name: 'Part B',
-        			design_slug: 'part-b',
-        			owner_slug: 'awag',
-        			revision_slug: 'latest',
-        			parts: []
-            },
-            {
-              isOpen: true,
-        			design_id: 4,
-        			design_name: 'Part C',
-        			design_slug: 'part-c',
-        			owner_slug: 'awag',
-        			revision_slug: 'latest',
-        			parts: []
-            }
-          ]
-        },
-        {
-          isOpen: true,
-          design_id: 4,
-          design_name: 'Part C',
-          design_slug: 'part-c',
-          owner_slug: 'awag',
-          revision_slug: 'latest',
-          parts: []
-        }
-      ]
+      testPath: [],
     }
   },
   computed: {
@@ -373,25 +232,45 @@ export default {
       'design',
       'designRefs',
       'route',
-  
+      'node',
+      'tree',
+      'trail',
+      'revision'
     ]),
     ...mapGetters([
       'designRoute',
       // 'partRoute',
       'endpoint',
       'pre_endpoint'
-    ])
+    ]),
   },
   watch: {
+    node() {
+      if (this.env != 'prod') {
+        console.log('node watcher called in design.vue')
+        console.dir(this.node)
+      }
+      if (this.node) {
+        if (this.node.parent_id) {
+          let path = []
+           this.testPath = this.getTrail(this.node.unique_id, this.tree, path)
+        }
+        this.testPath.push({
+          id: this.node.design_id,
+          slug: this.node.design_slug
+        })
+        this.$store.commit('setTrail', this.testPath)
+      }
+    },
     route () {
       if (this.env != 'prod') {
         console.log('Route watcher has been called in design.vue')
       }
-      if (this.route.params.design_slug != this.design.slug || this.route.params.revision_slug != this.revision.slug) {
+      if (this.route.params.design_slug != this.rootDesign.slug || this.route.params.revision_slug != this.revision.slug) {
         if (this.env != 'prod') {
           console.log('Root design or revision has changed, getting new data')
         }
-        this.$store.commit('clearAllDesign')
+        this.$store.commit('clearDesign')
         let design_payload = {
           design_slug: this.route.params.design_slug,
           owner_slug: this.route.params.profile_slug,
@@ -403,7 +282,9 @@ export default {
             design_id: this.design.id,
             revision_slug: this.route.params.revision_slug
           }
-          this.$store.dispatch('getTree', tree_payload)
+          this.$store.dispatch('getTree', tree_payload).then(success => {
+            this.$store.commit('setTree', success)
+          }, error => {})
 
         }, error => {})
       }
@@ -412,9 +293,51 @@ export default {
           console.log('No change to route parameters, passing...')
         }
       }
-    }
+    },
   },
   methods: {
+    getTrail(unique_id, tree, path) {
+      if (this.env != 'prod') {
+        console.log('getTrail function called')
+      }
+      for (let part of tree) {
+        if (part.unique_id === unique_id) {
+          if (this.env != 'prod') {
+            console.log('Found node in trail')
+            console.dir(path)
+          }
+          path.push({
+            slug: part.design_slug,
+            id: part.design_id
+          })
+          console.log(path)
+          return path
+        } else {
+          if (part.parts.length > 0) {
+            path.push({
+              slug: part.design_slug,
+              id: part.design_id
+            })
+            this.getTrail(unique_id, part.parts, path)
+          }
+        }
+      }
+    },
+    selectRootDesign() {
+      // set design as root design
+      let design_payload = {
+        design_slug: this.route.params.design_slug,
+        owner_slug: this.route.params.profile_slug,
+        revision_slug: this.route.params.revision_slug
+      }
+
+      this.$store.dispatch('getDesign', design_payload).then()
+
+      // reset the node -> trail
+      this.$store.commit('setNode', this.tree[0])
+      // reset the record context
+
+    },
     // selectPart(index) {
     //
     //   let breadcrumb = this.trail[index]
@@ -482,25 +405,33 @@ export default {
     //     this.$store.commit('extendTrail', breadcrumb)
     //   }, error => {})
     // },
+    // resetParts(parts) {
+    //   for (let part of parts) {
+    //     part.isOpen = part.isOpen
+    //     if (part.parts.length > 0) {
+    //       this.resetParts(part.parts)
+    //     }
+    //   }
+    // },
     openParts(parts) {
       for (let part of parts) {
+        part.isOpen = true
         if (part.parts.length > 0) {
-          part.isOpen = true
           this.openParts(part.parts)
         }
       }
     },
     closeParts(parts) {
       for (let part of parts) {
+        part.isOpen = false
         if (part.parts.length > 0) {
-          part.isOpen = false
           this.closeParts(part.parts)
         }
       }
     },
   },
   created() {
-    this.$store.commit('clearAllDesign')
+    this.$store.commit('clearDesign')
     if (this.env != 'prod') {
       console.log('Design.vue has been created')
     }
@@ -511,13 +442,16 @@ export default {
       revision_slug: this.route.params.revision_slug
     }
 
-    this.$store.dispatch('getDesign', design_payload).then( success => {
+    this.$store.dispatch('getDesign', design_payload).then(success => {
       this.$store.commit('setRootDesign', this.design)
       let tree_payload = {
         design_id: this.design.id,
         revision_slug: this.route.params.revision_slug
       }
-      this.$store.dispatch('getTree', tree_payload)
+      this.$store.dispatch('getTree', tree_payload).then(success => {
+        this.$store.commit('setTree', success)
+        this.$store.commit('setNode', this.tree[0])
+      }, error => {})
     }, error => {})
 
     if (this.env != 'prod') {

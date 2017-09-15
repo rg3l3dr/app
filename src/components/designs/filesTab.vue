@@ -7,7 +7,7 @@
     <transition name='fade'>
       <div class="ui bottom attached segment" v-if='!selectedFile'>
         <!-- <transition name='fade'> -->
-          <div v-if='files.data && files.data.length > 0'>
+          <div v-if='design.data.files && design.data.files.length > 0'>
             <table class="ui striped selectable table" id='files-table'>
               <thead>
                 <tr>
@@ -28,7 +28,7 @@
                 </tr>
               </tfoot>
               <tbody name='fade' is='transition-group'>
-                <tr v-for='(file, index) in this.files.data' :key='file.name'>
+                <tr v-for='(file, index) in this.design.data.files' :key='file.name'>
 
                   <td id='file-name'>
                     <a href='#' @click='getFileFromS3(index)'>
@@ -182,6 +182,7 @@
           id='upload-file-input'
           style="display:none"
           @change='uploadFiles($event)'
+          @click="$store.dispatch('getToken')"
         >
 
       </div>
@@ -295,6 +296,7 @@
           id='upload-file-input'
           style="display:none"
           @change='uploadFiles($event)'
+          @click="$store.dispatch('getToken')"
         >
 
       </div>
@@ -322,7 +324,6 @@ export default {
         data: 0
       },
       mode: 'files',
-      bucket: null
     }
   },
   computed: {
@@ -331,11 +332,11 @@ export default {
       'session',
       'profile',
       'design',
-      'designRefs',
+      'bucket'
     ]),
     file_names() {
       if (this.files) {
-        return this.files.data.map((file) => {return file.name})
+        return this.design.data.files.map((file) => {return file.name})
       } else {
         return null
       }
@@ -351,24 +352,8 @@ export default {
     }
   },
   watch: {
-    designRefs () {
-      if (this.env != 'prod') {
-        console.log('designRefs watcher has been called in files.vue')
-      }
-      this.getFilesRecord()
-      this.getToken()
-
-    }
   },
   methods: {
-    /*
-
-    Update design data
-      New file/s uploaded
-      New version/s uploaded
-      File deleted
-      Version deleted
-    */
     formatBytes(bytes, decimals) {
        if(bytes == 0) return '0 Bytes'
        var k = 1000
@@ -377,74 +362,18 @@ export default {
        var i = Math.floor(Math.log(bytes) / Math.log(k))
        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
     },
-    getToken() {
-      this.$http.get('get_token').then(success => {
-        if (this.env != 'prod') {
-          console.log('Got token')
-        }
-        let values = success.body
-        AWS.config.update({
-          region: 'us-west-2',
-          accessKeyId: values.value_1,
-          secretAccessKey: values.value_2,
-          sessionToken: values.value_3
-        })
-        values = null
-      }, error => {
-        if (this.env != 'prod') {
-          console.log('Error getting token')
-        }
-      })
-    },
-    getFilesRecord() {
-      this.$http.get('files/' + this.design.files.id + '/?ref=' + this.designRefs.ref + '&type=' + this.designRefs.ref_type + '&config=' + this.designRefs.config_slug).then(success => {
-        if (this.env != 'prod') {
-          console.log('got files')
-          console.log(success)
-        }
-        this.files = success.data
+    updateDesignData() {
 
-        let vue = this
-        setTimeout(function() {
-          if (vue.env != 'prod') {
-            console.log('trying to activate drodpdown on files')
-          }
-          $('.ui.dropdown.options').dropdown(
-            { 'silent': true }
-            );
-        }, 0);
-      }, error => {
-        if (vue.env != 'prod') {
-          console.log('error getting files')
-          console.log(error)
+      let payload = {
+        slug: this.design.slug,
+        owner_slug: this.design.owner_slug,
+        data: {
+          data: this.design.data
         }
-      })
-    },
-    putFilesRecord(payload) {
-      this.$http.put('files/' + payload.params, payload.data).then(success => {
-        if (this.env != 'prod') {
-          console.log('Files updated')
-          console.log(success)
-        }
-        let design_payload = {
-          design_slug: this.design.slug,
-          owner_slug: this.design.owner_slug
-        }
-        this.$store.dispatch('getDesign', design_payload).then(success => {
-          if (this.env != 'prod') {
-            console.log('Got updated Design after updating Files')
-          }
-        }, error => {
-          if (this.env != 'prod') {
-            console.log('Error getting updating design after updating Files')
-          }
-        })
-      }, error => {
-        if (this.env != 'prod') {
-          console.log('Error updating files')
-          console.log(error)
-        }
-      })
+      }
+      this.$store.dispatch('updateDesign', payload)
+
+      // replace with update design part
     },
     selectFilesForUpload() {
       // click the hidden files input button
@@ -493,7 +422,7 @@ export default {
           }
           // edit existing file record
           let index = this.file_names.indexOf(file.name)
-          let file_record = this.files.data[index]
+          let file_record = this.design.data.files[index]
           file_record['commited'] = false
           file_record['uploaded'] = false
 
@@ -538,7 +467,7 @@ export default {
           }
 
           file_record.versions.push(version)
-          this.files.data.push(file_record)
+          this.design.data.files.push(file_record)
         }
       }
 
@@ -549,7 +478,7 @@ export default {
         }
         // get file record for this input
         let file_index = this.file_names.indexOf(file.name)
-        let file_record = this.files.data[file_index]
+        let file_record = this.design.data.files[file_index]
         let version_index = file_record.versions.length - 1
         var s3_key = 'designs/' + this.design.owner + '/' + this.design.id + '/' + file.name
 
@@ -618,7 +547,7 @@ export default {
           );
       }, 0);
 
-      for (let file_record of this.files.data) {
+      for (let file_record of this.design.data.files) {
         if (this.env != 'prod') {
           console.log('In third for of loop')
         }
@@ -647,20 +576,7 @@ export default {
         message = null
       }
 
-      // put new file record to S3
-      let payload = {
-        params: this.design.files.id +
-                '/?ref=' + this.$route.params.config_slug +
-                '&action=' + action +
-                '&message=' + message +
-                '&data=' + this.status.data,
-        data: {
-          editor: this.profile.id,
-          data: this.files.data
-        }
-      }
-
-      this.putFilesRecord(payload)
+      this.updateDesignData()
 
       this.status.ready = true
 
@@ -769,20 +685,7 @@ export default {
       let action = `removed ${file.name} from files`
       let message = null
 
-      // update the files and POST to API
-      let payload = {
-        params:
-          this.design.files.id +
-          '/?ref=' + this.$route.params.config_slug +
-          '&action=' + action +
-          '&message=' + message,
-        data: {
-          editor: this.profile.id,
-          data: this.files.data
-        }
-      }
-
-      this.putFilesRecord(payload)
+      this.updateDesignData()
 
     },
     deleteVersionAndVersionRecord: async function (index) {
@@ -796,22 +699,10 @@ export default {
       let message = null
 
       // update the files and POST to API
-      let payload = {
-        params: this.design.files.id + '/?ref=' +
-                this.$route.params.config_slug +
-                '&action=' + action +
-                '&message=' + message,
-        data: {
-          editor: this.profile.id,
-          data: this.files.data
-        }
-      }
-
-      this.putFilesRecord(payload)
-
+      this.updateDesignData()
     },
     showVersions(index) {
-      this.selectedFile = this.files.data[index]
+      this.selectedFile = this.design.data.files[index]
       this.mode = 'versions'
       this.$nextTick(() => {
         $('.ui.dropdown.versions').dropdown(
@@ -833,25 +724,10 @@ export default {
   // how can we await the receipt of the new design
   // since we already have a design this
   created() {
-    if (this.designRefs.ref) {
-      if (this.env != 'prod') {
-        console.log('Files.vue created, design data already loaded, getting files')
-      }
-      this.getFilesRecord()
-      this.getToken()
-
-    } else {
-      if (this.env != 'prod') {
-        console.log('Files.vue created, no design data present, waiting on watcher')
-      }
-    }
-    if (this.env == 'prod') {
-      this.bucket='omni-prod-designs'
-
-    } else {
-      this.bucket='omni-stage-designs'
-    }
+    // if not design (loading directly on files page) then wait for design
   }
+
+
 }
 </script>
 

@@ -43,10 +43,10 @@
 
               <!-- Part Type Icon & Modal Link -->
               <td class='collapsing'>
-                <router-link tag='a' to='' @click.native.prevent='openParts(index)'>
+                <a href="#">
                   <i v-if='part.parts.length > 0' class="cubes icon"></i>
                   <i v-else class="cube icon"></i>
-                </router-link>
+                </a>
               </td>
 
               <!-- Part Name -->
@@ -82,13 +82,13 @@
               </td>
 
               <td v-else id='part-name'>
-                <router-link tag='a' to='' @click.native.prevent='openHome(index)'>
+                <router-link tag='a' to='' @click.native.prevent='openPart(index)'>
                   {{ part.design_name }}
                 </router-link>
               </td>
 
               <!-- Part # -->
-              <td>
+              <td  class='collapsing'>
                 {{ part.design_number }}
               </td>
 
@@ -288,7 +288,7 @@
           </tbody>
         </table>
 
-        <!-- <div style='text-align:center' v-else-if='$route.params.revision_slug=="latest"' >
+        <div style='text-align:center' v-else-if='$route.params.revision_slug=="latest"' >
           <br>
           <h2 class="ui icon header" >
             <i class="cubes icon"></i>
@@ -324,7 +324,7 @@
               </div>
             </div>
           </h2>
-        </div> -->
+        </div>
       <!-- </transition> -->
 
       <transition name='fade'>
@@ -389,9 +389,6 @@ export default {
       'tree',
       'node'
     ]),
-    ...mapGetters([
-      'designRoute'
-    ]),
     name_slug() {
       if (this.newPartName.data) {
         return this.newPartName.data.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
@@ -433,11 +430,6 @@ export default {
         $('.ui.dropdown.revision').dropdown({ 'silent': true })
       }, error => {})
     },
-    parts() {
-      if (this.parts.length == 0) {
-        this.addNewEmptyPart()
-      }
-    }
   },
   methods: {
     clearMessage() {
@@ -456,23 +448,12 @@ export default {
        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
     },
 
-    // can create a new part name from scratch (without any search results)
-    // can select a part from search results on click to add an existing part
-    // can select a part from search results on arrow down and enter to add an existing part
-    // can create a new part from input even if it returns search results
-    // can type in the same name of part that shows in search results if only one result
-
-    // manually creating the result object is failing (id is not defined)
-    // have to test for an existing design that does not show up in the results
-
-
     testNewPartOnEnter(index, $event) {
       this.enterPressed = true
-
       if (this.env != 'prod') { console.log('testNewPartOnEnter function started')}
       if (this.newPartName.data) {
         if (this.env != 'prod') {console.log('New part name has been entered')}
-        if (this.results.length > 0) {
+        if (this.results) {
           this.testNewPartOnClick(index)
         } else {
           this.checkIfPartIsValid(index)
@@ -508,7 +489,6 @@ export default {
     },
     testNewPartOnClick(index) {
 
-
       // user clicked on a search result
         // resultSelected will be true
 
@@ -516,12 +496,9 @@ export default {
         // enterPressed will be true
         // will resultSelected be true?
 
-      setTimeout(() => {
-        if (this.env != 'prod') {
-          console.log('testNewPartOnClick function called')
-        }
+      this.$nextTick(() => {
 
-        if (this.resultSelected) {
+        if (resultSelected) {
           if (this.env != 'prod') {
             console.log('In testNewPartOnClick, a result has been selected, checking if it is in the BOM')
           }
@@ -539,35 +516,20 @@ export default {
           }
           if (this.results.length > 0) {
             for (let result of this.results) {
-              if (result.slug == this.name_slug) {
+              if (result.name == this.name_slug) {
                 if (this.env != 'prod') {
                   console.log('Name input matches a part in the results list, checking if it is the BOM')
                 }
                 this.checkIfPartIsInBom(index, result)
-                return
               }
             }
             if (this.env != 'prod') {
               console.log('Name input is not in search results, creating a new part')
             }
-
             this.checkIfPartIsValid(index)
 
           }
         }
-
-
-      }, 0)
-
-      // this.$nextTick(() => {
-      //
-      //   if (this.env != 'prod') {
-      //     console.log('testNewPartOnClick function called')
-      //
-      //   }
-      //
-      //
-      // })
 
       // if results.length == 0
         // check if the name exists
@@ -646,7 +608,7 @@ export default {
           console.log('Name matches regex')
         }
         // optimistically add the new part before first asynch method
-        // this.addNewEmptyPart()
+        this.addNewEmptyPart()
 
         let trail_slugs = this.trail.map((part) => {return part.slug})
 
@@ -749,15 +711,14 @@ export default {
       }
 
       this.$store.dispatch('checkDesign', payload).then(success => {
-        // this part does not exist, part name has already been tested
-        this.createNewPart(index)
-      }, error => {
-
         // this is an existing part, check if it is in the bom before adding
         this.checkIfPartIsInBom(index, result)
+      }, error => {
+        // this part does not exist, part name has already been tested
+        this.createNewPart(index)
       })
     },
-    checkIfPartIsInBom: async function(index, result) {
+    async function checkIfPartIsInBom(index, result) {
 
       let newPart = this.parts[index]
 
@@ -779,12 +740,12 @@ export default {
 
           let design = success.body
           let result = {
-            cost: design.data.cost,
-            creator:design.creator_slug,
-            id: design.id,
-            name: design.name,
-            number: design.data.autoPartNumber,
-            owner: design.owner_slug,
+            cost: design.data.cost
+            creator:design.creator_slug
+            id: design.id
+            name: design.name
+            number: design.data.autoPartNumber
+            owner: design.owner_slug
             slug: design.slug
           }
         }, error => {})
@@ -903,7 +864,7 @@ export default {
         'design_id': null,
         'design_name': null,
         'design_slug': null,
-        'design_number': '         ',
+        'design_number': null,
         'parent_id': null,
         'revision_name': null,
         'revision_id': null,
@@ -1140,7 +1101,7 @@ export default {
           // wait to get the new part data and update the node to include any child parts (need to create a new endpoint)
           // do not fetch the tree
 
-      this.addNewEmptyPart()
+      // this.addNewEmptyPart()
       let newPart = this.parts[index]
 
       // optimistically create the new part...
@@ -1319,48 +1280,9 @@ export default {
         }, error => {})
       }, onAbort => {})
     },
-    openHome(index){
+    openPart(index) {
       if (this.env != 'prod') {
-        console.log('Open home clicked')
-      }
-      let selectedPart = this.parts[index]
-
-      let design_payload = {
-        design_slug: selectedPart.design_slug,
-        owner_slug: selectedPart.owner_slug,
-        revision_slug: 'latest'
-      }
-
-      this.$store.dispatch('getDesign', design_payload).then(succes => {
-        this.$router.push(`${this.designRoute}/home`)
-        let payload = {
-          design_id: selectedPart.design_id,
-          revision_slug: 'latest',
-        }
-        this.$store.dispatch('getParts', payload).then(success => {
-          $('.ui.dropdown.part').dropdown({ 'silent': true })
-          $('.ui.dropdown.revision').dropdown({ 'silent': true })
-        }, error => {})
-      }, error => {})
-
-      if (selectedPart.design_id == this.rootDesign.id) {
-        if (this.env != 'prod') {
-          console.log('getting root node')
-        }
-        var part_id = 0
-      } else {
-        if (this.env != 'prod') {
-          console.log('getting a child node')
-        }
-        var part_id = selectedPart.part_id
-      }
-
-      this.findNode(this.tree, part_id)
-
-    },
-    openParts(index) {
-      if (this.env != 'prod') {
-        console.log('Open parts clicked')
+        console.log('Open part clicked')
         console.dir(this.parts)
       }
       let selectedPart = this.parts[index]
@@ -1731,6 +1653,71 @@ export default {
         })
       })
     },
+    updateDesign(index) {
+      let updatedPart = this.parts[index]
+
+      let payload = {
+        name: updatedPart.design_name,
+        owner: updatedPart.design_owner,
+      }
+      this.$http.put('designs/' + updatedPart.design_slug + '/', payload).then(response => {
+        if (this.env != 'prod') {
+          console.log(response)
+        }
+        if (typeof response.body.non_field_errors !== 'undefined') {
+          if (this.env != 'prod') {
+            console.log('Error updating new design: non-field error')
+          }
+        } else {
+          if (this.env != 'prod') {
+            console.log('Design info updated')
+          }
+          updatedPart.design = response.data
+          EventBus.$emit('part-design-updated')
+        }
+      }, response => {
+        if (this.env != 'prod') {
+          console.log('Error updating design')
+          console.log(response)
+        }
+      })
+    },
+    // updateBOM(action, message, import_id, import_step) {
+    //   return new Promise((resolve, reject) => {
+    //     let payload = {
+    //       editor: this.profile.id,
+    //       data: this.bom.data
+    //     }
+    //     this.$http.put('boms/' + this.bom.id +'/?ref=' + this.$route.params.config_slug + '&action=' + action + '&message=' + message + '&import_id=' + import_id + '&import_step=' + import_step,
+    //     payload).then(success => {
+    //       if (this.env != 'prod') {
+    //         console.log('BOM updated')
+    //         console.log(success)
+    //       }
+    //       this.bom = success.data
+    //       let design_payload = {
+    //         design_slug: this.design.slug,
+    //         owner_slug: this.design.owner_slug
+    //       }
+    //       this.$store.dispatch('getDesign', design_payload).then(success => {
+    //         if (this.env != 'prod') {
+    //           console.log('Got updated Design after updating BOM')
+    //         }
+    //       }, error => {
+    //         if (this.env != 'prod') {
+    //           console.log('Error getting updating design after adding part to BOM')
+    //         }
+    //       })
+    //       resolve(success)
+    //     }, error => {
+    //       if (this.env != 'prod') {
+    //         console.log('Error updating BOM when adding new part')
+    //         console.log(error)
+    //       }
+    //       reject(error)
+    //     })
+    //   })
+    // },
     updateSpecs(index) {
       return new Promise((resolve, reject) => {
         let updated_part = this.parts[index]
@@ -1888,6 +1875,7 @@ export default {
     }
   },
   mounted() {
+
   },
   updated() {
     $('.modal:not(:first)').remove()

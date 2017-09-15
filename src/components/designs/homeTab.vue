@@ -59,7 +59,7 @@
         <div class="ui small top attached header">
           <i class="fa-list-ul icon"></i>
           <div class="content">
-            Summary
+            Specifications
           </div>
         </div>
         <div class="ui bottom attached clearing segment">
@@ -120,7 +120,7 @@
 
 
 
-          <router-link :to='this.designRoute + "/settings/specs" ' v-if='$route.params.revision_slug == "latest"'>
+          <router-link :to='this.designRoute + "/specs" ' v-if='$route.params.revision_slug == "latest"'>
             <button class='ui right floated small basic blue button'>
               &nbsp Edit Specs
             </button>
@@ -188,31 +188,11 @@ export default {
       'designRoute'
     ])
   },
-  // on full page load / refresh
-    // get the design first
-      // get the specs next -- based on ref
-
-  // on page transition
-    // just get the specs -- based on ref
-
-  // on params change
-    // just get the specs -- based on ref
-
   watch: {
-    designRefs: function() {
-      console.log('DesignRefs watcher has been called in home.vue')
-      // this.dispatchGetSpecs()
-    }
+
   },
   methods: {
-    // dispatchGetSpecs: function() {
-    //   let payload = {
-    //     id: this.design.specs.id,
-    //     ref: this.designRefs.ref,
-    //     ref_type: this.designRefs.ref_type
-    //   }
-    //   this.$store.dispatch('getSpecs', payload)
-    // },
+
 
     selectFilesForUpload() {
       // click the hidden files input button
@@ -258,26 +238,35 @@ export default {
               } else{
                 vue.design.data.images.push(image)
               }
-              vue.$store.dispatch('updateDesign', {data: vue.design.data})
+              let payload = {
+                slug: vue.design.slug,
+                owner_slug: vue.design.owner_slug,
+                data: {
+                  data: vue.design.data
+                }
+              }
+              vue.$store.dispatch('updateDesign', payload)
            }
         })
       }
       reader.readAsArrayBuffer(file)
     },
     updateDescription() {
-      this.$store.dispatch('updateDesign', {data: this.design.data}).then(
+
+      let payload = {
+        slug: this.design.slug,
+        owner_slug: this.design.owner_slug,
+        data: {
+          data: this.design.data
+        }
+      }
+      this.$store.dispatch('updateDesign', payload).then(success => {
         this.descriptionIsEditable = false
-      )
+      }, error => {})
     },
   },
   created: function() {
 
-    if (this.design.specs) {
-      console.log('Home.vue created, design data already loaded, getting specs')
-      this.dispatchGetSpecs()
-    } else {
-      console.log('Home.vue created, no design data present, waiting on watcher')
-    }
   },
 }
 </script>

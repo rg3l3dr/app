@@ -11,6 +11,7 @@
         <div class="row">
           <div class="twelve wide column">
             <div class="ui relaxed divided list">
+              <br>
               <div class="item" v-for='(result, index) in results'>
                 <i class="big folder open middle aligned icon"></i>
                 <div class="content">
@@ -78,7 +79,7 @@ export default {
     },
     viewResult: function(index) {
       let result = this.results[index]
-      let path = '/' + result.creator + '/' + result.slug + '/alpha/latest/'
+      let path = '/' + result.creator + '/' + result.slug 
       this.$router.push(path)
     }
   },

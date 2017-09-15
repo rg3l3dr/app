@@ -13,14 +13,12 @@ export const state = {
   query: null,
   rootDesign: null,
   design: null,
+  tree: null,
+  trail: null,
+  node: null,
   revision: {
     name: 'latest',
     slug: 'latest'
   },
-  tree: null,
-  bom: null,
   parts: [],
-  files: null,
-  specs: null,
-
 }

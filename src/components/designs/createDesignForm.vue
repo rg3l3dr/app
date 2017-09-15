@@ -172,11 +172,12 @@ export default {
 
               let design_payload = {
                 name: this.name.data,
-                creator: this.profile.id,
-                owner: this.profile.id,
+                creator_id: this.profile.id,
+                owner_id: this.profile.id,
                 license: 1,
                 design_class: 1,
-                visibility: 'PRIVATE'
+                visibility: 'PRIVATE',
+                cost: 0
               }
 
               this.$store.dispatch('createDesign', design_payload).then(success => {

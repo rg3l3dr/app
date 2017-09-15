@@ -114,6 +114,7 @@ const apolloProvider = new VueApollo({
   defaultClient: apolloClient,
 })
 
+
 /*eslint-disable no-new */
 new Vue({
   el: '#app',

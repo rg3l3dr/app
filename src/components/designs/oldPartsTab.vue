@@ -26,7 +26,7 @@
                 <button
                   v-if='$route.params.revision_slug == "latest"'
                   class="ui small basic blue button"
-                  @click='addNewEmptyPart'
+                  @click='addEmptyPart'
                   id='add-part-button'
                 >
                   Add New Part
@@ -43,10 +43,10 @@
 
               <!-- Part Type Icon & Modal Link -->
               <td class='collapsing'>
-                <router-link tag='a' to='' @click.native.prevent='openParts(index)'>
+                <a href="#">
                   <i v-if='part.parts.length > 0' class="cubes icon"></i>
                   <i v-else class="cube icon"></i>
-                </router-link>
+                </a>
               </td>
 
               <!-- Part Name -->
@@ -58,8 +58,8 @@
                       v-model='newPartName.data'
                       id='part-name-editable'
                       placeholder="Find or create a part..."
-                      @keydown.enter='testNewPartOnEnter(index)'
-                      @blur='result ? null : testNewPartOnBlur(index, $event)'
+                      @keydown.enter='checkNewPartNameOnEnter(index)'
+                      @blur='result ? null : newPartBlurTest(index, $event)'
                       @keydown.tab.prevent='tabOver($event)'
                       @keydown.esc='removePart(index)'
                       @keydown.delete='newPartName.data ? null : removePart(index)'
@@ -67,7 +67,7 @@
                     <div
                       v-if='!newPartName.hasError'
                       class="results"
-                      @click='testNewPartOnClick(index)'
+                      @click='getSearchResult(index)'
                     ></div>
                   </div>
               </td>
@@ -82,13 +82,13 @@
               </td>
 
               <td v-else id='part-name'>
-                <router-link tag='a' to='' @click.native.prevent='openHome(index)'>
+                <router-link tag='a' to='' @click.native.prevent='openPart(index)'>
                   {{ part.design_name }}
                 </router-link>
               </td>
 
               <!-- Part # -->
-              <td>
+              <td  class='collapsing'>
                 {{ part.design_number }}
               </td>
 
@@ -135,8 +135,8 @@
                     step='1'
                     v-model='part.quantity'
                     id='part-quantity-editable'
-                    @keyup.enter='testNewPartOnEnter(index, $event)'
-                    @blur='testNewPartOnBlur(index, $event)'
+                    @keyup.enter='checkNewPartNameOnEnter(index, $event)'
+                    @blur='newPartBlurTest(index, $event)'
                   >
                 </div
               </td>
@@ -153,8 +153,8 @@
                     v-model='part.quantity'
                     min='1'
                     step='1'
-                    @keyup.enter='part.design_name ? testEditedPart(index) : showPartNameError(index)'
-                    @blur='part.design_name ? updateBlurTest(index, $event) : showPartNameError(index)'
+                    @keyup.enter='part.design_name ? testEditedPart(index) : partNameError(index)'
+                    @blur='part.design_name ? updateBlurTest(index, $event) : partNameError(index)'
                   >
                 </div>
               </td>
@@ -177,8 +177,8 @@
                     min='0'
                     step='.01'
                     v-model='part.cost'
-                    @keydown.enter='testNewPartOnEnter(index, $event)'
-                    @blur='testNewPartOnBlur(index, $event)'
+                    @keydown.enter='checkNewPartNameOnEnter(index, $event)'
+                    @blur='newPartBlurTest(index, $event)'
                   >
                 </div>
               </td>
@@ -192,9 +192,9 @@
                     step='.01'
                     size='10'
                     v-model='part.cost'
-                    @keydown.enter='part.design_name ? testEditedPart(index) : showPartNameError(index)'
-                    @keydown.tab.prevent='part.design_name ? testEditedPart(index) : showPartNameError(index)'
-                    @blur='part.design_name ? updateBlurTest(index, $event) : showPartNameError(index)'
+                    @keydown.enter='part.design_name ? testEditedPart(index) : partNameError(index)'
+                    @keydown.tab.prevent='part.design_name ? testEditedPart(index) : partNameError(index)'
+                    @blur='part.design_name ? updateBlurTest(index, $event) : partNameError(index)'
                   >
                 </div>
               </td>
@@ -288,13 +288,13 @@
           </tbody>
         </table>
 
-        <!-- <div style='text-align:center' v-else-if='$route.params.revision_slug=="latest"' >
+        <div style='text-align:center' v-else-if='$route.params.revision_slug=="latest"' >
           <br>
           <h2 class="ui icon header" >
             <i class="cubes icon"></i>
             <br>
             <div class="content">
-              <button class="ui huge blue basic button" @click='addNewEmptyPart()'>
+              <button class="ui huge blue basic button" @click='addEmptyPart()'>
                 Click here to add parts
               </button>
               <div class="sub header">
@@ -324,7 +324,7 @@
               </div>
             </div>
           </h2>
-        </div> -->
+        </div>
       <!-- </transition> -->
 
       <transition name='fade'>
@@ -389,9 +389,6 @@ export default {
       'tree',
       'node'
     ]),
-    ...mapGetters([
-      'designRoute'
-    ]),
     name_slug() {
       if (this.newPartName.data) {
         return this.newPartName.data.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
@@ -433,13 +430,33 @@ export default {
         $('.ui.dropdown.revision').dropdown({ 'silent': true })
       }, error => {})
     },
-    parts() {
-      if (this.parts.length == 0) {
-        this.addNewEmptyPart()
-      }
-    }
+
+    // indexOfEditable() {
+    //   if (indexOfEditable) {
+    //     this.selectedPart = _.cloneDeep(this.parts[indexOfEditable])
+    //   }
+    // }
+    // design() {
+    //   if (this.env != 'prod') {
+    //     console.log('design watcher has fired in parts.vue')
+    //   }
+    //
+    //   let bomPayload = {
+    //
+    //   }
+    //
+    //   let partsPayload = {
+    //
+    //   }
+    //
+    //   this.store.dispatch('getBom', bomPayload)
+    //   this.store.dispatch('getParts', partsPayload)
+    // }
   },
   methods: {
+    // isEditable(index){
+    //   return index === this.indexOfEditable;
+    // },
     clearMessage() {
       this.message = {
         active: false,
@@ -455,34 +472,98 @@ export default {
        var i = Math.floor(Math.log(bytes) / Math.log(k))
        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
     },
-
-    // can create a new part name from scratch (without any search results)
-    // can select a part from search results on click to add an existing part
-    // can select a part from search results on arrow down and enter to add an existing part
-    // can create a new part from input even if it returns search results
-    // can type in the same name of part that shows in search results if only one result
-
-    // manually creating the result object is failing (id is not defined)
-    // have to test for an existing design that does not show up in the results
-
-
-    testNewPartOnEnter(index, $event) {
-      this.enterPressed = true
-
-      if (this.env != 'prod') { console.log('testNewPartOnEnter function started')}
-      if (this.newPartName.data) {
-        if (this.env != 'prod') {console.log('New part name has been entered')}
-        if (this.results.length > 0) {
-          this.testNewPartOnClick(index)
-        } else {
-          this.checkIfPartIsValid(index)
+    getDesigns() {
+      this.$http.get('privateprojects/').then(success => {
+        if (this.env != 'prod') {
+          console.log(success)
         }
+        let designs = success.body.results
+        for (let design of designs) {
+          let result = {
+            title: design.name,
+            id: design.id,
+            slug: design.slug,
+            profile: design.owner,
+          }
+          this.results.push(result)
+        }
+      }, error => {
+        if (this.env != 'prod') {
+          console.log(error)
+        }
+      })
+    },
+    getDesign(payload) {
+      return new Promise ((resolve, reject ) => {
+        this.$http.get('designs/' + payload.design_slug + '?owner_slug=' + payload.owner_slug).then(success => {
+          if (this.env != 'prod') {
+            console.log('Got design')
+            console.log(success)
+          }
+          resolve(success)
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('Error getting design')
+            console.log(error)
+          }
+          reject(error)
+        })
+      })
+    },
+    // getParts(payload) {
+    //   return new Promise((resolve, reject) => {
+    //     this.$http.get(`get_bom_parts/?design_id=${payload.design_id}&ref_slug=${payload.ref_slug}&ref_type=${payload.ref_type}&config_slug=${payload.config_slug}`).then(success => {
+    //       if (this.env != 'prod') {
+    //         console.log('Got Parts')
+    //         console.log(success)
+    //         console.log('trying to activate drodpdown on parts')
+    //
+    //       }
+    //       this.parts = success.data
+    //       this.$nextTick(() => {
+    //         var dropdown = document.getElementsByClassName('.ui.dropdown.part')
+    //         if (dropdown) {
+    //           $('.ui.dropdown.part').dropdown(
+    //             { 'silent': true }
+    //           )
+    //           $('.ui.dropdown.refs').dropdown(
+    //             { 'silent': true }
+    //           )
+    //         }
+    //         this.$nextTick(() => {
+    //           if (this.parts.length == 0 && this.$route.params.revision_slug == 'latest' && this.trail.length > 1) {
+    //             this.addEmptyPart()
+    //           }
+    //           resolve(success)
+    //         })
+    //       })
+    //     }, error => {
+    //       if (this.env != 'prod') {
+    //         console.log('Error getting Parts')
+    //         console.log(error)
+    //       }
+    //       reject(error)
+    //     })
+    //   })
+    // },
+
+    checkNewPartNameOnEnter(index, $event) {
+      this.enterPressed = true
+      if (this.env != 'prod') { console.log('Check new part name function started')}
+      if (this.newPartName.data) {
+        if (this.env != 'prod') {console.log('New part has been entered')}
+        if (this.results) {
+          this.getSearchResult(index)
+        } else {
+          this.testNewPart(index)
+        }
+
       } else {
         if (this.env != 'prod') {console.log('New party input is empty')}
-        this.showPartNameError(index, $event)
+        this.partNameError(index, $event)
       }
     },
-    testNewPartOnBlur(index, $event) {
+    newPartBlurTest(index, $event) {
       if (this.env != 'prod') {console.log('New part blur test function started')}
       if (!this.enterPressed) {
         if ($event.relatedTarget) {
@@ -493,302 +574,89 @@ export default {
             console.log('Legit blur event, checking name')
             console.log('Blur transitioned to another editable div, ignoring')
           }
-          if (this.newPartName.data) {
-            if (this.env != 'prod') {console.log('New part has been entered')}
-            this.checkIfPartIsValid(index)
-          } else {
-            if (this.env != 'prod') {console.log('New part input is empty')}
-            this.showPartNameError(index, $event)
-          }
-        }
+          this.checkNewPartNameonBlur(index, $event) }
       } else {
         this.enterPressed = false
         if (this.env != 'prod') {console.log('Blur triggered by keydown.enter, ignoring')}
       }
     },
-    testNewPartOnClick(index) {
-
-
-      // user clicked on a search result
-        // resultSelected will be true
-
-      // or user toggled down and pressed enter to select a search result
-        // enterPressed will be true
-        // will resultSelected be true?
-
-      setTimeout(() => {
-        if (this.env != 'prod') {
-          console.log('testNewPartOnClick function called')
+    checkNewPartNameonBlur(index, $event) {
+      if (this.env != 'prod') {console.log('Check new part name function started')}
+      if (this.newPartName.data) {
+        if (this.env != 'prod') {console.log('New part has been entered')}
+        this.testNewPart(index)
+      } else {
+        if (this.env != 'prod') {console.log('New part input is empty')}
+        this.partNameError(index, $event)
+      }
+    },
+    partNameError(index, $event) {
+      if (this.env != 'prod') {
+        console.log('Part name error function started')
+        console.log($event)
+      }
+      let vue = this
+      setTimeout(function() {
+        if (vue.env != 'prod') {
+          console.log('focusing on name error input')
         }
-
-        if (this.resultSelected) {
-          if (this.env != 'prod') {
-            console.log('In testNewPartOnClick, a result has been selected, checking if it is in the BOM')
-          }
-          // call checkIfPartIsInBom (adding an exisitng part)
-          this.checkIfPartIsInBom(index, this.result)
-        } else {
-          // else
-          if (this.env != 'prod') {
-            console.log('In testNewPartOnClick, no result has been selected...')
-          }
-          if (this.enterPressed) {
-            if (this.env != 'prod') {
-              console.log('In testNewPartOnClick, a result was not selcted, but enter was pressed')
-            }
-          }
-          if (this.results.length > 0) {
-            for (let result of this.results) {
-              if (result.slug == this.name_slug) {
-                if (this.env != 'prod') {
-                  console.log('Name input matches a part in the results list, checking if it is the BOM')
-                }
-                this.checkIfPartIsInBom(index, result)
-                return
-              }
-            }
-            if (this.env != 'prod') {
-              console.log('Name input is not in search results, creating a new part')
-            }
-
-            this.checkIfPartIsValid(index)
-
-          }
-        }
-
-
-      }, 0)
-
-      // this.$nextTick(() => {
-      //
-      //   if (this.env != 'prod') {
-      //     console.log('testNewPartOnClick function called')
-      //
-      //   }
-      //
-      //
-      // })
-
-      // if results.length == 0
-        // check if the name exists
-          // if it exists, add to the project
-          // else, create a new project
-      // if results.length == 1
-        // did the user click the result -> add existing part
-        // did the user type in a different name and press enter -> check part name
-          // if new then create
-          // if existing then add
-        // did the user type in the same name and press enter -> add existing part
-        // can they arrow select and click enter? -> add existing part
-      // if results.length > 1
-        // was the result clicked -> add existing part
-        // was the result arrow selected and enter pressed -> add existing part
-        // did the user input a partial name to create a new part -> check part name
-          // if it exists, add part to project
-          // else, create a new project
+          document.getElementById("part-name-editable").focus()
+      }, 0);
+      // change input class to error
+      document.getElementById("part-name-editable-div").className = 'ui input error'
+      document.getElementById("part-name-editable").placeholder = 'Enter a name'
+    },
+    getSearchResult(index) {
 
       // if you type in the part name before the results have been return, it will attempt to create a new part isntead of adding the existing part, which will cause a dupliate key error on the server side
 
       // if you type in the part name and there is only one result, it will create the substring instead of selecting the only result
-      // if you type in the substring and try to manually select the part from results then it will instead create the part substring (check this on both enter and click) -> failing on both
+      // if you type in the substring and try to manually select the part from results then it will instead create the part substring (check this on both enter and click)
 
-      // let vue = this
-      // setTimeout(() => {
-      //   if (vue.resultSelected || vue.results.length == 1) {
-      //     if (vue.results.length == 1) {
-      //       vue.result = vue.results[0]
-      //     }
-      //     if (vue.env != 'prod') {
-      //       console.log('Enter pressed to select a part from search results')
-      //     }
-      //     if (vue.result.slug == this.name_slug) {
-      //       vue.checkIfPartIsInBom(index, vue.result)
-      //     } else {
-      //       vue.checkIfPartIsValid(index)
-      //     }
-      //
-      //   } else {
-      //
-      //     // check if the typed in name is in the list of search results
-      //     let result_slugs = vue.results.map((result) => {return result.slug})
-      //     let slug_input = vue.name_slug
-      //
-      //     if (result_slugs.includes(slug_input)) {
-      //       if (vue.env != 'prod') {
-      //         console.log('Typed in name matches a search result, checking if in BOM')
-      //       }
-      //       // type in the name of  part with multiple search results
-      //       let result = vue.results.filter((result) => {return result.slug == slug_input})[0]
-      //       vue.checkIfPartIsInBom(index, result)
-      //     } else {
-      //       // type in a new part name and presssd enter
-      //       // this should not even be a poosible case here
-      //       if (vue.env != 'prod') {
-      //         console.log('A new part is being created, and is not in the bom')
-      //
-      //         // have to check the part
-      //         vue.checkIfPartIsValid(index)
-      //       }
-      //     }
-      //   }
-      // }, 0)
-    },
-
-    checkIfPartIsValid(index) {
-      this.newPartName.nameHasError = false
-      this.newPartName.error = null
-      this.newPartName.data = this.newPartName.data.trim()
-
-      // regex check for legal project name
-      let test = /^[A-Za-z0-9-_/\,;:'" ]{1,50}$/.test(this.newPartName.data)
-      if (test) {
-        if (this.env != 'prod') {
-          console.log('Name matches regex')
-        }
-        // optimistically add the new part before first asynch method
-        // this.addNewEmptyPart()
-
-        let trail_slugs = this.trail.map((part) => {return part.slug})
-
-        if (trail_slugs.includes(this.name_slug)) {
-          if (this.env != 'prod') {
-            console.log('design slug in trail, checking to see if the same design')
+      let vue = this
+      setTimeout(() => {
+        if (vue.resultSelected || vue.results.length == 1) {
+          if (vue.results.length == 1) {
+            vue.result = vue.results[0]
           }
-
-          // check design to get id and compare to
-          let design_payload = {
-            design_slug: this.name_slug,
-            owner_slug: this.route.params.profile_slug,
-            revision_slug: 'latest'
+          if (vue.env != 'prod') {
+            console.log('Enter pressed to select a part from search results')
           }
-
-
-          this.$store.dispatch('getDesign', design_payload).then(success => {
-            let design = success.body
-            let trail_ids = this.trail.map((part) => {return part.id})
-
-            if (trail_ids.includes(design.id)) {
-              if (this.env != 'prod') {
-                console.log('cannot add design, already in trail')
-              }
-
-              this.$store.commit('removePart', index)
-
-              let button = document.getElementById('add-part-button')
-              if (button) { button.disabled=false }
-
-              // reset the new part
-              this.newPartName = {
-                data: null,
-                hasError: null,
-                error: null
-              }
-
-              this.resultSelected = false
-              this.result = {}
-              $('.ui.search').search('hide results')
-
-              // display an error message
-              this.message.active = true
-              this.message.title = "Cannot add a part to its own BOM"
-              this.message.body = 'You cannot add a part to its own bom!'
-              let vue = this
-              setTimeout(function() {
-                $('.message .close').on('click', function() {
-                  $(this)
-                  .closest('.message')
-                  .transition('fade')
-                  vue.message = {
-                    active: false,
-                    title: null,
-                    body: null
-                  }
-                })
-              }, 0);
-            } else {
-              if (this.env != 'prod') {
-                console.log('adding an existing design')
-              }
-              // call add existing design
-              let result = this.trail.filter(part => {return part.design_slug == this.name_slug})[0]
-              if (this.env != 'prod') {
-                console.log(result)
-              }
-              this.addExistingPart(index, result)
-            }
-          }, error => {})
+          if (vue.result.slug == this.name_slug) {
+            vue.checkIfInBOM(index, vue.result)
+          } else {
+            vue.testNewPart(index, null)
+          }
 
         } else {
-          this.checkIfPartExists(index, null)
-        }
-      } else {
-        if (this.env != 'prod') {
-          console.log("Error: not a valid part name")
-        }
-        this.newPartName.hasError = true
-        this.newPartName.error = 'Not a valid part name: enter a name between 1 and 50 characters, including numbers, letters, _ and - only, spaces are allowed.'
-        this.newPartName.data = null
 
-        let vue = this
-        setTimeout(function() {
-          if (vue.env != 'prod') {
-            console.log('focusing on name error input')
+          // check if the typed in name is in the list of search results
+          let result_slugs = vue.results.map((result) => {return result.slug})
+          let slug_input = vue.name_slug
+
+          if (result_slugs.includes(slug_input)) {
+            if (vue.env != 'prod') {
+              console.log('Typed in name matches a search result, checking if in BOM')
+            }
+            // type in the name of  part with multiple search results
+            let result = vue.results.filter((result) => {return result.slug == slug_input})[0]
+            vue.checkIfInBOM(index, result)
+          } else {
+            // type in a new part name and presssd enter
+            // this should not even be a poosible case here
+            if (vue.env != 'prod') {
+              console.log('A new part is being created, and is not in the bom')
+
+              // have to check the part
+              vue.testNewPart(index, null)
+            }
           }
-            document.getElementById("part-name-editable").focus()
-        }, 0);
-        // change input class to error
-        document.getElementById("part-name-editable-div").className = 'ui input error'
-        document.getElementById("part-name-editable").placeholder = 'Name is invalid'
-      }
+        }
+      }, 0)
     },
-    checkIfPartExists(index, result) {
-
-      let payload = {
-        design_slug: this.name_slug,
-        owner_slug: this.profile.slug
-      }
-
-      this.$store.dispatch('checkDesign', payload).then(success => {
-        // this part does not exist, part name has already been tested
-        this.createNewPart(index)
-      }, error => {
-
-        // this is an existing part, check if it is in the bom before adding
-        this.checkIfPartIsInBom(index, result)
-      })
-    },
-    checkIfPartIsInBom: async function(index, result) {
+    checkIfInBOM(index, result) {
 
       let newPart = this.parts[index]
-
-      // optimistically add the empty part before first asynch method
-      this.addNewEmptyPart()
-
-      // get create a similar result object if it does not exist
-      if (!result) {
-        if (this.env != 'prod') {
-          console.log('An existing part name was input but not caught in the search results, gettting the design to simulate the result data')
-        }
-        // user typed in a part name that was not in the search results but existed, very edge case
-        // call get design from actions for slug and owner, and add to the part
-        let design_payload = {
-          design_slug: this.name_slug,
-          owner_slug: this.rootDesign.owner_slug
-        }
-        let getResult = await this.$store.dispatch('getDesign', design_payload).then(success => {
-
-          let design = success.body
-          let result = {
-            cost: design.data.cost,
-            creator:design.creator_slug,
-            id: design.id,
-            name: design.name,
-            number: design.data.autoPartNumber,
-            owner: design.owner_slug,
-            slug: design.slug
-          }
-        }, error => {})
-      }
 
       // check to see if part is already in BOM
       let part_ids = this.parts.map((part) => {return part.design_id})
@@ -804,7 +672,7 @@ export default {
           if (this.env != 'prod') {
             console.log('New part is being tracked at a different revision, adding new part')
           }
-          this.addExistingPart(index, result)
+          this.addExistingDesign(index, result)
         } else {
           if (this.env != 'prod') {
             console.log('New part is being tracked at the same ref, incrementing orignal party quantity instead of adding new part')
@@ -862,7 +730,7 @@ export default {
           $('.ui.search').search('hide results')
 
           // add another empty part to the bom and set focus there
-          // this.addNewEmptyPart()
+          this.addEmptyPart()
           this.$nextTick( function() {
             $('.ui.dropdown.part').dropdown({ 'silent': true });
           })
@@ -871,125 +739,10 @@ export default {
         if (this.env != 'prod') {
           console.log('New part being added is not in the BOM, adding a new part')
         }
-        this.addExistingPart(index, result)
+        this.addExistingDesign(index, result)
       }
     },
-    showPartNameError(index, $event) {
-      if (this.env != 'prod') {
-        console.log('Part name error function started')
-        console.log($event)
-      }
-      let vue = this
-      setTimeout(function() {
-        if (vue.env != 'prod') {
-          console.log('focusing on name error input')
-        }
-          document.getElementById("part-name-editable").focus()
-      }, 0);
-      // change input class to error
-      document.getElementById("part-name-editable-div").className = 'ui input error'
-      document.getElementById("part-name-editable").placeholder = 'Enter a name'
-    },
-
-    addNewEmptyPart() {
-      // adds a new empty part to the BOM
-      this.$nextTick(() => {
-        // document.getElementById('add-part-button').disabled=true
-        let button = document.getElementById('add-part-button')
-        if (button) { button.disabled=true }
-      })
-
-      let part = {
-        'design_id': null,
-        'design_name': null,
-        'design_slug': null,
-        'design_number': '         ',
-        'parent_id': null,
-        'revision_name': null,
-        'revision_id': null,
-        'quantity': 1,
-        'cost': 0.00,
-        'created': false,
-        'editable': true,
-        'parts': [],
-        'revisions': [],
-      }
-
-      this.$store.commit('addPart', part)
-
-      let design_ids = ''
-      for (let design of this.trail) {
-        design_ids += ('&design_id=' + design.id)
-      }
-      let owner_id = `&owner_id=${this.design.owner}`
-
-      this.$nextTick(() => {
-        $('.ui.dropdown.part').dropdown({ 'silent': true })
-        if (this.parts.length == 1) {
-          let button = document.getElementById('add-part-button')
-          if (button) { button.disabled=true }
-        }
-        let vue = this
-        if (this.env == 'prod') {
-          $('.ui.search').search(
-            {
-              apiSettings: {
-                  url: 'https://www.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_ids,
-                  beforeXHR: function(xhr) {
-                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
-                    return xhr;
-                  }
-                },
-              fields: {
-                title: 'name',
-                description: 'number'
-              },
-              showNoResults: false,
-              onSelect: function(result, response) {
-                vue.resultSelected = true
-                vue.result = result
-                if (vue.env != 'prod') {
-                  console.log('Result selected, set result Selected to true')
-                }
-              },
-              onResults: function(response) {
-                vue.results = response.results
-              }
-            }
-          )
-        } else {
-          $('.ui.search').search(
-            {
-              apiSettings: {
-                  url: 'https://stage.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_ids,
-                  beforeXHR: function(xhr) {
-                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
-                    return xhr;
-                  }
-                },
-              fields: {
-                title: 'name',
-                description: 'number'
-              },
-              showNoResults: false,
-              onSelect: function(result, response) {
-                vue.resultSelected = true
-                vue.result = result
-                if (vue.env != 'prod') {
-                  console.log('Result selected, set result Selected to true')
-                }
-              },
-              onResults: function(response) {
-                vue.results = response.results
-              }
-            }
-          )
-        }
-
-        $('#part-name-editable').focus()
-      })
-    },
-    addExistingPart(index, result) {
+    addExistingDesign(index, result) {
 
       // get the design for the existing part by the slug
       let existingPart = this.parts[index]
@@ -1036,9 +789,9 @@ export default {
       this.result = {}
       $('.ui.search').search('hide results')
       this.$nextTick(() => {
-        // let button = document.getElementById('add-part-button')
-        // if (button) { button.disabled=false }
-        // this.addNewEmptyPart()
+        let button = document.getElementById('add-part-button')
+        if (button) { button.disabled=false }
+        this.addEmptyPart()
       })
 
       console.dir(add_design_payload)
@@ -1132,7 +885,170 @@ export default {
         }
       })
     },
-    createNewPart(index) {
+
+    testNewPart(index, $event) {
+      this.newPartName.nameHasError = false
+      this.newPartName.error = null
+      this.newPartName.data = this.newPartName.data.trim()
+
+      // regex check for legal project name
+      let test = /^[A-Za-z0-9-_/\,;:'" ]{1,50}$/.test(this.newPartName.data)
+      if (test) {
+        if (this.env != 'prod') {
+          console.log('Name matches regex')
+        }
+
+        let trail_slugs = this.trail.map((part) => {return part.slug})
+
+        if (trail_slugs.includes(this.name_slug)) {
+          if (this.env != 'prod') {
+            console.log('design slug in trail, checking to see if the same design')
+          }
+
+          // check design to get id and compare to
+          let design_payload = {
+            design_slug: this.name_slug,
+            owner_slug: this.route.params.profile_slug,
+            revision_slug: 'latest'
+          }
+
+
+          this.$store.dispatch('getDesign', design_payload).then(success => {
+            let design = success.body
+            let trail_ids = this.trail.map((part) => {return part.id})
+
+            if (trail_ids.includes(design.id)) {
+              if (this.env != 'prod') {
+                console.log('cannot add design, already in trail')
+              }
+
+              this.$store.commit('removePart', index)
+
+              let button = document.getElementById('add-part-button')
+              if (button) { button.disabled=false }
+
+              // reset the new part
+              this.newPartName = {
+                data: null,
+                hasError: null,
+                error: null
+              }
+
+              this.resultSelected = false
+              this.result = {}
+              $('.ui.search').search('hide results')
+
+              // display an error message
+              this.message.active = true
+              this.message.title = "Cannot add a part to its own BOM"
+              this.message.body = 'You cannot add a part to its own bom!'
+              let vue = this
+              setTimeout(function() {
+                $('.message .close').on('click', function() {
+                  $(this)
+                  .closest('.message')
+                  .transition('fade')
+                  vue.message = {
+                    active: false,
+                    title: null,
+                    body: null
+                  }
+                })
+              }, 0);
+            } else {
+              if (this.env != 'prod') {
+                console.log('adding an existing design')
+              }
+              // call add existing design
+              let result = this.trail.filter(part => {return part.design_slug == this.name_slug})[0]
+              if (this.env != 'prod') {
+                console.log(result)
+              }
+              this.addExistingDesign(index, result)
+            }
+          }, error => {})
+
+        } else {
+          this.saveNewPart(index)
+        }
+
+        // check if slug is in trail
+          // if it is in trail, get the design id
+            // if the design id is in trail
+              // reject the part
+            // else creat the part
+
+        // check design to see if it exists
+          // if it exists, see if ID is in trail
+
+
+
+        // if test new part is called, we can assume the part is not in search results and does not exist
+
+
+        // have to check if the design is a parent in the trail by comparing ids, have to  if the design exists, if it exists we need
+      } else {
+        if (this.env != 'prod') {
+          console.log("Error: not a valid part name")
+        }
+        this.newPartName.hasError = true
+        this.newPartName.error = 'Not a valid part name: enter a name between 1 and 50 characters, including numbers, letters, _ and - only, spaces are allowed.'
+        this.newPartName.data = null
+
+        let vue = this
+        setTimeout(function() {
+          if (vue.env != 'prod') {
+            console.log('focusing on name error input')
+          }
+            document.getElementById("part-name-editable").focus()
+        }, 0);
+        // change input class to error
+        document.getElementById("part-name-editable-div").className = 'ui input error'
+        document.getElementById("part-name-editable").placeholder = 'Name is invalid'
+      }
+    },
+    addNode(nodes, parent_id, new_node) {
+      for (let node of nodes) {
+        if (node.unique_id == parent_id) {
+          if (this.env != 'prod') {
+            console.log('added new empty node to tree')
+          }
+          node.parts.push(new_node)
+        }
+        if (node.parts.length > 0) {
+          this.addNode(node.parts, parent_id, new_node)
+        }
+      }
+    },
+    updateNode(nodes, updated_node) {
+      for (let node of nodes) {
+        if (node.design_name == updated_node.design_name && !node.unique_id) {
+          let index = nodes.indexOf(node)
+          nodes.splice(index, 1, updated_node)
+          if (this.env != 'prod') {
+            console.log('updated node in tree after getting part data')
+          }
+        }
+        if (node.parts.length > 0) {
+          this.updateNode(node.parts, updated_node)
+        }
+      }
+    },
+    removeNode(parts, part_id) {
+      for (let part of parts) {
+        if (part.unique_id == part_id) {
+          if (this.env != 'prod') {
+            console.log('removing node from tree')
+          }
+          let index = parts.indexOf(part)
+          parts.splice(index, 1)
+        }
+        if (part.parts.length > 0) {
+          this.removeNode(part.parts, part_id)
+        }
+      }
+    },
+    saveNewPart(index) {
 
       // use cases
         // add an existing part
@@ -1140,7 +1056,7 @@ export default {
           // wait to get the new part data and update the node to include any child parts (need to create a new endpoint)
           // do not fetch the tree
 
-      this.addNewEmptyPart()
+      this.addEmptyPart()
       let newPart = this.parts[index]
 
       // optimistically create the new part...
@@ -1234,63 +1150,103 @@ export default {
         }
       }, error => {})
     },
+    addEmptyPart() {
+      // adds a new empty part to the BOM
+      this.$nextTick(() => {
+        // document.getElementById('add-part-button').disabled=true
+        let button = document.getElementById('add-part-button')
+        if (button) { button.disabled=true }
+      })
 
-    addNode(nodes, parent_id, new_node) {
-      for (let node of nodes) {
-        if (node.unique_id == parent_id) {
-          if (this.env != 'prod') {
-            console.log('added new empty node to tree')
-          }
-          node.parts.push(new_node)
-        }
-        if (node.parts.length > 0) {
-          this.addNode(node.parts, parent_id, new_node)
-        }
+      let part = {
+        'design_id': null,
+        'design_name': null,
+        'design_slug': null,
+        'design_number': null,
+        'parent_id': null,
+        'revision_name': null,
+        'revision_id': null,
+        'quantity': 1,
+        'cost': 0.00,
+        'created': false,
+        'editable': true,
+        'parts': [],
+        'revisions': [],
       }
-    },
-    findNode(tree, part_id) {
-      for (let part of tree) {
-        if (part.unique_id == part_id) {
-          if (this.env != 'prod') {
-            console.log('Node in findNode(partsTab) is:')
-            console.dir(part)
-          }
-          this.$store.commit('setNode', part)
-          return part
-        }
-        if (part.parts.length > 0) {
-          this.findNode(part.parts, part_id)
 
-        }
+      this.$store.commit('addPart', part)
+
+      let design_ids = ''
+      for (let design of this.trail) {
+        design_ids += ('&design_id=' + design.id)
       }
-    },
-    updateNode(nodes, updated_node) {
-      for (let node of nodes) {
-        if (node.design_name == updated_node.design_name && !node.unique_id) {
-          let index = nodes.indexOf(node)
-          nodes.splice(index, 1, updated_node)
-          if (this.env != 'prod') {
-            console.log('updated node in tree after getting part data')
-          }
+      let owner_id = `&owner_id=${this.design.owner}`
+
+      this.$nextTick(() => {
+        $('.ui.dropdown.part').dropdown({ 'silent': true })
+        if (this.parts.length == 1) {
+          let button = document.getElementById('add-part-button')
+          if (button) { button.disabled=true }
         }
-        if (node.parts.length > 0) {
-          this.updateNode(node.parts, updated_node)
+        let vue = this
+        if (this.env == 'prod') {
+          $('.ui.search').search(
+            {
+              apiSettings: {
+                  url: 'https://www.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_ids,
+                  beforeXHR: function(xhr) {
+                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                    return xhr;
+                  }
+                },
+              fields: {
+                title: 'name',
+                description: 'number'
+              },
+              showNoResults: false,
+              onSelect: function(result, response) {
+                vue.resultSelected = true
+                vue.result = result
+                if (vue.env != 'prod') {
+                  console.log('Result selected, set result Selected to true')
+                }
+              },
+              onResults: function(response) {
+                vue.results = response.results
+              }
+            }
+          )
+        } else {
+          $('.ui.search').search(
+            {
+              apiSettings: {
+                  url: 'https://stage.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_ids,
+                  beforeXHR: function(xhr) {
+                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                    return xhr;
+                  }
+                },
+              fields: {
+                title: 'name',
+                description: 'number'
+              },
+              showNoResults: false,
+              onSelect: function(result, response) {
+                vue.resultSelected = true
+                vue.result = result
+                if (vue.env != 'prod') {
+                  console.log('Result selected, set result Selected to true')
+                }
+              },
+              onResults: function(response) {
+                vue.results = response.results
+              }
+            }
+          )
         }
-      }
-    },
-    removeNode(parts, part_id) {
-      for (let part of parts) {
-        if (part.unique_id == part_id) {
-          if (this.env != 'prod') {
-            console.log('removing node from tree')
-          }
-          let index = parts.indexOf(part)
-          parts.splice(index, 1)
-        }
-        if (part.parts.length > 0) {
-          this.removeNode(part.parts, part_id)
-        }
-      }
+
+        $('#part-name-editable').focus()
+      })
     },
 
     viewPart(index) {
@@ -1319,48 +1275,25 @@ export default {
         }, error => {})
       }, onAbort => {})
     },
-    openHome(index){
-      if (this.env != 'prod') {
-        console.log('Open home clicked')
-      }
-      let selectedPart = this.parts[index]
-
-      let design_payload = {
-        design_slug: selectedPart.design_slug,
-        owner_slug: selectedPart.owner_slug,
-        revision_slug: 'latest'
-      }
-
-      this.$store.dispatch('getDesign', design_payload).then(succes => {
-        this.$router.push(`${this.designRoute}/home`)
-        let payload = {
-          design_id: selectedPart.design_id,
-          revision_slug: 'latest',
+    findNode(tree, part_id) {
+      for (let part of tree) {
+        if (part.unique_id == part_id) {
+          if (this.env != 'prod') {
+            console.log('Node in findNode(partsTab) is:')
+            console.dir(part)
+          }
+          this.$store.commit('setNode', part)
+          return part
         }
-        this.$store.dispatch('getParts', payload).then(success => {
-          $('.ui.dropdown.part').dropdown({ 'silent': true })
-          $('.ui.dropdown.revision').dropdown({ 'silent': true })
-        }, error => {})
-      }, error => {})
+        if (part.parts.length > 0) {
+          this.findNode(part.parts, part_id)
 
-      if (selectedPart.design_id == this.rootDesign.id) {
-        if (this.env != 'prod') {
-          console.log('getting root node')
         }
-        var part_id = 0
-      } else {
-        if (this.env != 'prod') {
-          console.log('getting a child node')
-        }
-        var part_id = selectedPart.part_id
       }
-
-      this.findNode(this.tree, part_id)
-
     },
-    openParts(index) {
+    openPart(index) {
       if (this.env != 'prod') {
-        console.log('Open parts clicked')
+        console.log('Open part clicked')
         console.dir(this.parts)
       }
       let selectedPart = this.parts[index]
@@ -1525,7 +1458,7 @@ export default {
           cost: this.parts[index].cost
         }
         console.log(update_design_payload)
-        this.$store.dispatch('updateDesignPart', update_design_payload)
+        this.$store.dispatch('updateDesign', update_design_payload)
 
       } else { console.log('Design data has not changed') }
 
@@ -1731,6 +1664,71 @@ export default {
         })
       })
     },
+    updateDesign(index) {
+      let updatedPart = this.parts[index]
+
+      let payload = {
+        name: updatedPart.design_name,
+        owner: updatedPart.design_owner,
+      }
+      this.$http.put('designs/' + updatedPart.design_slug + '/', payload).then(response => {
+        if (this.env != 'prod') {
+          console.log(response)
+        }
+        if (typeof response.body.non_field_errors !== 'undefined') {
+          if (this.env != 'prod') {
+            console.log('Error updating new design: non-field error')
+          }
+        } else {
+          if (this.env != 'prod') {
+            console.log('Design info updated')
+          }
+          updatedPart.design = response.data
+          EventBus.$emit('part-design-updated')
+        }
+      }, response => {
+        if (this.env != 'prod') {
+          console.log('Error updating design')
+          console.log(response)
+        }
+      })
+    },
+    // updateBOM(action, message, import_id, import_step) {
+    //   return new Promise((resolve, reject) => {
+    //     let payload = {
+    //       editor: this.profile.id,
+    //       data: this.bom.data
+    //     }
+    //     this.$http.put('boms/' + this.bom.id +'/?ref=' + this.$route.params.config_slug + '&action=' + action + '&message=' + message + '&import_id=' + import_id + '&import_step=' + import_step,
+    //     payload).then(success => {
+    //       if (this.env != 'prod') {
+    //         console.log('BOM updated')
+    //         console.log(success)
+    //       }
+    //       this.bom = success.data
+    //       let design_payload = {
+    //         design_slug: this.design.slug,
+    //         owner_slug: this.design.owner_slug
+    //       }
+    //       this.$store.dispatch('getDesign', design_payload).then(success => {
+    //         if (this.env != 'prod') {
+    //           console.log('Got updated Design after updating BOM')
+    //         }
+    //       }, error => {
+    //         if (this.env != 'prod') {
+    //           console.log('Error getting updating design after adding part to BOM')
+    //         }
+    //       })
+    //       resolve(success)
+    //     }, error => {
+    //       if (this.env != 'prod') {
+    //         console.log('Error updating BOM when adding new part')
+    //         console.log(error)
+    //       }
+    //       reject(error)
+    //     })
+    //   })
+    // },
     updateSpecs(index) {
       return new Promise((resolve, reject) => {
         let updated_part = this.parts[index]
@@ -1888,6 +1886,7 @@ export default {
     }
   },
   mounted() {
+
   },
   updated() {
     $('.modal:not(:first)').remove()

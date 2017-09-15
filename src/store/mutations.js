@@ -59,19 +59,10 @@ export const mutations = {
       console.log('query set in store')
     }
   },
-  extendTrail(state, breadcrumb) {
-    state.trail.push(breadcrumb)
-  },
   setRootDesign(state, data) {
     state.rootDesign = data
     if (state.env != 'prod') {
       console.log('root design set in store')
-    }
-  },
-  clearRootDesign(state, data) {
-    state.rootDesign = null
-    if (state.env != 'prod') {
-      console.log('root design cleared in store')
     }
   },
   setDesign(state, data) {
@@ -80,48 +71,26 @@ export const mutations = {
       console.log('design set in store')
     }
   },
-  clearDesign (state) {
-    state.design = null
-    if (state.env != 'prod') {
-      console.log('design cleared in store')
-    }
-  },
   setTree(state, data) {
+    // state.tree = null
+    // if (state.env != 'prod') {
+    //   console.log('tree cleared in store')
+    // }
     state.tree = data
     if (state.env != 'prod') {
       console.log('tree set in store')
     }
   },
-  clearTree(state) {
-    state.tree = null
+  setNode(state, data) {
+    state.node = data
     if (state.env != 'prod') {
-      console.log('tree cleared in store')
+      console.log('selected node set in store')
     }
   },
-  clearAllDesign(state) {
-    state.design = null
-    state.tree = null
-    state.rootDesign = null
+  setTrail(state, data) {
+    state.trail = data
     if (state.env != 'prod') {
-      console.log('total design state cleared in store')
-    }
-  },
-  setPart(state, data) {
-    state.part = data
-    if (state.env != 'prod') {
-      console.log('part set in store')
-    }
-  },
-  setHome(state, data) {
-    state.home = data
-    if (state.env != 'prod') {
-      console.log('part home data set in store')
-    }
-  },
-  setBom(state, data) {
-    state.bom = data
-    if (state.env != 'prod') {
-      console.log('part bom set in store')
+      console.log('trail set in store')
     }
   },
   setParts(state, data) {
@@ -130,16 +99,50 @@ export const mutations = {
       console.log('part parts set in store')
     }
   },
-  setFiles(state, data) {
-    state.files = data
+  addPart(state, data) {
+    state.parts.push(data)
     if (state.env != 'prod') {
-      console.log('part files set in store')
+      console.log('part added in store')
     }
   },
-  setSpecs(state, data) {
-    state.specs = data
+  setPart(state, data) {
+    state.parts[data.index].part_id = data.part.part_id
+    state.parts[data.index].design_id = data.part.design_id
+    state.parts[data.index].design_name = data.part.design_name
+    state.parts[data.index].design_slug = data.part.design_slug
+    state.parts[data.index].design_number = data.part.design_number
+    state.parts[data.index].parent_id = data.part.parent_id
+    state.parts[data.index].revision_name = data.part.revision_name
+    state.parts[data.index].revision_id = data.part.revision_id
+    state.parts[data.index].quantity = data.part.quantity
+    state.parts[data.index].cost = data.part.cost
+    state.parts[data.index].parts = data.part.parts
+    state.parts[data.index].revisions = data.part.revisions
+    // state.parts[data.index].created = data.part.created
+    // state.parts[data.index].editable = data.part.editable
+    // state.parts[data.index].creator_slug = data.part.creator_slug
+    state.parts[data.index].owner_slug = data.part.owner_slug
+
     if (state.env != 'prod') {
-      console.log('part specs set in store')
+      console.log('set part in store')
+      console.dir(state.parts)
+    }
+  },
+  removePart(state, data) {
+    state.parts.splice(data, 1)
+    if (state.env != 'prod') {
+      console.log('removed part in store')
+    }
+  },
+  clearDesign(state) {
+    state.design = null
+    state.tree = null
+    state.rootDesign = null
+    state.node = null
+    state.bom = null
+    state.parts = null
+    if (state.env != 'prod') {
+      console.log('All design state cleared in store')
     }
   }
 }

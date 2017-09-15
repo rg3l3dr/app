@@ -2,16 +2,16 @@
   <div>
     <div></div>
     <div class="ui top attached grey header">
-      TECHNICAL SPECIFICATIONS &#8212; Document properties of your design or part
+      TECHNICAL SPECIFICATIONS &#8212; Document properties of your design
     </div>
     <div class="ui bottom attached segment">
       <transition name='fade'>
-        <span v-if='isVisible'>
+        <span>
           <form class="ui form">
             <h3 class="ui dividing header">Basic Data</h3>
-            <div class="two fields">
-              <div class="eleven wide field" id='design-class'>
-                <label>Part Class</label>
+            <div class="one field">
+              <div class="sixteen wide field" id='design-class'>
+                <label>Design Class</label>
                 <div
                   class="ui fluid search selection dropdown classes"
                   @keydown.enter.prevent
@@ -25,14 +25,14 @@
                   <i class="dropdown icon"></i>
                   <div class="default text">
                     <i class="setting icon"></i>
-                    Choose a part class
+                    Choose a design class
                   </div>
                   <div class="menu">
                       <div
                         v-for='designClass in designClasses'
                         class="item"
                         :data-value='designClass.id'
-                        @click.prevent='specs.data.classId = designClass.id'
+                        @click.prevent='design.data["designClass"] = designClass.id'
                         >
                         {{ designClass.code }} : {{ designClass.name }}
                         <span v-if='designClass.description'>
@@ -42,14 +42,31 @@
                   </div>
                 </div>
               </div>
+
+            </div>
+
+            <div class="two fields">
+              <div class=" eleven wide field" id='part-description'>
+                <label>Short Description</label>
+                <div class="ui left icon input">
+                  <i class="file text outline icon"></i>
+                  <input
+                    type="text"
+                    placeholder='Add a short description'
+                    v-model='design.data.summary'
+                    @keydown.enter.prevent='createSupplier'
+                    @keyup.enter.prevent
+                  >
+                </div>
+              </div>
               <div class="five wide field" id='part-number'>
-                <label>Part Number</label>
+                <label>Internal Part Number</label>
                 <div class="ui left icon input">
                   <i class="hashtag icon"></i>
                   <input
                     type="text"
                     placeholder='Enter the part number'
-                    v-model='specs.data.number'
+                    v-model='design.data["internalPartNumber"]'
                     @keydown.enter.prevent
                     @keyup.enter.prevent
                   >
@@ -57,74 +74,12 @@
               </div>
             </div>
 
-            <div class="two fields">
-              <div class=" eleven wide field" id='part-description'>
-                <label>Part Description</label>
-                <div class="ui left icon input">
-                  <i class="file text outline icon"></i>
-                  <input
-                    type="text"
-                    placeholder='Add a short description'
-                    v-model='specs.data.description'
-                    @keydown.enter.prevent='createSupplier'
-                    @keyup.enter.prevent
-                  >
-                </div>
-              </div>
-              <div class="five wide field" id='part-image-empty'>
-                <label>Part Image</label>
-                <div class="ui left icon input">
-                  <i class="image icon"></i>
-                  <label for="file-upload" class="custom-file-upload" v-if='specs.data.images.length==0'>
-                      Choose a part image
-                  </label>
-
-                  <label for="file-upload" class="update-file-upload" v-else>
-                      {{ specs.data.images[0].name }}
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id='file-upload'
-                    @click='getToken'
-                    @change='uploadImage($event)'
-                    style='display:none'
-                  >
-                </div>
-              </div>
-              <!-- <div class="five wide field" id='part-image-uploaded' v-else>
-                <input
-                  type="file"
-                  accept="image/*"
-                  id='upload-file-input'
-                  @click='getToken'
-                  @change='uploadImage($event)'
-                  style="display:none"
-                >
-                <span v-if='specs.data.images.length == 0'>
-                  <label for='add-image-btn'>&nbsp</label>
-                  <button
-                    class="ui basic blue button"
-                    id='add-image-btn'
-                    @click.prevent='selectFilesForUpload'
-                  >
-                    Add an Image
-                  </button>
-                </span>
-                <span v-else>
-                  <a :href="specs.data.images[0].url"></a>
-                  {{ specs.data.images[0].name }}
-                </span>
-
-              </div> -->
-            </div>
-
             <h3 class="ui dividing header">Supplier Data</h3>
             <transition-group name='fade'>
-              <div v-for='(supplier, supplierIndex) in specs.data.suppliers' :key='supplierIndex'>
+              <div v-for='(supplier, supplierIndex) in design.data.suppliers' :key='supplierIndex'>
                 <div class="five fields">
                   <div class="four wide field" id='part-manufacturer-name'>
-                    <label>Manufacturer</label>
+                    <label>Supplier</label>
                     <div
                       class="ui fluid search selection dropdown suppliers"
                       @keydown.enter.prevent='createSupplier($event)'
@@ -138,14 +93,14 @@
                       <i class="dropdown icon"></i>
                       <div class="default text">
                         <i class="industry icon"></i>
-                        Select or Add a Manufacturer
+                        Select Supplier
                       </div>
                       <div class="menu">
                           <div
                             v-for='supplier in suppliers'
                             class="item"
                             :data-value='supplier.id'
-                            @click='specs.data.suppliers[supplierIndex].supplierId = supplier.supplierId'
+                            @click='design.data.suppliers[supplierIndex].supplierId = supplier.supplierId'
                             >
                             {{ supplier.name }}
                           </div>
@@ -153,14 +108,14 @@
                     </div>
                   </div>
                   <div class="four wide field" id='part-manufacturuer-part-number'>
-                    <label>Manufacturer Part Number</label>
+                    <label>Supplier Part Number</label>
                     <div class="ui left icon input">
                       <i class="hashtag icon"></i>
                       <input
                         type="text"
                         id='part-manufacturer-part-number-input'
-                        placeholder='Add manufacturer part number'
-                        v-model='supplier.partNumber'
+                        placeholder='Add part number'
+                        v-model='supplier.supplierPartNumber'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
                       >
@@ -172,7 +127,7 @@
                       <i class="linkify icon"></i>
                       <input
                         type="url"
-                        placeholder='Add a link to part page'
+                        placeholder='Add a link'
                         v-model='supplier.externalUrl'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
@@ -188,7 +143,7 @@
                           class="ui primary basic icon button"
                           @click.prevent='addSupplier'
                         >
-                          Add Another Supplier
+                          Add Supplier
                         </button>
                         <input type="hidden">
                       </div>
@@ -197,7 +152,7 @@
                           class="ui secondary basic icon button"
                           @click.prevent='removeSupplier(supplierIndex)'
                         >
-                           Remove this Supplier
+                           Remove
                         </button>
                         <input type="hidden">
                       </div>
@@ -205,7 +160,7 @@
                   </div>
                 </div>
                 <transition-group name='fade'>
-                  <div v-for='(schedule, scheduleIndex) in supplier.partSchedules' :key='scheduleIndex'>
+                  <div v-for='(schedule, scheduleIndex) in supplier.schedules' :key='scheduleIndex'>
                     <div class="five fields">
                       <div class="four wide field" id='part-cost'>
                         <label>Part Unit Cost</label>
@@ -244,7 +199,7 @@
                           <input
                             type="number"
                             v-model='schedule.leadTime'
-                            placeholder='Add a lead time'
+                            placeholder='Add lead time'
                             min='1'
                             step='1'
                             @keydown.enter.prevent
@@ -283,7 +238,7 @@
                               class="ui primary basic icon button"
                               @click.prevent='addSchedule(supplierIndex)'
                             >
-                              Add Another Schedule
+                              Add Schedule
                             </button>
                             <input type="hidden">
                           </div>
@@ -292,7 +247,7 @@
                               class="ui secondary basic icon button"
                               @click.prevent='removeSchedule(supplierIndex, scheduleIndex)'
                             >
-                               Remove this Schedule
+                               Remove
                             </button>
                             <input type="hidden">
                           </div>
@@ -303,7 +258,7 @@
                 </transition-group>
 
                 <div
-                  v-if='supplierIndex != (specs.data.suppliers.length - 1)'
+                  v-if='supplierIndex != (design.data.suppliers.length - 1)'
                   class="ui dividing header"
                   style='margin-bottom: 15px'
                 ></div>
@@ -313,49 +268,49 @@
 
             <h3 class="ui dividing header">Custom Data</h3>
             <transition-group name='fade'>
-              <div v-for='(customSpec, specIndex) in specs.data.customSpecs' :key="specIndex" >
-                <div class="five fields">
-                  <div class="three wide field" id='specification-name'>
+              <div v-for='(spec, specIndex) in design.data.specs' :key="specIndex" >
+                <div class="four fields">
+                  <div class="four wide field" id='specification-name'>
                     <label>Specification Name</label>
                     <div class="ui left icon input">
                       <i class="tag icon"></i>
                       <input
                         type="text"
                         placeholder='Add a name'
-                        v-model='customSpec.name'
+                        v-model='spec.name'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
                         >
                     </div>
                   </div>
-                  <div class="three wide field" id='specification-type'>
+                  <!-- <div class="three wide field" id='specification-type'>
                     <label>Specification Type</label>
-                    <select class="ui dropdown customValue" v-model='customSpec.dataType'>
-                      <option disabled value=""> <i class="database icon"></i> Choose data type</option>
+                    <select class="ui dropdown customValue" v-model='spec.dataType'>
+                      <option disabled value=""> <i class="database icon"></i> Choose type</option>
                       <option v-for='dataType in dataTypes' :value='dataType'> {{ dataType }} </option>
                     </select>
-                  </div>
-                  <div class="three wide field" id='specification-value'>
+                  </div> -->
+                  <div class="four wide field" id='specification-value'>
                     <label>Specification Value</label>
                     <div class="ui left icon input">
                       <i class="info icon"></i>
                       <input
                         type="text"
                         placeholder='Add a value'
-                        v-model='customSpec.value'
+                        v-model='spec.value'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
                       >
                     </div>
                   </div>
-                  <div class="three wide field" id='specification-unit'>
-                    <label>Specification Unit of Measure</label>
+                  <div class="four wide field" id='specification-unit'>
+                    <label>Specification Units</label>
                     <div class="ui left icon input">
                       <i class="balance scale icon"></i>
                       <input
                         type="text"
                         placeholder='Add a unit'
-                        v-model='customSpec.units'
+                        v-model='spec.units'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
                       >
@@ -372,7 +327,7 @@
                           @keydown.enter.prevent
                           @keyup.enter.prevent
                         >
-                          Add Another Specification
+                          Add Spec
                         </button>
                         <input type="hidden">
                       </div>
@@ -383,7 +338,7 @@
                           @keydown.enter.prevent
                           @keyup.enter.prevent
                         >
-                           Remove this Specification
+                           Remove
                         </button>
                         <input type="hidden">
                       </div>
@@ -397,60 +352,21 @@
             <button
               v-if='!specsUpdated'
               class="ui blue basic button"
-              @click='dispatchUpdateSpecs'
+              @click='updateSpecs()'
             >
-              Update Specs
+              Update All Specs
             </button>
             <button
               v-if='specsUpdated'
               class="ui blue basic button"
-              @click='dispatchUpdateSpecs'
+              @click='updateSpecs()'
             >
               Specs Updated
             </button>
             <br>
           </span>
         </span>
-        <div style='text-align:center' v-else-if='$route.params.revision_slug=="latest"' >
-          <br>
-          <h2 class="ui icon header" >
-            <i class="list icon"></i>
-            <br>
-            <div class="content">
-              <div class="ui huge blue basic button" @click='showSpecs'>
-                Click here to add specs
-              </div>
-              <div class="sub header">
-                <br>
-                <a href="http://help.omnibuilds.com#specs-describe-designs" style='font-size:18px'>
-                  How do specs work?
-                </a>
-                <br>
-                <br>
-                <br>
-              </div>
-            </div>
-          </h2>
-        </div>
-        <div style='text-align:center' v-else>
-          <br>
-          <h2 class="ui icon header" >
-            <i class="cubes icon"></i>
-            <br>
-            <div class="content">
-              Change rev back to latest to add specs
-              <div class="sub header">
-                <br>
-                You have not added any specs yet<br>
-                Your project is read only when rev is not latest
-              </div>
-            </div>
-          </h2>
-        </div>
       </transition>
-
-
-
     </div>
   </div>
 </template>
@@ -467,138 +383,20 @@ export default {
       dataTypes: [ 'Text', 'Number', 'True/False'],
       newSupplierName: null,
       specsUpdated: false,
-      bucket: null,
-      isVisible: false
     }
   },
   computed: {
     ...mapState([
       'env',
+      'bucket',
       'session',
       'profile',
-      'design',
-      'designRefs',
-      'specs'
+      'design'
     ])
   },
   watch: {
-    designRefs() {
-      if (this.env != 'prod') {
-        console.log('designRefs watcher has been called in newspecs.vue')
-      }
-      this.awaitDropDowns()
-    }
   },
   methods: {
-
-    showSpecs() {
-      this.isVisible = true
-      this.$nextTick(() => {
-        this.setDropDowns()
-        $('.ui.dropdown.classes').dropdown({
-          'silent': true,
-          'fullTextSearch': 'exact'
-        })
-      })
-    },
-    awaitDropDowns() {
-      let p1 = this.dispatchGetSpecs()
-      let p2 = this.getDesignClasses()
-      let p3 = this.getSuppliers()
-
-      Promise.all([p1, p2, p3]).then(() => {
-        if (this.env != 'prod') {
-          console.log('All promises resolved')
-        }
-        this.setDropDowns()
-      });
-    },
-    setDropDowns() {
-      $('.ui.dropdown.customValue').dropdown({'silent': true})
-      $('.ui.dropdown.period').dropdown({'silent': true})
-
-      let currentDesignClass = this.designClasses.filter(designClass => {
-        return designClass.id == this.specs.data.classId
-      })[0]
-      if (currentDesignClass) {
-        $('#part-class').dropdown('set text', `${currentDesignClass.code}: ${currentDesignClass.name}`)
-        $('#part-class').dropdown('set selected', this.specs.data.classId)
-      }
-      let index = 0
-      for(let currentSupplier of this.specs.data.suppliers) {
-        $(`#supplier-name-${index}`).dropdown({'silent': true})
-        let supplierRecord = this.suppliers.filter(supplier => {
-          return supplier.id == currentSupplier.supplierId
-        })[0]
-        if (supplierRecord) {
-
-          $(`#supplier-name-${index}`).dropdown('set text', supplierRecord.name)
-          $(`#supplier-name-${index}`).dropdown('set selected', supplierRecord.id)
-        }
-        index += 1
-      }
-    },
-    dispatchGetSpecs() {
-      return new Promise((resolve, reject) => {
-        let payload = {
-          id: this.design.specs.id,
-          config_slug: this.designRefs.config_slug,
-          ref: this.designRefs.ref,
-          ref_type: this.designRefs.ref_type
-        }
-        this.$store.dispatch('getSpecs', payload).then(success => {
-          if (success.body.data.updated == true) {
-            this.isVisible = true
-          }
-           resolve()
-        }, error => {
-          reject()
-        })
-      })
-    },
-    dispatchUpdateSpecs() {
-      return new Promise((resolve, reject) => {
-        this.specs.data.updated = true
-        let action = 'Updated specs'
-        let message = null
-
-        let payload = {
-          params: this.specs.id + '/?ref=' +
-                  this.$route.params.config_slug +
-                  '&action=' + action +
-                  '&message=' + message,
-          data: {
-            editor: this.profile.id,
-            data: this.specs.data
-          }
-        }
-        this.$store.dispatch('updateSpecs', payload).then(success => {
-          // this.$router.push( this.designRefs.design_path + '/specs')
-          let design_payload = {
-            design_slug: this.design.slug,
-            owner_slug: this.design.owner_slug
-          }
-          this.$store.dispatch('getDesign', design_payload).then(success => {
-            if (this.env != 'prod') {
-              console.log('Got updated Design after adding updating Specs')
-            }
-          }, error => {
-            if (this.env != 'prod') {
-              console.log('Error getting updating design after adding part to Specs')
-            }
-          })
-          this.setDropDowns()
-          this.specsUpdated = true
-          if (this.env != 'prod') {
-            console.log('Reloaded the page')
-          }
-          resolve()
-          // location.reload()
-        }, error => {
-          reject()
-        })
-      })
-    },
     getDesignClasses() {
       return new Promise((resolve, reject) => {
         this.$http.get('designclasses/?ordering=code').then(success => {
@@ -645,52 +443,53 @@ export default {
         })
       })
     },
+    awaitDropDowns() {
+      // let p1 = this.dispatchGetSpecs()
+      let p2 = this.getDesignClasses()
+      let p3 = this.getSuppliers()
 
-    uploadImage($event) {
-      let filesInput = event.target.files
-      let file = filesInput[0]
-      let reader = new FileReader()
-      var array_buffer
-      let vue = this
-      reader.onloadend = function () {
-        array_buffer = reader.result
-        let s3 = new AWS.S3()
-        let s3_path = `https://s3-us-west-2.amazonaws.com/${vue.bucket}/Designs`
-        let s3_key = 'designs/' + vue.design.owner + '/' + vue.design.id + '/' + file.name
-        let params = {
-          Body: array_buffer,
-          Bucket: vue.bucket,
-          Key: s3_key
-         }
-         s3.putObject(params, function(err, data) {
-           if (err) {
-             if (vue.env != 'prod') {
-               console.log(err, err.stack); // an error occurred
+      Promise.all([p2, p3]).then(() => {
+        if (this.env != 'prod') {
+          console.log('All promises resolved')
+        }
+        this.setDropDowns()
+      });
+    },
+    setDropDowns() {
+      $('.ui.dropdown.customValue').dropdown({'silent': true})
+      $('.ui.dropdown.period').dropdown({'silent': true})
 
-             }
-           } else {
-             if (vue.env != 'prod') {
-               console.log(data)
-
-             }
-             let image = {
-                 name: file.name,
-                 type: file.type,
-                 size: file.size,
-                 url: s3_path + s3_key
-               }
-              if (vue.specs.data.images.length == 0) {
-                vue.specs.data.images.push(image)
-              } else{
-                vue.specs.data.images.pop()
-                vue.specs.data.images.push(image)
-              }
-             // give feedback to the user ???
-             // show the file has been uploaded
-           }
-        })
+      let currentDesignClass = this.designClasses.filter(designClass => {
+        return designClass.id == this.design.data.designClass
+      })[0]
+      if (currentDesignClass) {
+        $('#part-class').dropdown('set text', `${currentDesignClass.code}: ${currentDesignClass.name}`)
+        $('#part-class').dropdown('set selected', this.design.data.designClass)
       }
-      reader.readAsArrayBuffer(file)
+      let index = 0
+      for(let currentSupplier of this.design.data.suppliers) {
+        $(`#supplier-name-${index}`).dropdown(
+          {
+            'silent': true,
+            'message': {
+              addResult     : 'Add <b>{term}</b>',
+              count         : '{count} selected',
+              maxSelections : 'Max {maxCount} selections',
+              noResults     : 'Press enter to create supplier.'
+            }
+          }
+
+        )
+        let supplierRecord = this.suppliers.filter(supplier => {
+          return supplier.id == currentSupplier.supplierId
+        })[0]
+        if (supplierRecord) {
+
+          $(`#supplier-name-${index}`).dropdown('set text', supplierRecord.name)
+          $(`#supplier-name-${index}`).dropdown('set selected', supplierRecord.id)
+        }
+        index += 1
+      }
     },
     createSupplier($event) {
 
@@ -706,7 +505,7 @@ export default {
         if (this.env != 'prod') {
           console.log('Supplier already exists')
         }
-        this.specs.data.suppliers[index].supplierId = existingSupplier.id
+        this.design.data.suppliers[index].supplierId = existingSupplier.id
 
         setTimeout(function() {
           $(`#${supplierClass}`).dropdown('set text', existingSupplier.name)
@@ -716,7 +515,7 @@ export default {
 
       }  else {
         let payload = {
-          owner: this.design.owner,
+          creator: this.design.owner,
           name: event.target.value
         }
         this.$http.post('suppliers/', payload).then(success => {
@@ -727,7 +526,7 @@ export default {
           this.suppliers.push(success.data)
           let newSupplier = success.data
 
-          this.specs.data.suppliers[index].supplierId = newSupplier.id
+          this.design.data.suppliers[index].supplierId = newSupplier.id
           setTimeout(function() {
             $(`#${supplierClass}`).dropdown('set text', newSupplier.name)
             $(`#${supplierClass}`).dropdown('set selected', newSupplier.id)
@@ -743,20 +542,22 @@ export default {
     },
     addSupplier() {
       let newSupplier = {
+        default: false,
         supplierId: null,
-        partNumber: null,
+        supplierPartNumber: null,
+        externalUrl: null,
         partSchedules: [
           {
             unitCost: 0,
             minOrderQty: 1,
             leadTime: 1,
             leadTimePeriod: 'Days',
-            externalUrl: null
+            default: true
           }
         ]
       }
 
-      this.specs.data.suppliers.push(newSupplier)
+      this.design.data.suppliers.push(newSupplier)
 
       this.$nextTick(() => {
         $('.ui.dropdown.suppliers').dropdown({
@@ -767,7 +568,7 @@ export default {
       })
     },
     removeSupplier(supplierIndex) {
-      this.specs.data.suppliers.splice(supplierIndex, 1)
+      this.design.data.suppliers.splice(supplierIndex, 1)
     },
     addSchedule(supplierIndex) {
       let newSchedule = {
@@ -775,18 +576,18 @@ export default {
         minOrderQty: 1,
         leadTime: 1,
         leadTimePeriod: 'Days',
-        externalUrl: null
+        default: false
       }
-      let selectedSupplier = this.specs.data.suppliers[supplierIndex]
-      selectedSupplier.partSchedules.push(newSchedule)
+      let selectedSupplier = this.design.data.suppliers[supplierIndex]
+      selectedSupplier.schedules.push(newSchedule)
       this.$nextTick(() => {
         $('.ui.dropdown.period').dropdown({'silent': true})
       })
 
     },
     removeSchedule(supplierIndex, scheduleIndex) {
-      let selectedSupplier = this.specs.data.suppliers[supplierIndex]
-      selectedSupplier.partSchedules.splice(scheduleIndex, 1)
+      let selectedSupplier = this.design.data.suppliers[supplierIndex]
+      selectedSupplier.schedules.splice(scheduleIndex, 1)
     },
     addCustomSpec() {
       let newSpec = {
@@ -796,39 +597,41 @@ export default {
         unit: null
       }
 
-      this.specs.data.customSpecs.push(newSpec)
+      this.design.data.specs.push(newSpec)
       this.$nextTick(() => {
         $('.ui.dropdown.customValue').dropdown({'silent': true})
       })
     },
     removeCustomSpec(specIndex) {
-      this.specs.data.customSpecs.splice(specIndex, 1)
+      this.design.data.specs.splice(specIndex, 1)
+    },
+    updateSpecs() {
+      let payload = {
+        slug: this.design.slug,
+        owner_slug: this.design.owner_slug,
+        data: {
+          data: this.design.data
+        }
+      }
+
+      this.$store.dispatch('updateDesign', payload).then(success => {
+        let payload = success.body
+        this.$store.commit('setDesign', payload)
+      }, error => {})
     },
   },
   created() {
-    if (this.designRefs.ref) {
-      if (this.env != 'prod') {
-        console.log('NewSpecs.vue created, design data already loaded, getting specs')
-      }
-      this.awaitDropDowns()
-    } else {
-      if (this.env != 'prod') {
-        console.log('NewSpecs.vue created, no design data present, waiting on watcher')
-      }
-    }
-
-    if (this.env == 'prod') {
-      this.bucket='omni-prod-designs'
-    } else {
-      this.bucket='omni-stage-designs'
-    }
+    this.awaitDropDowns()
   },
   mounted() {
-    $('.ui.dropdown.customValue').dropdown({'silent': true})
+    // $('.ui.dropdown.customValue').dropdown({'silent': true})
     $('.ui.dropdown.period').dropdown({'silent': true})
     $('.ui.dropdown.suppliers').dropdown({'silent': true})
-    // $('.ui.dropdown.suppliers').dropdown({'silent': true})
-    // $('.ui.dropdown.classes').dropdown({'silent': true})
+    $('.ui.dropdown.classes').dropdown({'silent': true})
+
+    if (this.design.data.specs.length == 0) {
+      this.addCustomSpec()
+    }
   },
   updated() {}
 }
