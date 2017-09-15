@@ -23,8 +23,17 @@
           <div class="ui fluid rounded image" v-if='design.data.images[0]'>
             <img :src='design.data.images[0].url'>
             <br>
+            <div class="carousel-thumbnails">
+              <div class="ui tiny image" v-for='designImage in design.data.images'>
+                <img :src='designImage.url'>
+              </div>
+            </div>
+            <br>
+            <button class="ui small basic left floated blue button" @click='selectFilesForUpload()'>
+              Set As Default Image <!-- only display when not default -->
+            </button>
             <button class="ui small basic right floated blue button" @click='selectFilesForUpload()'>
-              Change Picture
+              Upload Image
             </button>
           </div>
           <div style='text-align:center' v-else-if="$route.params.revision_slug=='latest'" >
