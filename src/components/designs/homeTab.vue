@@ -23,10 +23,14 @@
           <div class="ui fluid rounded image" v-if='design.data.images[0]'>
             <img :src='design.data.images[0].url'>
             <br>
-            <div class="carousel-thumbnails">
-              <div class="ui tiny image" v-for='designImage in design.data.images'>
-                <img :src='designImage.url'>
+            <div class="carousel">
+              <i class="caret left icon"></i>
+              <div class="ui middle aligned horizontal selection list tiny images">
+                <span class ="" v-for='designImage in design.data.images'>
+                  <img class="ui image carousel-thumbnail" :src='designImage.url'>
+                </span>
               </div>
+              <i class="caret right icon"></i>
             </div>
             <br>
             <button class="ui small basic left floated blue button" @click='selectFilesForUpload()'>
@@ -241,12 +245,9 @@ export default {
                  size: file.size,
                  url: s3_path + s3_key
                }
-              if (vue.design.data.images[0]) {
-                vue.design.data.images.pop()
-                vue.design.data.images.push(image)
-              } else{
-                vue.design.data.images.push(image)
-              }
+
+              vue.design.data.images.push(image)
+
               let payload = {
                 slug: vue.design.slug,
                 owner_slug: vue.design.owner_slug,
