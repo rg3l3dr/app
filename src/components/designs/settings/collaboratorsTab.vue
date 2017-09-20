@@ -53,7 +53,7 @@
                 Remove
               </div>
             </div>
-            
+
             <img
               v-if='collaborator.picture'
               class="ui large avatar image"
@@ -164,7 +164,7 @@ export default {
     return {
       invite: {
         email: null,
-        isValid: true,
+        isValid: null,
         isUser: null,
         hasMessage: null,
         message: null,
@@ -181,7 +181,9 @@ export default {
       'env',
       'session',
       'profile',
-      'design'
+      'design',
+      'node'
+
     ]),
     collaborators() {
       return this.design.collaborators.map(collaborator => {return collaborator.id})
@@ -334,13 +336,33 @@ export default {
 
       // await this.updatePerms(perms_payload)
 
-      let payload = { collaborators: this.collaborators }
+      let payload = {
+        slug: this.design.slug,
+        owner_slug: this.design.owner_slug,
+        data: {
+          collaborators: this.collaborators
+        }
+      }
+
+      if (this.env != 'prod') {
+        console.log(payload)
+      }
 
       this.$store.dispatch('updateDesign', payload).then(success => {
         if (this.env != 'prod') {
           console.log('Added new collaborator to design')
         }
-        let part_ids = this.design.bom.data.map(part => {return part.design_id})
+        let design_payload = {
+          design_slug: this.design.slug,
+          owner_slug: this.design.owner_slug,
+          revision_slug: 'latest'
+        }
+        this.$store.dispatch('getDesign', design_payload).then(success => {
+          this.$store.commit('setDesign', success.body)
+        }, error => {})
+
+        // have to get the ids for all the top leve parts
+        let part_ids = this.node.parts.map(part => {return part.design_id})
         this.shareParts(this.design.id, part_ids)
         // clear out the new inivitee
         this.invite = {
@@ -398,12 +420,29 @@ export default {
     removeCollaborator(index) {
       let collaborator_id = this.collaborators[index]
       this.collaborators.splice(index, 1)
-      let payload = { collaborators: this.collaborators }
+      let payload = {
+        slug: this.design.slug,
+        owner_slug: this.design.owner_slug,
+        data: {
+          collaborators: this.collaborators
+        }
+      }
       this.$store.dispatch('updateDesign', payload).then(success => {
         if (this.env != 'prod') {
           console.log('Removed collaborator from design')
           console.log('Collaborator ID is ' + collaborator_id)
         }
+
+        let design_payload = {
+          design_slug: this.design.slug,
+          owner_slug: this.design.owner_slug,
+          revision_slug: 'latest'
+        }
+        this.$store.dispatch('getDesign', design_payload).then(success => {
+          this.$store.commit('setDesign', success.body)
+        }, error => {})
+
+
         this.unshareParts(this.design.id, collaborator_id)
       }, error => {})
     },

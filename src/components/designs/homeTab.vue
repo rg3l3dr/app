@@ -133,8 +133,6 @@
 
           </div>
 
-
-
           <router-link :to='this.designRoute + "/specs" ' v-if='$route.params.revision_slug == "latest"'>
             <button class='ui right floated small basic blue button'>
               &nbsp Edit Specs
@@ -153,28 +151,16 @@
           </div>
         </div>
         <div class="ui bottom attached segment">
-         <div v-if='!descriptionIsEditable'>
-           {{ design.data.description }}
-           <br><br>
-           <button
-             class="ui small blue basic button"
-             @click='descriptionIsEditable=true'
-           >
-             Edit Description
-           </button>
-         </div>
-         <div v-else>
-           <textarea rows="12" cols="120" v-model='design.data.description'>
-           </textarea>
-           <br><br>
+          <div class="tinymce" v-html='design.data.description'>
 
-           <button
-             class="ui small blue basic button"
-             @click='updateDescription'
-           >
-             Update Description
-           </button>
-         </div>
+          </div>
+          <br>
+          <button
+            class="ui small blue basic button"
+            @click='updateDescription()'
+          >
+            Update Description
+          </button>
         </div>
       </div>
     </div>
@@ -207,8 +193,6 @@ export default {
 
   },
   methods: {
-
-
     selectFilesForUpload() {
       // click the hidden files input button
       let fileElem = document.getElementById("upload-file-input")
@@ -249,6 +233,13 @@ export default {
                  default: true
                }
 
+              // if (vue.design.data.images[0]) {
+              //   vue.design.data.images.pop()
+              //   vue.design.data.images.push(image)
+              // } else{
+              //   vue.design.data.images.push(image)
+              // }
+
               vue.design.data.images.push(image)
 
               let payload = {
@@ -258,13 +249,18 @@ export default {
                   data: vue.design.data
                 }
               }
-              vue.$store.dispatch('updateDesign', payload)
+              vue.$store.dispatch('updateDesign', payload).then(success => {
+                // vue.$store.commit('setDesign', success.body)
+              }, error => {})
+
            }
         })
       }
       reader.readAsArrayBuffer(file)
     },
     updateDescription() {
+
+      this.design.data.description = $("div.tinymce").html()
 
       let payload = {
         slug: this.design.slug,
@@ -274,11 +270,34 @@ export default {
         }
       }
       this.$store.dispatch('updateDesign', payload).then(success => {
-        this.descriptionIsEditable = false
+
+        let design_payload = {
+          design_slug: this.design.slug,
+          owner_slug: this.design.owner_slug,
+          revision_slug: 'latest'
+        }
+
+        this.$store.dispatch('getDesign', design_payload).then(success => {
+          this.$store.commit('setDesign', success.body)
+        }, error => {})
       }, error => {})
     },
   },
-  created: function() {
+  mounted: function() {
+
+    tinymce.init({
+      selector: 'div.tinymce',
+      theme: 'inlite',
+      plugins: 'image media table link paste contextmenu textpattern autolink codesample',
+      insert_toolbar: 'quickimage quicktable media codesample',
+      selection_toolbar: 'bold italic underline | quicklink h1 h2 h3 h4 | alignleft aligncenter alignright' ,
+      inline: true,
+      paste_data_images: true,
+      content_css: [
+        '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
+        '//www.tinymce.com/css/codepen.min.css']
+    })
+
 
   },
 }
@@ -288,5 +307,6 @@ export default {
 div.small.top.attached.header {
   padding: 5px 14px 5px 14px;
 }
+
 
 </style>

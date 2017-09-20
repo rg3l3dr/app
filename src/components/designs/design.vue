@@ -101,7 +101,7 @@
                         <i class="plus icon"></i>
                       </button>
                     </div>
-                    <app-PartsTree :data='tree' :first='true' style='padding-top: 15px'></app-PartsTree>
+                    <app-PartsTree :data='$store.state.tree' :first='true' style='padding-top: 15px'></app-PartsTree>
                   </template>
                   <div v-else>
                     <br>
@@ -271,6 +271,7 @@ export default {
           console.log('Root design or revision has changed, getting new data')
         }
         this.$store.commit('clearDesign')
+
         let design_payload = {
           design_slug: this.route.params.design_slug,
           owner_slug: this.route.params.profile_slug,
@@ -278,14 +279,14 @@ export default {
         }
 
         this.$store.dispatch('getDesign', design_payload).then(success => {
+          this.$store.commit('setRootDesign', this.design)
           let tree_payload = {
             design_id: this.design.id,
             revision_slug: this.route.params.revision_slug
           }
           this.$store.dispatch('getTree', tree_payload).then(success => {
-            this.$store.commit('setTree', success)
+              this.$store.commit('setTree', success)
           }, error => {})
-
         }, error => {})
       }
       else {
@@ -338,81 +339,6 @@ export default {
       // reset the record context
 
     },
-    // selectPart(index) {
-    //
-    //   let breadcrumb = this.trail[index]
-    //   if (breadcrumb.ref_type == 'config') {
-    //     this.$route.params.config_slug = breadcrumb.config_slug
-    //     this.$route.params.rev_slug = 'latest'
-    //     this.$route.params.build_slug = null
-    //   } else if (breadcrumb.ref_type == 'rev') {
-    //     this.$route.params.config_slug = breadcrumb.config_slug
-    //     this.$route.params.rev_slug = breadcrumb.ref_slug
-    //     this.$route.params.build_slug = null
-    //   } else if (breadcrumb.ref_type == 'build') {
-    //     this.$route.params.config_slug = breadcrumb.config_slug
-    //     this.$route.params.rev_slug = null
-    //     this.$route.params.build_slug = breadcrumb.ref_slug
-    //   }
-    //
-    //   let payload = {
-    //     design_slug: breadcrumb.slug,
-    //     owner_slug: breadcrumb.owner_slug
-    //   }
-    //   this.$store.dispatch('getDesign', payload).then(success => {
-    //     this.$store.commit('resetTrail', index)
-    //     this.$store.commit('setDesignRefs')
-    //     // this.updateDesignRefs()
-    //     // this.updateRefSelectors()
-    //
-    //     let settings_ref
-    //     if (this.designRefs.pre_endpoint == 'settings') {
-    //       settings_ref = 'settings/'
-    //     } else { settings_ref = ''}
-    //     this.$router.push(`${this.designRefs.design_path}/${settings_ref}${this.designRefs.endpoint}`)
-    //     let button = document.getElementById('add-part-button')
-    //     if (button) { button.disabled=false }
-    //   }, error => {})
-    // },
-    // setRootDesign() {
-    //   this.$store.commit('clearDesignRefs')
-    //   this.$store.commit('clearDesign')
-    //   this.$store.commit('clearTrail')
-    //
-    //   $('.ui.dropdown').dropdown({'silent': true})
-    //
-    //   // get the design instance from route params
-    //   let design_payload = {
-    //     design_slug: this.$route.params.design_slug,
-    //     owner_slug: this.$route.params.profile_slug
-    //
-    //   }
-    //   this.$store.dispatch('getDesign', design_payload).then(success => {
-    //
-    //     // this.updateDesignRefs()
-    //     this.$store.commit('setDesignRefs')
-    //     EventBus.$emit('design-refs-updated')
-    //
-    //     let breadcrumb = {
-    //       name: this.design.name,
-    //       slug: this.design.slug,
-    //       design_id: this.design.id,
-    //       ref_slug: this.designRefs.ref,
-    //       ref_type: this.designRefs.ref_type,
-    //       config_slug: this.designRefs.config_slug,
-    //       owner_slug: this.design.owner_slug
-    //     }
-    //     this.$store.commit('extendTrail', breadcrumb)
-    //   }, error => {})
-    // },
-    // resetParts(parts) {
-    //   for (let part of parts) {
-    //     part.isOpen = part.isOpen
-    //     if (part.parts.length > 0) {
-    //       this.resetParts(part.parts)
-    //     }
-    //   }
-    // },
     openParts(parts) {
       for (let part of parts) {
         part.isOpen = true
@@ -429,6 +355,26 @@ export default {
         }
       }
     },
+    revisePart() {},
+    exportPart() {
+      // open a modal with a search box
+      // search your design library
+      // set the quantity and tracking point
+      // add the part to that designs bom
+      // present a success message
+
+      // on click imports link, submit a search request for all designs this has been imported into
+
+
+    },
+    clonePart() {
+
+      // create a new API endpoint called clone_part
+      // on success switch the URL to the new design
+
+      // on click clones link, submit a search request for all clones for this design (if > 0)
+
+    }
   },
   created() {
     this.$store.commit('clearDesign')

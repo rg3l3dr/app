@@ -195,7 +195,7 @@
                         <i class="large cubes middle aligned icon" v-if='part.parts'></i>
                         <i class="large cube middle aligned icon" v-else></i>
                         <div class="content" v-if='part.owner == profile.name'>
-                          <router-link tag='a' :to=' "/" + part.owner + "/" + part.slug + "/alpha/latest/parts" '>
+                          <router-link tag='a' :to=' "/" + part.owner + "/" + part.slug + "/latest/home" '>
                             {{ part.name }}
                           </router-link>
                           <div class="description">
