@@ -70,7 +70,7 @@ export default {
       'session',
       'profile',
       'design',
-      'designRefs'
+      'designRefs',
     ]),
     ...mapGetters([
       'designRoute',

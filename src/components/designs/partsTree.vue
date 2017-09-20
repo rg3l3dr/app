@@ -80,7 +80,6 @@ export default {
       }
     },
     findNode(tree, part_id) {
-      console.dir(tree)
       for (let part of tree) {
         if (part.unique_id == part_id) {
           this.$store.commit('setNode', part)

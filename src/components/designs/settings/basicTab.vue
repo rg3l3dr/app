@@ -79,7 +79,7 @@
 
 <script>
 import { EventBus } from '../../../event-bus.js'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 export default {
   name: 'home',
   data () {
@@ -104,69 +104,101 @@ export default {
       'env',
       'session',
       'profile',
+      'rootDesign',
       'design',
       'designRefs',
-      'trail'
+      'trail',
+      'tree',
+      'route',
+      'node'
+    ]),
+    ...mapGetters([
+      'designRoute',
     ]),
     name_slug: function() {
       return this.design.name.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
     }
   },
   watch: {
-    design() {
-      this.setLicense()
-    }
+    // design() {
+    //   this.setLicense()
+    // }
   },
   methods: {
-    getLicenses() {
-      return new Promise((resolve, reject) => {
-        this.$http.get('licenses/').then(success => {
-          if (this.env != 'prod') {
-            console.log('Got licenses')
-            console.log(success)
+    // getLicenses() {
+    //   return new Promise((resolve, reject) => {
+    //     this.$http.get('licenses/').then(success => {
+    //       if (this.env != 'prod') {
+    //         console.log('Got licenses')
+    //         console.log(success)
+    //       }
+    //       this.licenses = success.body.results
+    //       resolve()
+    //     }, error => {
+    //       if (this.env != 'prod') {
+    //         console.log('Error getting licenses')
+    //         console.log(error)
+    //       }
+    //       reject()
+    //     })
+    //   })
+    // },
+    // setLicense() {
+    //   if (this.env != 'prod') {
+    //     console.log('Filtering through licenses for design license')
+    //   }
+    //
+    //   let selectedLicense = this.licenses.filter(license => {
+    //     return license.id == this.design.license
+    //   })[0]
+    //
+    //   if (this.env != 'prod') {
+    //     console.log(selectedLicense)
+    //   }
+    //
+    //   $('.ui.dropdown.license').dropdown({'silent': true})
+    //   $('.license').dropdown('set text', selectedLicense.long_name)
+    //   $('.license').dropdown('set selected', selectedLicense.id)
+    //
+    //   this.$nextTick(() => {
+    //     $('.ui.dropdown.license').dropdown(
+    //       {
+    //         'silent': true,
+    //         onChange(value, text, $choice) {
+    //           if (this.env != 'prod') {
+    //             console.log('Value is:')
+    //             console.log(value)
+    //           }
+    //           this.license = value
+    //         }
+    //       }
+    //     )
+    //   })
+    // },
+    updatePartandNode(tree, part_id) {
+      let index = 0
+      for (let part of tree) {
+        if (part.unique_id == part_id) {
+          let updated_part = {
+            isOpen: part.isOpen,
+            design_id: part.design_id,
+            design_name: this.design.name,
+            design_slug: this.name_slug,
+            owner_slug: part.owner_slug,
+            revision_slug: part.revision_slug,
+            parent_id: part.parent_id,
+            unique_id: part.unique_id,
+            parts: part.parts
           }
-          this.licenses = success.body.results
-          resolve()
-        }, error => {
-          if (this.env != 'prod') {
-            console.log('Error getting licenses')
-            console.log(error)
-          }
-          reject()
-        })
-      })
-    },
-    setLicense() {
-      if (this.env != 'prod') {
-        console.log('Filtering through licenses for design license')
+
+          tree.splice(index, 1, updated_part)
+          this.$store.commit('setNode', updated_part)
+        }
+        if (part.parts.length > 0) {
+          this.updatePartandNode(part.parts, part_id)
+        }
+        index += 1
       }
-
-      let selectedLicense = this.licenses.filter(license => {
-        return license.id == this.design.license
-      })[0]
-
-      if (this.env != 'prod') {
-        console.log(selectedLicense)
-      }
-
-      $('.ui.dropdown.license').dropdown({'silent': true})
-      $('.license').dropdown('set text', selectedLicense.long_name)
-      $('.license').dropdown('set selected', selectedLicense.id)
-
-      this.$nextTick(() => {
-        $('.ui.dropdown.license').dropdown(
-          {
-            'silent': true,
-            onChange(value, text, $choice) {
-              if (this.env != 'prod') {
-                console.log('Value is:')
-                console.log(value)
-              }
-              this.license = value
-            }
-          }
-        )
-      })
     },
     submit() {
 
@@ -185,124 +217,118 @@ export default {
           if (this.env != 'prod') {
             console.log('Name matches regex')
           }
-          // must exclude the current name for this design
-          // check if this design name is already in use by this user
-          this.$http.get('designs/' + this.name_slug + '/').then(response => {
-            if (this.env != 'prod') {
-              console.log(response)
-            }
-            if (response.body.id != this.design.id) {
+
+          let payload = {
+            design_slug: this.name_slug,
+            owner_slug: this.profile.slug
+          }
+
+          if (this.env != 'prod') {
+            console.dir(payload)
+          }
+
+          this.$http.post('check_design/', payload).then(success => {
+            if (success.body.active) {
               if (this.env != 'prod') {
                 console.log('Design name is already taken')
+                console.log(success)
               }
               this.design_errors.name.hasError = true
               this.design_errors.name.error = "You already have a design with the same name"
             } else {
-              if (this.env != 'prod') {
-                console.log('Design name has not changed')
+              let payload = {
+                slug: this.design.slug,
+                owner_slug: this.design.owner_slug,
+                data: {
+                  name: this.design.name,
+                  license: this.license,
+                  visibility: 'PRIVATE',
+                  // design_class: this.design.design_class
+                }
               }
+
+              if (this.env != 'prod') {
+                console.log(payload)
+              }
+
+              this.$store.dispatch('updateDesign', payload).then(success => {
+                if (typeof success.body.non_field_errors !== 'undefined') {
+                  if (this.env != 'prod') {
+                    console.log('Error updating new design: non-field error')
+                  }
+                  this.design_errors.name.hasError = true
+                  this.design_errors.name.error = success.body.non_field_errors[0]
+                } else {
+                  if (this.rootDesign.id == this.design.id) {
+                    if (this.env != 'prod') {
+                      console.log('Updating root design, reloading the page to trigger updates')
+                    }
+
+                    // let params_payload = {
+                    //   profile_slug: this.profile.slug,
+                    //   design_slug: this.name_slug,
+                    //   revision_slug: 'latest'
+                    // }
+                    //
+                    // this.$store.commit('setRouteParams', params_payload)
+                    // this.$router.push(`/${this.designRoute}/settings/basic`)
+
+                    this.$router.push(`/${this.profile.slug}/${this.name_slug}/latest/settings/basic`)
+                    location.reload()
+
+
+
+                    // in design.vue created the following should occur
+                      // gets the root design
+                      // sets design equal to root design
+                      // gets the tree
+                      // sets the node
+                      // creates the trail
+                  } else {
+                    // fetch the updated design
+                    // manually update the tree
+                    // manually update the node
+                    // the trail should update automatically
+                    if (this.env != 'prod') {
+                      console.log('Updating a child node, modifying the objects manually')
+                    }
+                    let design_payload = {
+                      design_slug: this.name_slug,
+                      owner_slug: this.design.owner_slug,
+                      revision_slug: 'latest'
+                    }
+                    this.$store.dispatch('getDesign', design_payload).then(success => {
+                      this.$store.commit('setDesign', success.body)
+                    }, error => {})
+                    this.updatePartandNode(this.tree, this.node.unique_id)
+                  }
+                }
+              }, error => {})
             }
-          }, response => {
-            if (this.env != 'prod') {
-              console.log('Design name  is available')
-            }
-          }
-        )} else {
-          if (this.env != 'prod') {
-            console.log("Error: not a valid part name")
-          }
-          this.design_errors.name.hasError = true
-          this.design_errors.name.error = 'Not a valid part name: enter a name between 1 and 50 characters, including numbers, letters, _ and - only, spaces are allowed.'
+          }, error => {})
         }
       }
-
-      if (this.design_errors.name.hasError == null) {
-        let payload = {
-          name: this.design.name,
-          license: this.license,
-          visibility: 'PRIVATE',
-          // design_class: this.design.design_class
-        }
-
-        this.$store.dispatch('updateDesign', payload).then(success => {
-          if (typeof success.body.non_field_errors !== 'undefined') {
-            if (this.env != 'prod') {
-              console.log('Error updating new design: non-field error')
-            }
-            this.design_errors.name.hasError = true
-            this.design_errors.name.error = success.body.non_field_errors[0]
-          } else {
-            // have to update the breadcrumb for this design
-            // filter through the trail until you get the breadcrumb with the same id as the current design
-            let trail_ids = this.trail.map(breadcrumb => { return breadcrumb.design_id})
-            let index = trail_ids.indexOf(this.design.id)
-            let breadcrumb = this.trail[index]
-            breadcrumb.name = this.design.name
-            breadcrumb.slug = this.design.slug
-            let payload = {
-              index: index,
-              breadcrumb: breadcrumb
-            }
-            this.$store.commit('editTrail', breadcrumb)
-
-            // commit editTrail with the new part refs
-
-
-
-            // if (this.env != 'prod') {
-            //   console.log('Design info updated')
-            //   console.log(success)
-            // }
-            // this.$router.push(this.designRefs.design_path + '/specs')
-          }
-        }, error => {})
-
-        // this.$http.put('designs/' + this.design.slug + '/', payload).then(response => {
-        //   if (this.env != 'prod') {
-        //     console.log(response)
-        //   }
-        //   if (typeof response.body.non_field_errors !== 'undefined') {
-        //     if (this.env != 'prod') {
-        //       console.log('Error updating new design: non-field error')
-        //     }
-        //     this.design_errors.name.hasError = true
-        //     this.design_errors.name.error = response.body.non_field_errors[0]
-        //   } else {
-        //     if (this.env != 'prod') {
-        //       console.log('Design info updated')
-        //       console.log(response)
-        //     }
-        //     this.$router.push(this.designRefs.design_path + '/specs')
-        //   }
-        // }, response => {
-        //   if (this.env != 'prod') {
-        //     console.log('Error creating new design')
-        //     console.log(response)
-        //   }
-        // })
-      }
-    },
-
+    }
   },
   created() {
-    this.getLicenses().then(success => {
-      if (this.env != 'prod') {
-        console.log('Got licenses at created')
-      }
-      EventBus.$emit('got-licenses')
-    }, error => {
-      if (this.env != 'prod') {
-        console.log('Error getting licenses at created')
-      }
-    })
+    // this.getLicenses().then(success => {
+    //   if (this.env != 'prod') {
+    //     console.log('Got licenses at created')
+    //   }
+    //   EventBus.$emit('got-licenses')
+    // }, error => {
+    //   if (this.env != 'prod') {
+    //     console.log('Error getting licenses at created')
+    //   }
+    // })
   },
   mounted: async function() {
     $('.ui.dropdown.visibility').dropdown({'silent': true})
     $('.visibility').dropdown('set text', 'Private')
     $('.visibility').dropdown('set selected', 1)
 
-    let vue = this
-    EventBus.$once('got-licenses', function() {
+    // let vue = this
+    // EventBus.$once('got-licenses', function() {
       // console.log('Filtering through licenses for design license')
       //
       // let selectedLicense = vue.licenses.filter(license => {
@@ -330,7 +356,7 @@ export default {
       //     }
       //   )
       // })
-    })
+    // })
   }
 }
 </script>

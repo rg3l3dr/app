@@ -102,13 +102,13 @@ export const actions = {
     return new Promise((resolve, reject) => {
         Vue.http.patch(`designs/${payload.slug}/?owner_slug=${payload.owner_slug}`, payload.data).then(success => {
           if (state.env != 'prod') {
-            console.log('updated part design')
+            console.log('updated design')
             console.dir(success)
           }
           resolve(success)
         }, error => {
           if (state.enve != 'prod') {
-            console.log('error updating part design')
+            console.log('error updating design')
             console.dir(error)
           }
           reject(error)
@@ -239,14 +239,14 @@ export const actions = {
       Vue.http.post('update_design_part', payload).then(success => {
         if (success) {
           if (state.env != 'prod') {
-            console.log('updated existing design')
+            console.log('updated existing design (part)')
             console.dir(success)
           }
           resolve(success)
         }
       }, error => {
         if (state.env != 'prod') {
-          console.log('error updating existing design')
+          console.log('error updating existing design (part)')
           console.dir(error)
         }
         reject(error)

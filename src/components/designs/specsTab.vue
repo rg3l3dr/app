@@ -100,7 +100,7 @@
                             v-for='supplier in suppliers'
                             class="item"
                             :data-value='supplier.id'
-                            @click='design.data.suppliers[supplierIndex].supplierId = supplier.supplierId'
+                            @click='setSupplier(supplier.id, supplierIndex)'
                             >
                             {{ supplier.name }}
                           </div>
@@ -540,6 +540,9 @@ export default {
         })
       }
     },
+    setSupplier(supplierId, supplierIndex) {
+      this.design.data.suppliers[supplierIndex].supplierId = supplierId
+    },
     addSupplier() {
       let newSupplier = {
         default: false,
@@ -594,7 +597,7 @@ export default {
         name: null,
         typeId: null,
         value: null,
-        unit: null
+        units: null
       }
 
       this.design.data.specs.push(newSpec)

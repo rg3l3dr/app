@@ -41,6 +41,12 @@ export const mutations = {
       console.log('Session closed in store')
     }
   },
+  setRouteParams(state, data) {
+    state.route.params = data
+    if (state.env != 'prod') {
+      console.log('route params set in store')
+    }
+  },
   setProfile (state, data) {
     state.profile = data
     if (state.env != 'prod') {
@@ -138,8 +144,8 @@ export const mutations = {
     state.design = null
     state.tree = null
     state.rootDesign = null
+    state.trail = null
     state.node = null
-    state.bom = null
     state.parts = null
     if (state.env != 'prod') {
       console.log('All design state cleared in store')

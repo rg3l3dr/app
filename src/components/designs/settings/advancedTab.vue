@@ -19,17 +19,8 @@
          Delete Design Project
        </h3>
       </div>
-      <div class="content" v-if='design.imports == 0'>
-        <div class="ui large error message">
-          <div class="header">
-            Are you sure you want to delete this design?
-          </div>
-          <p>
-            If you delete this project, you will lose all data and files associated with it.  This action cannot be undone.
-          </p>
-        </div>
-      </div>
-      <div class="content" v-else>
+
+      <div class="content" v-if='design.imports'>
         <div class="ui large error message">
           <div class="header">
             You cannot delete this design yet...
@@ -39,19 +30,31 @@
           </p>
         </div>
       </div>
-      <div class="actions" v-if='design.imports == 0'>
+      <div class="content" v-else>
+        <div class="ui large error message">
+          <div class="header">
+            Are you sure you want to delete this design?
+          </div>
+          <p>
+            If you delete this project, you will lose all data and files associated with it.  This action cannot be undone.
+          </p>
+        </div>
+      </div>
+
+
+      <div class="actions" v-if='design.imports'>
+          <button type="button" class="ui small blue basic button" @click.prevent='hideDeleteModal'>Close</button>
+      </div>
+      <div class="actions" v-else >
         <button type="button" class="ui small blue basic button" @click.prevent='hideDeleteModal'>Close</button>
         <button class="ui red small basic button" @click='deleteDesign'>Delete Design</button>
       </div>
-      <div class="actions" v-else>
-          <button type="button" class="ui small blue basic button" @click.prevent='hideDeleteModal'>Close</button>
-        </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 export default {
   name: 'home',
   data () {
@@ -63,7 +66,11 @@ export default {
       'env',
       'session',
       'profile',
-      'design'
+      'design',
+      'rootDesign',
+    ]),
+    ...mapGetters([
+      'designRoute',
     ])
   },
   methods: {
@@ -87,7 +94,15 @@ export default {
           console.log('Design has been deleted')
           console.log(response)
         }
-        this.$router.push('/home')
+
+        if (this.rootDesign.id == this.design.id) {
+          this.$router.push('/home')
+        } else {
+          this.$router.push(`/${this.designRoute}/home`)
+          location.reload()
+        }
+
+
       }, response => {
         if (this.env != 'prod') {
           console.log('Error deleting design')
