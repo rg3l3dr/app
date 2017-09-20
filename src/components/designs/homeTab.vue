@@ -21,23 +21,25 @@
             style='display:none'
           >
           <div class="ui fluid rounded image" v-if='design.data.images[0]'>
-            <img :src='design.data.images[0].url'>
+            <span v-for='(image, index) in design.data.images'>
+              <img :src='images[index].url' v-if='images[index].default'> <!-- needs to change to default -->
+            </span>
             <br>
             <div class="carousel">
               <i class="caret left icon"></i>
               <div class="ui middle aligned horizontal selection list tiny images">
-                <span class ="" v-for='designImage in design.data.images'>
-                  <img class="ui image carousel-thumbnail" :src='designImage.url'>
+                <span v-for='designImage in design.data.images'>
+                  <img class="ui image carousel-thumbnail" :src='designImage.url' @click=''>
                 </span>
               </div>
               <i class="caret right icon"></i>
             </div>
             <br>
             <button class="ui small basic left floated blue button" @click='selectFilesForUpload()'>
-              Set As Default Image <!-- only display when not default -->
+              Set As Default Picture <!-- only display when not default -->
             </button>
             <button class="ui small basic right floated blue button" @click='selectFilesForUpload()'>
-              Upload Image
+              Upload Picture
             </button>
           </div>
           <div style='text-align:center' v-else-if="$route.params.revision_slug=='latest'" >
@@ -243,7 +245,8 @@ export default {
                  name: file.name,
                  type: file.type,
                  size: file.size,
-                 url: s3_path + s3_key
+                 url: s3_path + s3_key,
+                 default: true
                }
 
               vue.design.data.images.push(image)
