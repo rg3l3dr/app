@@ -21,21 +21,21 @@
             style='display:none'
           >
           <div class="ui fluid rounded image" v-if='design.data.images[0]'>
-            <span v-for='(image, index) in design.data.images'>
-              <img :src='images[index].url' v-if='images[index].default'> <!-- needs to change to default -->
+            <span v-for='image in displayDefaultImage(design.data.images)' :key='image.url'>
+              <img :src='image.url'>
             </span>
             <br>
             <div class="carousel">
               <i class="caret left icon"></i>
               <div class="ui middle aligned horizontal selection list tiny images">
                 <span v-for='designImage in design.data.images'>
-                  <img class="ui image carousel-thumbnail" :src='designImage.url' @click=''>
+                  <img class="ui image carousel-thumbnail" :src='designImage.url' @click='selectImage()'>
                 </span>
               </div>
               <i class="caret right icon"></i>
             </div>
             <br>
-            <button class="ui small basic left floated blue button" @click='selectFilesForUpload()'>
+            <button class="ui small basic left floated blue button" @click='setDefaultImage()'>
               Set As Default Picture <!-- only display when not default -->
             </button>
             <button class="ui small basic right floated blue button" @click='selectFilesForUpload()'>
@@ -230,7 +230,7 @@ export default {
                  type: file.type,
                  size: file.size,
                  url: s3_path + s3_key,
-                 default: true
+                 default: false
                }
 
               // if (vue.design.data.images[0]) {
@@ -257,6 +257,19 @@ export default {
         })
       }
       reader.readAsArrayBuffer(file)
+    },
+    selectImage(images) {
+    },
+    setDefaultImage(images) {
+      images.forEach(function(image){
+        image.default == false
+      });
+    },
+    displayDefaultImage(images) {
+      let img = images.filter(function(image) {
+        return image.default;
+      });
+      return (img.length !== 0 && img || [images[0]])
     },
     updateDescription() {
 
