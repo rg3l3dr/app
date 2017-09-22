@@ -21,10 +21,25 @@
             style='display:none'
           >
           <div class="ui fluid rounded image" v-if='design.data.images[0]'>
-            <img :src='design.data.images[0].url'>
+            <span v-for='image in displayDefaultImage(design.data.images)' :key='image.url'>
+              <img :src='image.url'>
+            </span>
             <br>
+            <div class="carousel">
+              <i class="caret left icon"></i>
+              <div class="ui middle aligned horizontal selection list tiny images">
+                <span v-for='designImage in design.data.images'>
+                  <img class="ui image carousel-thumbnail" :src='designImage.url' @click='selectImage()'>
+                </span>
+              </div>
+              <i class="caret right icon"></i>
+            </div>
+            <br>
+            <button class="ui small basic left floated blue button" @click='setDefaultImage()'>
+              Set As Default Picture <!-- only display when not default -->
+            </button>
             <button class="ui small basic right floated blue button" @click='selectFilesForUpload()'>
-              Change Picture
+              Upload Picture
             </button>
           </div>
           <div style='text-align:center' v-else-if="revision.slug=='latest'" >
@@ -222,15 +237,18 @@ export default {
                  name: file.name,
                  type: file.type,
                  size: file.size,
-                 url: s3_path + s3_key
+                 url: s3_path + s3_key,
+                 default: false
                }
 
-              if (vue.design.data.images[0]) {
-                vue.design.data.images.pop()
-                vue.design.data.images.push(image)
-              } else{
-                vue.design.data.images.push(image)
-              }
+              // if (vue.design.data.images[0]) {
+              //   vue.design.data.images.pop()
+              //   vue.design.data.images.push(image)
+              // } else{
+              //   vue.design.data.images.push(image)
+              // }
+
+              vue.design.data.images.push(image)
 
               let payload = {
                 slug: vue.design.slug,
@@ -247,6 +265,19 @@ export default {
         })
       }
       reader.readAsArrayBuffer(file)
+    },
+    selectImage(images) {
+    },
+    setDefaultImage(images) {
+      images.forEach(function(image){
+        image.default == false
+      });
+    },
+    displayDefaultImage(images) {
+      let img = images.filter(function(image) {
+        return image.default;
+      });
+      return (img.length !== 0 && img || [images[0]])
     },
     updateDescription() {
 
