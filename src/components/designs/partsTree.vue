@@ -100,7 +100,9 @@ export default {
         revision_slug: part.revision_slug
       }
 
-      this.$store.dispatch('getDesign', design_payload)
+      this.$store.dispatch('getDesign', design_payload).then(success => {
+        this.findNode(this.tree, part_id)
+      }, error => {})
 
       let payload = {
         design_id: part.design_id,
@@ -118,7 +120,7 @@ export default {
         var part_id = part.unique_id
       }
 
-      this.findNode(this.tree, part_id)
+
     },
   }
 }
