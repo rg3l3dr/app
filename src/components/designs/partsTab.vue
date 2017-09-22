@@ -24,7 +24,7 @@
               <td></td>
               <td>
                 <button
-                  v-if='$route.params.revision_slug == "latest"'
+                  v-if='revision.slug == "latest"'
                   class="ui small basic blue button"
                   @click='addNewEmptyPart'
                   id='add-part-button'
@@ -50,7 +50,7 @@
               </td>
 
               <!-- Part Name -->
-              <td v-if='!part.created && $route.params.revision_slug == "latest"'>
+              <td v-if='!part.created && revision.slug == "latest"'>
                   <div class="ui transparent search input fluid" id='part-name-editable-div'>
                     <input
                       class="prompt compact"
@@ -72,7 +72,7 @@
                   </div>
               </td>
 
-              <td v-else-if='part.created && part.editable && $route.params.revision_slug == "latest" '>
+              <td v-else-if='part.created && part.editable && revision.slug == "latest" '>
                 <div id='part-name-editable-div'>
                   <router-link tag='a' to='' @click.native.prevent='openPart(index)'
                   id ='part-name-editable'>
@@ -93,18 +93,26 @@
               </td>
 
               <!-- Part Revision -->
-              <td id='part-revision'>
+              <td id='part-revision' v-if='revision.slug == "latest"'>
                 <div class="ui dropdown revision" v-if='part.revision_name'>
                   <div class="text">
                     {{ part.revision_name }}
                   </div>
                   <i class="dropdown icon"></i>
-                  <div class="menu" v-if='$route.params.revision_slug == "latest"'>
-                    <div class="item" v-for='part_revision in part.revisions' @click='setTrackingRef(part_revision, index, part)'>
+                  <div class="menu" >
+                    <div
+                      class="item"
+                      v-for='part_revision in part.revisions'
+                      @click='setTrackingRef(part_revision, index)'
+                    >
                       {{ part_revision.name }}
                     </div>
                   </div>
                 </div>
+              </td>
+
+              <td v-else>
+                {{ part.revision_name }}
               </td>
 
 
@@ -124,7 +132,7 @@
 
               <!-- Part Quantity -->
               <td
-                v-if='!part.created && $route.params.revision_slug == "latest"'
+                v-if='!part.created && revision.slug == "latest"'
                 class='collapsing'
               >
                 <div class="ui transparent input" style='width:50px'>
@@ -142,7 +150,7 @@
               </td>
 
               <td
-                v-else-if='part.created && part.editable && $route.params.revision_slug == "latest"'
+                v-else-if='part.created && part.editable && revision.slug == "latest"'
                 class='collapsing'
               >
                 <div class="ui transparent input" style='width:50px'>
@@ -160,7 +168,7 @@
               </td>
 
               <td
-                v-else
+                v-else-if="revision.slug=='latest'"
                 id='part-quantity'
                 @click='makePartEditable(index, "quantity")'
                 class='collapsing'
@@ -168,8 +176,12 @@
                 {{ part.quantity }}
               </td>
 
+              <td v-else class='collapsing'>
+                {{ part.quantity }}
+              </td>
+
               <!-- Part Cost -->
-              <td v-if='!part.created && $route.params.revision_slug == "latest" && part.editable' class='collapsing'>
+              <td v-if='!part.created && revision.slug == "latest" && part.editable' class='collapsing'>
                 <div class="ui transparent input" style='width:50px'>
                   <input
                     type="number"
@@ -183,7 +195,7 @@
                 </div>
               </td>
 
-              <td v-else-if='part.created && part.editable && $route.params.revision_slug == "latest" && part.parts.length == 0' class='collapsing' >
+              <td v-else-if='part.created && part.editable && revision.slug == "latest" && part.parts.length == 0' class='collapsing' >
                 <div class="ui transparent input" style='width:50px'>
                   <input
                     id='part-cost-editable'
@@ -204,7 +216,7 @@
               </td>
 
               <td
-                v-else
+                v-else-if='revision.slug == "latest"'
                 id='part-cost'
                 @click='makePartEditable(index, "cost")'
                 class='collapsing'
@@ -218,21 +230,24 @@
                 </span>
               </td>
 
+              <td v-else class='collapsing'>
+                $ {{ Number(part.cost).toFixed(2) }}
+              </td>
+
               <!-- Part Total -->
               <td v-if='part.cost' class='collapsing'>
                 $ {{ (part.quantity * part.cost).toFixed(2) }}
               </td>
-              <td v-else class='collapsing'>
+
+              <td v-else>
                 $ 0.00
               </td>
 
               <!-- Remove Part Button -->
 
-
-
               <!-- Part Menu Options -->
               <!-- <td v-if='!part.created'> -->
-              <td>
+              <td v-if='revision.slug == "latest"'>
                 <button
                   class="circular ui mini basic icon button"
                   @click='removePart(index)'
@@ -248,7 +263,7 @@
                       Part Options
                     </div>
                     <div class="divider"></div>
-                    <div v-if='$route.params.revision_slug == "latest"' class="item" @click='openPart(index)'>
+                    <div v-if='revision.slug == "latest"' class="item" @click='openPart(index)'>
                       <i class="level down icon"></i>
                       Select Part
                     </div>
@@ -256,7 +271,7 @@
                       <i class="home icon"></i>
                       View Homepage
                     </div>
-                    <div v-if='$route.params.revision_slug == "latest"' class="item" @click='removePart(index)'>
+                    <div v-if='revision.slug == "latest"' class="item" @click='removePart(index)'>
                       <i class="trash icon"></i>
                       Remove from BOM
                     </div>
@@ -288,7 +303,7 @@
           </tbody>
         </table>
 
-        <!-- <div style='text-align:center' v-else-if='$route.params.revision_slug=="latest"' >
+        <!-- <div style='text-align:center' v-else-if='revision.slug=="latest"' >
           <br>
           <h2 class="ui icon header" >
             <i class="cubes icon"></i>
@@ -773,7 +788,8 @@ export default {
         // call get design from actions for slug and owner, and add to the part
         let design_payload = {
           design_slug: this.name_slug,
-          owner_slug: this.rootDesign.owner_slug
+          owner_slug: this.rootDesign.owner_slug,
+          revision_slug: 'latest'
         }
         let getResult = await this.$store.dispatch('getDesign', design_payload).then(success => {
 
@@ -1041,8 +1057,6 @@ export default {
         // this.addNewEmptyPart()
       })
 
-      console.dir(add_design_payload)
-
       // add the part to the BOM
       this.$store.dispatch('addExistingPart', add_design_payload).then(success => {
         // part successfully added
@@ -1205,6 +1219,8 @@ export default {
           // update the part data with response data
           // newPart.design_id = response.data.id
           // console.log('created new design')
+
+          console.log(success.boy)
           part_payload = {
             index: index,
             part: success.body.part
@@ -1301,7 +1317,8 @@ export default {
         this.$store.commit('clearDesign')
         let payload = {
           design_slug: selectedPart.design_slug,
-          owner_slug: selectedPart.owner_slug
+          owner_slug: selectedPart.owner_slug,
+          revision_slug: selectedPart.revision_slug
         }
         this.$store.dispatch('getDesign', payload).then(success => {
 
@@ -1325,10 +1342,12 @@ export default {
       }
       let selectedPart = this.parts[index]
 
+      console.log(selectedPart)
+
       let design_payload = {
         design_slug: selectedPart.design_slug,
         owner_slug: selectedPart.owner_slug,
-        revision_slug: 'latest'
+        revision_slug: selectedPart.revision_slug
       }
 
       this.$store.dispatch('getDesign', design_payload).then(succes => {
@@ -1368,7 +1387,7 @@ export default {
       let design_payload = {
         design_slug: selectedPart.design_slug,
         owner_slug: selectedPart.owner_slug,
-        revision_slug: 'latest'
+        revision_slug: selectedPart.revision_slug
       }
 
       this.$store.dispatch('getDesign', design_payload)
@@ -1414,23 +1433,40 @@ export default {
       this.getBomParts(bom_payload)
     },
 
-    setTrackingRef(ref, index, part) {
-      this.bom.data[index]['config_slug'] = ref.config_slug
-      this.bom.data[index]['ref_slug'] = ref.slug
-      this.bom.data[index]['ref_type'] = ref.ref_type
+    setTrackingRef(part_revision, index) {
 
-      var action = `set ${part.design_name} to ${ref.tracked_at}`
-      let message = null
+      console.log(part_revision)
 
-      // this.updateBOM(action, message).then(success => {
-      //   let bom_payload = {
-      //     design_id: this.design.id,
-      //     config_slug: this.designRefs.config,
-      //     ref_slug: this.designRefs.ref,
-      //     ref_type: this.designRefs.ref_type
-      //   }
-      //   this.getParts(bom_payload)
-      // }, error => {})
+      let part = this.parts[index]
+      let trail_ids = this.trail.map((part) => {return part.id})
+
+      let update_part_payload = {
+        parent_design_id: this.design.id,
+        part_id: part.part_id,
+        revision_id: part_revision.id,
+        quantity: part.quantity,
+        trail_ids: trail_ids
+      }
+
+      console.log(update_part_payload)
+
+      this.$store.dispatch('updatePart', update_part_payload).then(success => {
+        let part_payload = {
+          index: index,
+          part: success.body
+        }
+
+        this.$store.commit('setPart', part_payload)
+
+        let tree_payload = {
+          design_id: this.rootDesign.id,
+          revision_slug: this.$route.params.revision_slug
+        }
+
+        this.$store.dispatch('getTree', tree_payload).then(success => {
+          this.$store.commit('setTree', success.body)
+        }, error => {})
+      }, error => {})
     },
     makePartEditable(index, target) {
       this.enterPressed = false
@@ -1493,11 +1529,14 @@ export default {
           console.log('Part data has changed, updating')
         }
 
+        let trail_ids = this.trail.map((part) => {return part.id})
+
         let update_part_payload = {
           parent_design_id: this.design.id,
           part_id: this.parts[index].part_id,
           revision_id: this.parts[index].revision_id,
-          quantity: this.parts[index].quantity
+          quantity: this.parts[index].quantity,
+          trail_ids: trail_ids
         }
         this.$store.dispatch('updatePart', update_part_payload)
       } else { console.log('Part data has not changed') }
@@ -1525,7 +1564,7 @@ export default {
           cost: this.parts[index].cost
         }
         console.log(update_design_payload)
-        this.$store.dispatch('updateDesignPart', update_design_payload)
+        this.$store.dispatch('updatedesigndata', update_design_payload)
 
       } else { console.log('Design data has not changed') }
 
@@ -1752,7 +1791,8 @@ export default {
           }
           let design_payload = {
             design_slug: this.design.slug,
-            owner_slug: this.design.owner_slug
+            owner_slug: this.design.owner_slug,
+            revision_slug: 'latest'
           }
           this.$store.dispatch('getDesign', design_payload).then(success => {
             if (this.env != 'prod') {
@@ -1797,7 +1837,7 @@ export default {
         this.removeNode(this.tree, removed_part.part_id)
 
         let part_payload = {
-          root_design_id: this.design.id,
+          parent_design_id: this.design.id,
           part_id: removed_part.part_id
         }
 

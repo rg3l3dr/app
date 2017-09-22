@@ -97,14 +97,14 @@ export default {
       let design_payload = {
         design_slug: part.design_slug,
         owner_slug: part.owner_slug,
-        revision_slug: 'latest'
+        revision_slug: part.revision_slug
       }
 
       this.$store.dispatch('getDesign', design_payload)
 
       let payload = {
         design_id: part.design_id,
-        revision_slug: 'latest',
+        revision_slug: part.revision_slug,
       }
 
       this.$store.dispatch('getParts', payload).then(success => {

@@ -27,13 +27,16 @@
               Change Picture
             </button>
           </div>
-          <div style='text-align:center' v-else-if="$route.params.revision_slug=='latest'" >
+          <div style='text-align:center' v-else-if="revision.slug=='latest'" >
             <br>
             <h2 class="ui icon header" >
               <i class="camera retro icon"></i>
               <br>
               <div class="content">
-                <div class="ui large blue basic button" @click='selectFilesForUpload()'>
+                <div
+                  class="ui large blue basic button"
+                  @click='selectFilesForUpload()'
+                >
                   Click here to add a picture
                 </div>
               </div>
@@ -118,7 +121,7 @@
 
           </div>
 
-          <router-link :to='this.designRoute + "/specs" ' v-if='$route.params.revision_slug == "latest"'>
+          <router-link :to='this.designRoute + "/specs" ' v-if='revision.slug == "latest"'>
             <button class='ui right floated small basic blue button'>
               &nbsp Edit Specs
             </button>
@@ -136,13 +139,17 @@
           </div>
         </div>
         <div class="ui bottom attached segment">
-          <div class="tinymce" v-html='design.data.description'>
+          <div class="tinymce" v-html='design.data.description' v-if='revision.slug == "latest"'>
+
+          </div>
+          <div v-html='design.data.description' v-else>
 
           </div>
           <br>
           <button
             class="ui small blue basic button"
             @click='updateDescription()'
+            v-if='revision.slug == "latest"'
           >
             Update Description
           </button>
@@ -169,6 +176,7 @@ export default {
       'bucket',
       'profile',
       'design',
+      'revision',
     ]),
     ...mapGetters([
       'designRoute'
@@ -256,7 +264,7 @@ export default {
         let design_payload = {
           design_slug: this.design.slug,
           owner_slug: this.design.owner_slug,
-          revision_slug: 'latest'
+          revision_slug: this.revision.slug
         }
 
         this.$store.dispatch('getDesign', design_payload).then(success => {
@@ -270,9 +278,22 @@ export default {
     tinymce.init({
       selector: 'div.tinymce',
       theme: 'inlite',
-      plugins: 'image media table link paste contextmenu textpattern autolink codesample',
+      plugins: 'image media table link paste contextmenu textpattern autolink codesample code',
+      textpattern_patterns: [
+         {start: '*', end: '*', format: 'italic'},
+         {start: '**', end: '**', format: 'bold'},
+         {start: '#', format: 'h1'},
+         {start: '##', format: 'h2'},
+         {start: '###', format: 'h3'},
+         {start: '####', format: 'h4'},
+         {start: '#####', format: 'h5'},
+         {start: '######', format: 'h6'},
+         {start: '1. ', cmd: 'InsertOrderedList'},
+         {start: '* ', cmd: 'InsertUnorderedList'},
+         {start: '- ', cmd: 'InsertUnorderedList'}
+      ],
       insert_toolbar: 'quickimage quicktable media codesample',
-      selection_toolbar: 'bold italic underline | quicklink h1 h2 h3 h4 | alignleft aligncenter alignright' ,
+      selection_toolbar: 'bold italic underline | quicklink h1 h2 h3 h4 | alignleft aligncenter alignright | code' ,
       inline: true,
       paste_data_images: true,
       content_css: [

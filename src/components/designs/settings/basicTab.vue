@@ -11,12 +11,20 @@
       <div class="ui form">
         <div class="field" :class="{ 'error': design_errors.name.hasError}">
           <label>Design Name</label>
-          <input v-model='design.name' type='text' maxlength='50'>
+          <input
+            v-model='design.name'
+            type='text'
+            maxlength='50'
+            :readonly='revision.slug == "latest" ? null : " "'
+          >
           <div v-if='design_errors.name.hasError' class="has-error"> {{design_errors.name.error}} </div>
         </div>
         <div class="field" id='design-visbility'>
           <label>Visibility Level</label>
-          <div class="ui selection dropdown visibility">
+          <div
+            class="ui selection dropdown visibility"
+            :class='{ disabled : revision.slug != "latest" }'
+          >
             <input type="hidden" name="visibility">
             <i class="dropdown icon"></i>
             <div class="default text">
@@ -69,7 +77,7 @@
             <option value='3'>Public</option>
           </select>
         </div> -->
-        <button class='ui small basic blue button' @click='submit'>
+        <button class='ui small basic blue button' @click='submit' v-if='revision.slug == "latest"'>
           Update Design
         </button>
       </div>
@@ -110,7 +118,8 @@ export default {
       'trail',
       'tree',
       'route',
-      'node'
+      'node',
+      'revision',
     ]),
     ...mapGetters([
       'designRoute',
@@ -273,7 +282,7 @@ export default {
                     // this.$store.commit('setRouteParams', params_payload)
                     // this.$router.push(`/${this.designRoute}/settings/basic`)
 
-                    this.$router.push(`/${this.profile.slug}/${this.name_slug}/latest/settings/basic`)
+                    this.$router.push(`/${this.design.owner_slug}/${this.name_slug}/latest/settings/basic`)
                     location.reload()
 
 
@@ -297,9 +306,7 @@ export default {
                       owner_slug: this.design.owner_slug,
                       revision_slug: 'latest'
                     }
-                    this.$store.dispatch('getDesign', design_payload).then(success => {
-                      this.$store.commit('setDesign', success.body)
-                    }, error => {})
+                    this.$store.dispatch('getDesign', design_payload)
                     this.updatePartandNode(this.tree, this.node.unique_id)
                   }
                 }

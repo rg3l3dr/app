@@ -86,7 +86,7 @@
                           Download File
                         </div>
                         <div
-                          v-if='$route.params.revision_slug == "latest"'
+                          v-if='revision.slug == "latest"'
                           class="item"
                           @click='selectFilesForUpload'
                         >
@@ -98,7 +98,7 @@
                           See Version History
                         </div>
                         <div
-                          v-if='$route.params.revision_slug == "latest"'
+                          v-if='revision.slug == "latest"'
                           class="item"
                           @click='deleteFileAndFileRecord(index)'
                         >
@@ -128,7 +128,7 @@
             </div>
             <br>
             <button
-              v-if='$route.params.revision_slug == "latest"'
+              v-if='revision.slug == "latest"'
               class="ui small basic blue button"
               @click='selectFilesForUpload'
               id='upload-file-button'
@@ -137,10 +137,10 @@
             </button>
           </div>
 
-          <div style='text-align:center' v-else-if="$route.params.revision_slug=='latest'" >
+          <div style='text-align:center' v-else-if="revision.slug=='latest'" >
             <br>
             <h2 class="ui icon header" >
-              <i class="fa-files-o icon"></i>
+              <i class="file folder outline open icon"></i>
               <br>
               <div class="content">
                 <div class="ui huge blue basic button" @click='selectFilesForUpload'>
@@ -159,7 +159,7 @@
           <div v-else style='text-align:center' @click='selectFilesForUpload'>
             <br>
             <h2 class="ui icon header" >
-              <i class="fa-files-o icon"></i>
+              <i class="file folder outline open icon"></i>
               <br>
               <div class="content">
                 Change rev back to latest to add files
@@ -257,13 +257,13 @@
                       <div
                         class="item"
                         @click='selectFilesForUpload'
-                        v-if='$route.params.revision_slug == "latest"'
+                        v-if='revision.slug == "latest"'
                       >
                         <i class="upload icon"></i>
                         Upload New Version
                       </div>
                       <div
-                        v-if='$route.params.revision_slug == "latest" && selectedFile.versions.length > 1'
+                        v-if='revision.slug == "latest" && selectedFile.versions.length > 1'
                         class="item"
                         @click='deleteVersionAndVersionRecord(index)'
                       >
@@ -280,7 +280,7 @@
         <br>
 
         <!-- <button
-          v-if='$route.params.revision_slug == "latest"'
+          v-if='revision.slug == "latest"'
           class="ui small basic blue button"
           @click='selectFilesForUpload'
           id='upload-file-button'
@@ -332,7 +332,8 @@ export default {
       'session',
       'profile',
       'design',
-      'bucket'
+      'bucket',
+      'revision',
     ]),
     file_names() {
       if (this.files) {

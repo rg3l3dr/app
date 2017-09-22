@@ -26,18 +26,27 @@
               </div>
               <div class="right floated item" id='action-buttons' style='padding-top: 10px'>
                 <div id="revise-button" >
-                  <div class="ui small labeled button" tabindex="0">
-                    <div class="ui small basic button">
+                  <div class="ui small labeled button" tabindex="0" >
+                    <div
+                      class="ui small basic button"
+                      @click='showRevModal()' 
+                      :class='{disabled : this.revision.slug != "latest"}'
+                    >
                       <i class="repeat icon"></i>Revise
                     </div>
                     <a
                       class="ui small basic left pointing label"
-                      v-if='design.imports > 0'
-                      @click='showImports'
+                      v-if='design.revision_set.length > 0'
+                      @click.prevent='showRevTab()'
+                      :class='{disabled : this.revision.slug != "latest"}'
                     >
-                      {{ design.imports }}
+                      {{ design.revision_set.length }}
                     </a>
-                    <div class='ui small basic left pointing label' v-else>
+                    <div
+                      class='ui small basic left pointing label'
+                      :class='{disabled : this.revision.slug != "latest"}'
+                       v-else
+                    >
                       0
                     </div>
                   </div>
@@ -51,7 +60,7 @@
                     <a
                       class="ui small basic left pointing label"
                       v-if='design.imports > 0'
-                      @click='showImports'
+                      @click='showExportModal()'
                     >
                       {{ design.imports }}
                     </a>
@@ -117,7 +126,7 @@
           <!-- main design content -->
           <div class="twelve wide column" style='padding-top: 0px; padding-bottom: 0px' id='context'>
             <!-- tabular menu (records) -->
-            <div class="ui large top attached fuild five item tabular menu" style='padding: 8px 0px 0px 0px'>
+            <div class="ui large top attached fluid six item tabular menu" style='padding: 8px 0px 0px 0px'>
               <router-link tag='a' class='item' :to='this.designRoute  + "/home"'>
                 <a>
                   <i class="home icon"></i>
@@ -153,12 +162,12 @@
                   <!-- <div class="ui circular mini label"></div> -->
                 </a>
               </router-link>
-              <!-- <router-link tag='a' class='item' :to='this.designRoute + "/revs"'>
+              <router-link tag='a' class='item' :to='this.designRoute + "/revs"'>
                 <a>
                   <i class="fa-files-o icon"></i>
                   Revs
                 </a>
-              </router-link> -->
+              </router-link>
               <router-link v-if='this.pre_endpoint == "settings"' tag='a' class='item' :to='this.designRoute + "/settings/" + this.endpoint'>
                 <a>
                   <i class="fa-cog icon"></i>
@@ -188,6 +197,31 @@
 
       </div>
     </div>
+
+    <div class='ui modal' id='revision-modal'>
+      <div class="header">
+        <h3>
+         Create a New Revision
+       </h3>
+      </div>
+      <div class="content">
+        <form class="ui form">
+          <div class="field">
+            <label>Revision Name</label>
+            <input type="text" v-model='new_rev.name'>
+          </div>
+          <div class="field">
+            <label>Change Message</label>
+            <textarea name="name" rows="5" v-model='new_rev.message'></textarea>
+          </div>
+        </form>
+
+      </div>
+      <div class="actions">
+        <button class="ui small blue basic button" @click='hideRevModal()'>Close</button>
+        <button class="ui green small basic button" @click='revisePart()'>Create Revision</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -210,6 +244,12 @@ export default {
       },
       new_build: {
         data: '',
+        hasError: null,
+        error: ''
+      },
+      new_rev: {
+        name: '',
+        message: '',
         hasError: null,
         error: ''
       },
@@ -355,8 +395,66 @@ export default {
         }
       }
     },
-    revisePart() {},
+    showRevTab() {
+      this.$router.push(`/${this.designRoute}/revs`)
+    },
+    showRevModal() {
+      $('.ui.modal').modal()
+      $('#revision-modal').modal('show')
+    },
+    hideRevModal() {
+      $('#revision-modal').modal('hide')
+    },
+    revisePart() {
+      let payload = {
+        design_id: this.design.id,
+        name: this.new_rev.name,
+        message: this.new_rev.message
+      }
+
+      this.$http.post('revise_part', payload).then(success => {
+        if (this.env != 'prod') {
+          console.log('successfully created revision for part')
+          console.dir(success)
+        }
+
+        let design_payload = {
+          design_slug: this.design.slug,
+          owner_slug: this.design.owner_slug,
+          revision_slug: this.revision.slug
+        }
+
+        this.$store.dispatch('getDesign', design_payload).then(success => {
+          this.$store.commit('setDesign', success.body)
+        }, error => {})
+
+        $('#revision-modal').modal('hide')
+
+        this.new_rev = {
+          name: '',
+          message: '',
+          hasError: null,
+          error: ''
+        }
+
+      }, error => {
+        if (this.env != 'prod') {
+          console.log('error creating revision for part')
+          console.dir(error)
+        }
+      })
+
+    },
+    showExportModal() {
+      $('.ui.modal').modal()
+      $('#exportModal').modal('show')
+    },
+    hideExportModal() {
+      $('#exportModal').modal('hide')
+    },
     exportPart() {
+      $('#exportModal').modal('hide')
+      $('body .modals').remove()
       // open a modal with a search box
       // search your design library
       // set the quantity and tracking point

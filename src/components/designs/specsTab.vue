@@ -17,6 +17,7 @@
                   @keydown.enter.prevent
                   @keyup.enter.prevent
                   id='part-class'
+                  :class='{ disabled : revision.slug != "latest" }'
                 >
                   <input
                     type="hidden"
@@ -56,6 +57,7 @@
                     v-model='design.data.summary'
                     @keydown.enter.prevent='createSupplier'
                     @keyup.enter.prevent
+                    :readonly='revision.slug == "latest" ? null : " "'
                   >
                 </div>
               </div>
@@ -69,6 +71,7 @@
                     v-model='design.data["internalPartNumber"]'
                     @keydown.enter.prevent
                     @keyup.enter.prevent
+                    :readonly='revision.slug == "latest" ? null : " "'
                   >
                 </div>
               </div>
@@ -85,6 +88,7 @@
                       @keydown.enter.prevent='createSupplier($event)'
                       @keyup.enter.prevent
                       :id='`supplier-name-${supplierIndex}`'
+                      :class='{ disabled : revision.slug != "latest" }'
                     >
                       <input
                         type="hidden"
@@ -118,6 +122,7 @@
                         v-model='supplier.supplierPartNumber'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
+                        :readonly='revision.slug == "latest" ? null : " "'
                       >
                     </div>
                   </div>
@@ -131,13 +136,14 @@
                         v-model='supplier.externalUrl'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
+                        :readonly='revision.slug == "latest" ? null : " "'
                       >
                     </div>
                   </div>
                   <div class="one wide field" id='spacer'></div>
                   <div class="two wide field" id='actions'>
                     <label>&nbsp</label>
-                    <span v-if='$route.params.revision_slug=="latest"'>
+                    <span v-if='revision.slug=="latest"'>
                       <div class="ui left action input" v-if='supplierIndex == 0'>
                         <button
                           class="ui primary basic icon button"
@@ -174,6 +180,7 @@
                             step="0.01"
                             @keydown.enter.prevent
                             @keyup.enter.prevent
+                            :readonly='revision.slug == "latest" ? null : " "'
                           >
                         </div>
                       </div>
@@ -189,6 +196,7 @@
                             step="1"
                             @keydown.enter.prevent
                             @keyup.enter.prevent
+                            :readonly='revision.slug == "latest" ? null : " "'
                           >
                         </div>
                       </div>
@@ -204,8 +212,12 @@
                             step='1'
                             @keydown.enter.prevent
                             @keyup.enter.prevent
+                            :readonly='revision.slug == "latest" ? null : " "'
                           >
-                          <div class="ui basic floating dropdown button period">
+                          <div
+                            class="ui basic floating dropdown button period"
+                            :class='{ disabled : revision.slug != "latest" }'
+                          >
                             <div class="text">{{ schedule.leadTimePeriod }}</div>
                             <i class="dropdown icon"></i>
                             <div class="menu">
@@ -214,6 +226,7 @@
                                 @click='schedule.leadTimePeriod="Days"'
                                 @keydown.enter='schedule.leadTimePeriod="Days"'
                                 @keyup.enter='schedule.leadTimePeriod="Days"'
+                                :readonly='revision.slug == "latest" ? null : " "'
                               >
                                 Days
                               </div>
@@ -222,6 +235,7 @@
                                 @click='schedule.leadTimePeriod="Weeks"'
                                 @keydown.enter='schedule.leadTimePeriod="Weeks"'
                                 @keyup.enter='schedule.leadTimePeriod="Days"'
+                                :readonly='revision.slug == "latest" ? null : " "'
                               >
                                 Weeks
                             </div>
@@ -232,7 +246,7 @@
                       <div class="one wide field" id='spacer'></div>
                       <div class="two wide field" id='actions'>
                         <label>&nbsp</label>
-                        <span v-if='$route.params.revision_slug=="latest"'>
+                        <span v-if='revision.slug=="latest"'>
                           <div class="ui left action input" v-if='scheduleIndex == 0'>
                             <button
                               class="ui primary basic icon button"
@@ -280,6 +294,7 @@
                         v-model='spec.name'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
+                        :readonly='revision.slug == "latest" ? null : " "'
                         >
                     </div>
                   </div>
@@ -300,6 +315,7 @@
                         v-model='spec.value'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
+                        :readonly='revision.slug == "latest" ? null : " "'
                       >
                     </div>
                   </div>
@@ -313,13 +329,14 @@
                         v-model='spec.units'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
+                        :readonly='revision.slug == "latest" ? null : " "'
                       >
                     </div>
                   </div>
                   <div class="one wide field" id='spacer'></div>
                   <div class="three wide field" id='actions'>
                     <label>&nbsp</label>
-                    <span v-if='$route.params.revision_slug=="latest"'>
+                    <span v-if='revision.slug=="latest"'>
                       <div class="ui left action input" v-if='specIndex == 0'>
                         <button
                           class="ui primary basic icon button"
@@ -348,7 +365,7 @@
               </div>
             </transition-group>
           </form>
-          <span v-if='$route.params.revision_slug=="latest"'>
+          <span v-if='revision.slug=="latest"'>
             <button
               v-if='!specsUpdated'
               class="ui blue basic button"
@@ -391,10 +408,14 @@ export default {
       'bucket',
       'session',
       'profile',
-      'design'
+      'design',
+      'revision',
     ])
   },
   watch: {
+    design() {
+      this.awaitDropDowns()
+    }
   },
   methods: {
     getDesignClasses() {
@@ -549,7 +570,7 @@ export default {
         supplierId: null,
         supplierPartNumber: null,
         externalUrl: null,
-        partSchedules: [
+        schedules: [
           {
             unitCost: 0,
             minOrderQty: 1,
@@ -618,8 +639,14 @@ export default {
       }
 
       this.$store.dispatch('updateDesign', payload).then(success => {
-        let payload = success.body
-        this.$store.commit('setDesign', payload)
+        let design_payload = {
+          design_slug: this.design.slug,
+          owner_slug: this.design.owner_slug,
+          revision_slug: 'latest'
+        }
+        this.$store.dispatch('getDesign', design_payload).then(success => {
+          this.$store.commit('setDesign', success.body)
+        }, error => {})
       }, error => {})
     },
   },

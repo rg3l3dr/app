@@ -33,6 +33,7 @@ import PartsTab from './components/designs/partsTab.vue'
 import FilesTab from './components/designs/filesTab.vue'
 import DocsTab from './components/designs/docsTab.vue'
 import SpecsTab from './components/designs/specsTab.vue'
+import RevsTab from './components/designs/revsTab.vue'
 import SettingsTab from './components/designs/settingsTab.vue'
 import AdvancedTab from './components/designs/settings/advancedTab.vue'
 import BasicTab from './components/designs/settings/BasicTab.vue'
@@ -100,6 +101,7 @@ export const routes = [
   },
   {
     path: '/:profile_slug/:design_slug/:revision_slug',
+    redirect: '/:profile_slug/:design_slug/latest/home',
     name: 'DesignFullRoute',
     component: Design,
     meta: { requiresAuth: true },
@@ -108,6 +110,7 @@ export const routes = [
       {path: 'parts', components: {designContent: PartsTab}},
       {path: 'files', components: {designContent: FilesTab}},
       {path: 'specs', components: {designContent: SpecsTab}},
+      {path: 'revs', components: {designContent: RevsTab}},
       {path: 'settings', components: {designContent: SettingsTab},
         children: [
           {path: 'basic', components: {settingsContent: BasicTab}},

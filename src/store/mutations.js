@@ -72,9 +72,18 @@ export const mutations = {
     }
   },
   setDesign(state, data) {
+    if (data.revision_set[0].slug == 'latest') {
+      data.revision_set.shift()
+    }
     state.design = data
     if (state.env != 'prod') {
       console.log('design set in store')
+    }
+  },
+  setRevision(state, data) {
+    state.revision = data
+    if (state.env != 'prod') {
+      console.log('revision set in store')
     }
   },
   setTree(state, data) {
@@ -112,22 +121,23 @@ export const mutations = {
     }
   },
   setPart(state, data) {
+    state.parts[data.index].created = data.part.created
+    state.parts[data.index].editable = data.part.editable
     state.parts[data.index].part_id = data.part.part_id
     state.parts[data.index].design_id = data.part.design_id
     state.parts[data.index].design_name = data.part.design_name
     state.parts[data.index].design_slug = data.part.design_slug
     state.parts[data.index].design_number = data.part.design_number
-    state.parts[data.index].parent_id = data.part.parent_id
-    state.parts[data.index].revision_name = data.part.revision_name
-    state.parts[data.index].revision_id = data.part.revision_id
+    state.parts[data.index].creator_slug = data.part.creator_slug
+    state.parts[data.index].owner_slug = data.part.owner_slug
     state.parts[data.index].quantity = data.part.quantity
     state.parts[data.index].cost = data.part.cost
-    state.parts[data.index].parts = data.part.parts
+    state.parts[data.index].revision_id = data.part.revision_id
+    state.parts[data.index].revision_name = data.part.revision_name
+    state.parts[data.index].revision_slug = data.part.revision_slug
+    state.parts[data.index].parent_id = data.part.parent_id
     state.parts[data.index].revisions = data.part.revisions
-    // state.parts[data.index].created = data.part.created
-    // state.parts[data.index].editable = data.part.editable
-    // state.parts[data.index].creator_slug = data.part.creator_slug
-    state.parts[data.index].owner_slug = data.part.owner_slug
+    state.parts[data.index].parts = data.part.parts
 
     if (state.env != 'prod') {
       console.log('set part in store')
