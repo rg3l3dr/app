@@ -21,15 +21,15 @@
             style='display:none'
           >
           <div class="ui fluid rounded image" v-if='design.data.images[0]'>
-            <span v-for='image in displayDefaultImage(design.data.images)' :key='image.url'>
-              <img :src='image.url'>
-            </span>
+            <!-- <span v-for='image in displayDefaultImage(design.data.images)' :key='image.url'> -->
+              <img :src='selectedImage.url'>
+            <!-- </span> -->
             <br>
             <div class="carousel">
               <i class="caret left icon"></i>
               <div class="ui middle aligned horizontal selection list tiny images">
-                <span v-for='designImage in design.data.images'>
-                  <img class="ui image carousel-thumbnail" :src='designImage.url' @click='selectImage()'>
+                <span v-for='(designImage, key, index) in design.data.images'>
+                  <img class="ui image carousel-thumbnail" :src='designImage.url' @click='selectImage(index)'>
                 </span>
               </div>
               <i class="caret right icon"></i>
@@ -183,6 +183,7 @@ export default {
     return {
       specs: null,
       descriptionIsEditable: false,
+      selectedImage: null,
     }
   },
   computed: {
@@ -192,13 +193,26 @@ export default {
       'profile',
       'design',
       'revision',
+      'node'
     ]),
     ...mapGetters([
       'designRoute'
     ])
   },
   watch: {
+    node() {
+      // console.log('images are: ');
+      // console.dir(this.design.data.images);
+      // console.dir(this.design.id)
+      this.selectedImage = null;
+      // if(this.design.data.images.length > 0) {
+      //   this.selectedImage = design.data.images[0];
+      // }
+      if (this.design.data.images.length > 0) {
+        this.selectedImage = this.design.data.images[0]
 
+      }
+    }
   },
   methods: {
     selectFilesForUpload() {
@@ -238,7 +252,7 @@ export default {
                  type: file.type,
                  size: file.size,
                  url: s3_path + s3_key,
-                 default: false
+                 isDefault: false
                }
 
               // if (vue.design.data.images[0]) {
@@ -249,6 +263,12 @@ export default {
               // }
 
               vue.design.data.images.push(image)
+              // if(!this.selectedImage) {
+                console.log('image: ')
+                console.dir(image)
+                vue.selectedImage = image;
+                console.log(vue.selectedImage)
+              // }
 
               let payload = {
                 slug: vue.design.slug,
@@ -266,18 +286,35 @@ export default {
       }
       reader.readAsArrayBuffer(file)
     },
-    selectImage(images) {
+    selectImage(index) {
+      this.selectedImage = this.design.data.images[index];
     },
-    setDefaultImage(images) {
-      images.forEach(function(image){
-        image.default == false
-      });
-    },
-    displayDefaultImage(images) {
-      let img = images.filter(function(image) {
-        return image.default;
-      });
-      return (img.length !== 0 && img || [images[0]])
+    setDefaultImage() {
+      for(let image of this.design.data.images){
+        if(image.isDefault) {
+          image.isDefault = false;
+          break;
+        }
+      }
+      this.selectedImage.isDefault = true;
+
+      let payload = {
+        slug: this.design.slug,
+        owner_slug: this.design.owner_slug,
+        data: {
+          data: this.design.data
+        }
+      }
+      this.$store.dispatch('updateDesign', payload).then(success => {
+
+        let design_payload = {
+          design_slug: this.design.slug,
+          owner_slug: this.design.owner_slug,
+          revision_slug: this.revision.slug
+        }
+
+        this.$store.dispatch('getDesign', design_payload)
+      }, error => {})
     },
     updateDescription() {
 
@@ -298,13 +335,18 @@ export default {
           revision_slug: this.revision.slug
         }
 
-        this.$store.dispatch('getDesign', design_payload).then(success => {
-          this.$store.commit('setDesign', success.body)
-        }, error => {})
+        this.$store.dispatch('getDesign', design_payload)
       }, error => {})
     },
   },
+  // created() {
+  //   this.selectedImage = null;
+  // },
+  // updated() {
+  //   this.selectedImage = null;
+  // },
   mounted: function() {
+    this.selectedImage = this.design.data.images[0];
 
     tinymce.init({
       selector: 'div.tinymce',
