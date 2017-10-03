@@ -309,7 +309,7 @@
 var Rusha = require('Rusha')
 import { mapState } from 'vuex'
 export default {
-  name: 'home',
+  name: 'files',
   data () {
     return {
       filesInput: [],
@@ -623,7 +623,7 @@ export default {
     },
     getFileFromS3(index) {
 
-      let file = this.files.data[index]
+      let file = this.design.data.files[index]
       let s3 = new AWS.S3()
       let s3_key = 'designs/' + this.design.owner + '/' + this.design.id + '/' + file.name
 

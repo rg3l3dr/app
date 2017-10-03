@@ -1,7 +1,7 @@
 <template lang="html">
   <div class='ui grid'>
     <div class="row"></div>
-    <div class="row">
+    <div class="row" >
 
 
       <div class="eight wide column" id='images'>
@@ -20,16 +20,18 @@
             @change='uploadImage($event)'
             style='display:none'
           >
-          <div class="ui fluid rounded image" v-if='design.data.images[0]'>
-            <img :src='design.data.images[0].url'>
+          <div v-if='design.data.images[0]' >
+            <div style='height: 300px'>
+              <img class="ui centered rounded image" :src='design.data.images[0].url' style='height: 100%'>
+            </div>
             <br>
-            <button class="ui small basic right floated blue button" @click='selectFilesForUpload()'>
-              Change Picture
+            <button class="ui tiny basic grey button" @click='selectFilesForUpload()'>
+              Change Image
             </button>
           </div>
           <div style='text-align:center' v-else-if="revision.slug=='latest'" >
-            <br>
-            <h2 class="ui icon header" >
+            <br><br><br><br>
+            <h2 class="ui icon header" style='height: 230px'>
               <i class="camera retro icon"></i>
               <br>
               <div class="content">
@@ -37,7 +39,7 @@
                   class="ui large blue basic button"
                   @click='selectFilesForUpload()'
                 >
-                  Click here to add a picture
+                  Upload an image
                 </div>
               </div>
             </h2>
@@ -66,63 +68,81 @@
           </div>
         </div>
         <div class="ui bottom attached clearing segment">
-          <div class="ui relaxed divided list">
-            <div class="item">
-              <i class="folder open outline icon"></i>
-              <div class="content">
-                {{ design.name }}
-              </div>
-            </div>
-            <div class="item">
-              <i class="hashtag icon"></i>
-              <div class="content">
-                {{ design.data.autoPartNumber }}
-              </div>
-            </div>
-            <div class="item">
-              <i class="tag icon"></i>
-              <div class="content">
-                {{ design.design_class.code }}: {{ design.design_class.name }}
-              </div>
-            </div>
-            <div class="item">
-              <i class="dollar icon"></i>
-              <div class="content">
-                {{ design.data.suppliers[0].schedules[0].unitCost }}
-              </div>
-            </div>
-            <div class="item" v-if='design.defaultSupplier'>
-              <i class="factory icon"></i>
-              <div class="content">
-                {{ design.defaultSupplier.name }}
-              </div>
-            </div>
-            <div class="item" v-if='design.defaultURL'>
-              <i class="linkify icon"></i>
-              <div class="content">
-                {{ design.defaultURL }}
-              </div>
-            </div>
-            <div class="item">
-              <i class="edit icon"></i>
-              <div class="content">
-                <span v-if='design.edited_at'>
-                  Last updated by
-                  <router-link :to="`/${design.editor_slug}`" tag='a'>
-                    {{ design.editor_slug }}
-                  </router-link>
-                    on {{ design.edited_at | moment("MMMM Do YYYY") }}
-                </span>
-                <span v-else>
-                  No updates yet
-                </span>
-              </div>
-            </div>
+          <div style='height: 320px' >
+            <span v-if='design.data.summary'>
+              {{ design.data.summary }}
+            </span>
 
+            <div class="ui relaxed divided list">
+              <div class="item">
+                <i class="folder open outline icon"></i>
+                <div class="content">
+                  {{ design.name }}
+                </div>
+              </div>
+              <div class="item">
+                <i class="hashtag icon"></i>
+                <div class="content">
+                  {{ design.data.autoPartNumber }}
+                </div>
+              </div>
+              <div class="item">
+                <i class="tag icon"></i>
+                <div class="content">
+                  {{ design.design_class.code }}: {{ design.design_class.name }}
+                </div>
+              </div>
+
+              <div class="item">
+                <i class="factory icon"></i>
+                <div class="content">
+                  {{ design.supplier ? design.supplier.name : 'No supplier designated' }}
+                </div>
+              </div>
+              <div class="item">
+                <i class="dollar icon"></i>
+                <div class="content" v-if='design.data.suppliers[0].schedules[0].unitCost != 0'>
+                  {{ design.data.suppliers[0].schedules[0].unitCost }} at quantity {{ design.data.suppliers[0].schedules[0].minOrderQty }} in {{ design.data.suppliers[0].schedules[0].leadTime }} {{ design.data.suppliers[0].schedules[0].leadTimePeriod }}
+                </div>
+                <div class="content" v-else>
+                  No cost schedule has been provided
+                </div>
+              </div>
+              <div class="item">
+                <i class="linkify icon"></i>
+                <div class="content" v-if='design.data.suppliers[0].externalUrl'>
+                  <a :href="design.data.suppliers[0].externalUrl">  {{ design.data.suppliers[0].externalUrl }}</a>
+                </div>
+                <div class="content" v-else>
+                  No external url provided
+                </div>
+              </div>
+              <div class="item">
+                <i class="hashtag icon"></i>
+                <div class="content">
+                  {{ design.data.suppliers[0].supplierPartNumber ? design.data.suppliers[0].supplierPartNumber : 'No supplier part number provided' }}
+                </div>
+              </div>
+              <div class="item">
+                <i class="edit icon"></i>
+                <div class="content">
+                  <span v-if='design.edited_at'>
+                    Last updated by
+                    <router-link :to="`/${design.editor_slug}`" tag='a'>
+                      {{ design.editor_slug }}
+                    </router-link>
+                      on {{ design.edited_at | moment("MMMM Do YYYY") }}
+                  </span>
+                  <span v-else>
+                    No updates yet
+                  </span>
+                </div>
+              </div>
+
+            </div>
           </div>
-
           <router-link :to='this.designRoute + "/specs" ' v-if='revision.slug == "latest"'>
-            <button class='ui right floated small basic blue button'>
+            <button class='ui tiny basic grey button'>
               &nbsp Edit Specs
             </button>
           </router-link>
@@ -132,10 +152,10 @@
     </div>
     <div class="row">
       <div class="sixteen wide column">
-        <div class="ui small top attached header">
+        <!-- <div class="ui small top attached header">
           <i class="fa-file-text-o icon"></i>
           <div class="content">
-            Description
+            Tiny MCE Description
           </div>
         </div>
         <div class="ui bottom attached segment">
@@ -154,6 +174,49 @@
             Update Description
           </button>
         </div>
+        <br> -->
+        <div class="ui small top attached header">
+          <i class="fa-file-text-o icon"></i>
+          <div class="content">
+            Description &nbsp
+          </div>
+        </div>
+
+        <div
+          class="ui bottom attached segment"
+          v-if='descriptionIsEditable'>
+          <textarea id='summary-simple-mde' v-model='design.data.description'></textarea>
+          <br>
+          <button
+            class="ui tiny grey basic button"
+            @click='updateDescription()'
+          >
+            Update Description
+          </button>
+        </div>
+
+        <div
+          v-else
+          class="ui bottom attached segment"
+        >
+            <div
+              v-if='design.data.description'
+              v-html='marked(design.data.description)'
+            >
+            </div>
+
+            <div v-else>
+              Click the button below to add a description for this design
+            </div>
+            <br>
+            <button
+              class="ui tiny grey basic button"
+              v-if='revision.slug == "latest"'
+              @click='editDescription()'
+            >
+              Edit Description
+            </button>
+        </div>
       </div>
     </div>
   </div>
@@ -162,6 +225,8 @@
 <script>
 import { mapState, mapGetters } from 'vuex'
 import { EventBus } from '../../event-bus.js'
+import marked from 'marked'
+
 export default {
   name: 'home',
   data () {
@@ -248,68 +313,74 @@ export default {
       }
       reader.readAsArrayBuffer(file)
     },
+    marked(input) {
+      return marked(input);
+    },
+    editDescription() {
+      console.log('edit desc clicked')
+      this.descriptionIsEditable = true
+      this.$nextTick(() => {
+         this.mde = new SimpleMDE({
+          element: document.getElementById('summary-simple-mde'),
+          status: false,
+          toolbar: [
+            'bold', 'italic', 'heading', '|',
+            'quote', 'unordered-list', 'ordered-list', '|',
+            'link', 'image', 'code', 'table', '|',
+            'preview', 'side-by-side', 'fullscreen', '|',
+            'guide'
+          ]
+        })
+      })
+    },
     updateDescription() {
-
-      this.design.data.description = $("div.tinymce").html()
+      console.log('update desc clicked')
+      this.design.data.description = this.mde.value()
+      this.mde.toTextArea()
+      this.descriptionIsEditable = false
 
       let payload = {
-        slug: this.design.slug,
-        owner_slug: this.design.owner_slug,
-        data: {
-          data: this.design.data
-        }
-      }
-      this.$store.dispatch('updateDesign', payload).then(success => {
-
-        let design_payload = {
-          design_slug: this.design.slug,
+          slug: this.design.slug,
           owner_slug: this.design.owner_slug,
-          revision_slug: this.revision.slug
+          data: {
+            data: this.design.data
+          }
         }
+        this.$store.dispatch('updateDesign', payload).then(success => {
 
-        this.$store.dispatch('getDesign', design_payload).then(success => {
-          this.$store.commit('setDesign', success.body)
+          let design_payload = {
+            design_slug: this.design.slug,
+            owner_slug: this.design.owner_slug,
+            revision_slug: this.revision.slug
+          }
+
+          this.$store.dispatch('getDesign', design_payload)
         }, error => {})
-      }, error => {})
     },
   },
-  mounted: function() {
-
-    tinymce.init({
-      selector: 'div.tinymce',
-      theme: 'inlite',
-      plugins: 'image media table link paste contextmenu textpattern autolink codesample code',
-      textpattern_patterns: [
-         {start: '*', end: '*', format: 'italic'},
-         {start: '**', end: '**', format: 'bold'},
-         {start: '#', format: 'h1'},
-         {start: '##', format: 'h2'},
-         {start: '###', format: 'h3'},
-         {start: '####', format: 'h4'},
-         {start: '#####', format: 'h5'},
-         {start: '######', format: 'h6'},
-         {start: '1. ', cmd: 'InsertOrderedList'},
-         {start: '* ', cmd: 'InsertUnorderedList'},
-         {start: '- ', cmd: 'InsertUnorderedList'}
-      ],
-      insert_toolbar: 'quickimage quicktable media codesample',
-      selection_toolbar: 'bold italic underline | quicklink h1 h2 h3 h4 | alignleft aligncenter alignright | code' ,
-      inline: true,
-      paste_data_images: true,
-      content_css: [
-        '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
-        '//www.tinymce.com/css/codepen.min.css']
-    })
-
-
-  },
+  created() {},
+  mounted() {},
 }
 </script>
 
 <style lang="css">
-div.small.top.attached.header {
-  padding: 5px 14px 5px 14px;
-}
+
+  div.small.top.attached.header {
+    padding: 5px 14px 5px 14px;
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition-property: opacity;
+    transition-duration: .25s;
+  }
+
+  .fade-enter-active {
+    transition-delay: .25s;
+  }
+
+  .fade-enter, .fade-leave-active {
+    opacity: 0
+  }
 
 
 </style>

@@ -125,7 +125,7 @@ export const actions = {
           console.dir(success)
         }
 
-        success.data.revision_set.forEach(rev => {
+        success.body.revisions.forEach(rev => {
           if (rev.slug == payload.revision_slug) {
             commit('setRevision', rev)
           }

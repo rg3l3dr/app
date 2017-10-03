@@ -115,6 +115,8 @@ const apolloProvider = new VueApollo({
 })
 
 
+
+
 /*eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -122,8 +124,9 @@ new Vue({
   router,
   apolloProvider,
   template: '<App/>',
-  components: { App }
+  components: { App },
 })
+
 
 // Vue.http.interceptors.push((request, next) => {
 //   if (store.state.session.token) {

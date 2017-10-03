@@ -1564,7 +1564,7 @@ export default {
           cost: this.parts[index].cost
         }
         console.log(update_design_payload)
-        this.$store.dispatch('updatedesigndata', update_design_payload)
+        this.$store.dispatch('updateDesignData', update_design_payload)
 
       } else { console.log('Design data has not changed') }
 

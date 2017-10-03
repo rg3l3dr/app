@@ -29,18 +29,18 @@
                   <div class="ui small labeled button" tabindex="0" >
                     <div
                       class="ui small basic button"
-                      @click='showRevModal()' 
+                      @click='showRevModal()'
                       :class='{disabled : this.revision.slug != "latest"}'
                     >
                       <i class="repeat icon"></i>Revise
                     </div>
                     <a
                       class="ui small basic left pointing label"
-                      v-if='design.revision_set.length > 0'
+                      v-if='design.revisions.length > 0'
                       @click.prevent='showRevTab()'
                       :class='{disabled : this.revision.slug != "latest"}'
                     >
-                      {{ design.revision_set.length }}
+                      {{ design.revisions.length }}
                     </a>
                     <div
                       class='ui small basic left pointing label'
@@ -72,7 +72,7 @@
                 <div id='copy-button'>
                   &nbsp&nbsp
                   <div class="ui small labeled button" tabindex="0">
-                    <div class="ui small basic button">
+                    <div class="ui small basic button" @click='clonePart()'>
                       <i class="clone icon"></i>Clone
                     </div>
                     <a class="ui small basic left pointing label">
@@ -90,8 +90,8 @@
 
           <!-- indented bom navigation pane -->
           <div class="four wide column" style='padding-top: 10px; padding-bottom: 0px'>
-            <div class="ui basic segment" style='padding: 0px'>
-              <div class="ui sticky">
+            <div class="ui sticky">
+              <div class="ui basic segment" style='padding: 0px'>
                 <div class="ui small top attached header">
                   <i class="large sitemap icon"></i>
                   <div class="content">
@@ -99,7 +99,6 @@
 
                   </div>
                 </div>
-
                 <div class="ui bottom attached clearing segment">
                   <template v-if='tree[0]'>
                     <div class="ui right floated mini icon buttons">
@@ -124,13 +123,13 @@
           </div>
 
           <!-- main design content -->
-          <div class="twelve wide column" style='padding-top: 0px; padding-bottom: 0px' id='context'>
+          <div class="twelve wide column" style='padding-top: 0px; padding-bottom: 0px' id='example'>
             <!-- tabular menu (records) -->
             <div class="ui large top attached fluid six item tabular menu" style='padding: 8px 0px 0px 0px'>
               <router-link tag='a' class='item' :to='this.designRoute  + "/home"'>
                 <a>
                   <i class="home icon"></i>
-                  Summary
+                  Overview
                 </a>
               </router-link>
 
@@ -189,7 +188,7 @@
             </div>
             <!-- tab content (records) -->
             <transition name='fade'>
-              <router-view name='designContent'></router-view>
+              <router-view name='designContent' :key='design.id'></router-view>
             </transition>
           </div>
 
@@ -279,7 +278,6 @@ export default {
     ]),
     ...mapGetters([
       'designRoute',
-      // 'partRoute',
       'endpoint',
       'pre_endpoint'
     ]),
@@ -466,12 +464,25 @@ export default {
 
     },
     clonePart() {
+      let payload = {
+        design_id: this.design.id
+      }
+      this.$http.post('clone_design', payload).then(success => {
+        if (this.env != 'prod') {
+          console.log('cloned design')
+          console.dir(success)
+        }
 
-      // create a new API endpoint called clone_part
-      // on success switch the URL to the new design
-
-      // on click clones link, submit a search request for all clones for this design (if > 0)
-
+        // reset the URL to the design
+      }, error => {
+        if (this.env != 'prod') {
+          console.log('error cloning design')
+          console.dir(error)
+        }
+      })
+    },
+    viewClones() {
+        // on click clones link, submit a search request for all clones for this design (if > 0)
     }
   },
   created() {
@@ -504,6 +515,8 @@ export default {
     }
   },
   mounted() {
+
+    $('.ui.sticky').sticky({context: '#example'})
     // let vue = this
     // EventBus.$once('design-refs-updated', function() {
     //   this.$nextTick(() => {
@@ -534,4 +547,15 @@ export default {
     padding-top: 0;
     padding-bottom: 0;
   }
+
+  .fixedElement {
+    background-color: #c0c0c0;
+    position:fixed;
+    top:0;
+    width:100%;
+    z-index:100;
+  }
+
+
+
 </style>

@@ -7,7 +7,7 @@
     <transition name='fade'>
       <div class="ui bottom attached segment">
         <!-- <transition name='fade'> -->
-          <div v-if='design.revision_set.length > 0'>
+          <div v-if='design.revisions.length > 0'>
             <table class="ui striped selectable table" id='revs-table'>
               <thead>
                 <tr>
@@ -30,7 +30,7 @@
                 </tr>
               </tfoot>
               <tbody name='fade' is='transition-group'>
-                <tr v-for='(rev, index) in this.design.revision_set' :key='rev.name'>
+                <tr v-for='(rev, index) in this.design.revisions' :key='rev.name'>
 
                   <td id='rev-number' class='collapsing'>
                     {{ index + 1 }}
@@ -202,7 +202,7 @@ export default {
         console.log('loading a new revision')
       }
 
-      let selectedRev = this.design.revision_set[index]
+      let selectedRev = this.design.revisions[index]
       this.$store.commit('setRevision', selectedRev)
 
       if (this.rootDesign.id == this.design.id) {

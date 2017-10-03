@@ -58,6 +58,7 @@
                     @keydown.enter.prevent='createSupplier'
                     @keyup.enter.prevent
                     :readonly='revision.slug == "latest" ? null : " "'
+                    maxlength='100'
                   >
                 </div>
               </div>
@@ -644,9 +645,7 @@ export default {
           owner_slug: this.design.owner_slug,
           revision_slug: 'latest'
         }
-        this.$store.dispatch('getDesign', design_payload).then(success => {
-          this.$store.commit('setDesign', success.body)
-        }, error => {})
+        this.$store.dispatch('getDesign', design_payload)
       }, error => {})
     },
   },

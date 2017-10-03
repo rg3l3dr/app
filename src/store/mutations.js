@@ -72,9 +72,9 @@ export const mutations = {
     }
   },
   setDesign(state, data) {
-    if (data.revision_set[0].slug == 'latest') {
-      data.revision_set.shift()
-    }
+    // if (data.revisions[0].slug == 'latest') {
+    //   data.revisions.shift()
+    // }
     state.design = data
     if (state.env != 'prod') {
       console.log('design set in store')
@@ -135,7 +135,8 @@ export const mutations = {
     state.parts[data.index].revision_id = data.part.revision_id
     state.parts[data.index].revision_name = data.part.revision_name
     state.parts[data.index].revision_slug = data.part.revision_slug
-    state.parts[data.index].parent_id = data.part.parent_id
+    state.parts[data.index].parent_design_id = data.part.parent_design_id
+    state.parts[data.index].parent_revision_id = data.part.parent_revision_id
     state.parts[data.index].revisions = data.part.revisions
     state.parts[data.index].parts = data.part.parts
 
