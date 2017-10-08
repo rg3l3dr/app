@@ -1,3 +1,11 @@
+/* Carousel */
+
+.carousel-thumbnail {
+  width: auto !important;
+  height: 40px !important;
+}
+
+
 /* Removes input field padding for form alignment */
 
 .ui.left.icon.input {
@@ -22,5 +30,3 @@ div.button-group > div.row > div.item.item {
 div.button-group > div.row {
   color: rgba(0, 0, 0, 0.6);
 }
-
-
