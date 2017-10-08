@@ -51,7 +51,7 @@ export const actions = {
   },
   getToken({commit, state}, payload) {
     // gets the AWS temporary token from function based API view and updates the global AWS config
-    Vue.http.get('get_token').then(success => {
+    Vue.http.get('get_token/').then(success => {
       if (state.env != 'prod') {
         console.log('Got token')
       }
@@ -256,11 +256,19 @@ export const actions = {
     // updates an existing part within a BOM, changing either the qty or revision, function based API view
     return new Promise((resolve, reject) => {
       Vue.http.post('update_part', payload).then(success => {
-        if (state.env != 'prod') {
-          console.log('updated part in BOM')
-          console.dir(success)
+        if (success.body.updated) {
+          if (state.env != 'prod') {
+            console.log('updated part in BOM')
+            console.dir(success)
+          }
+          resolve(success)
+        } else {
+          if (state.env != 'prod') {
+            console.log('error updating part in BOM with successful response')
+            console.dir(success)
+          }
+          reject(success)
         }
-        resolve(success)
       }, error => {
         if (state.env != 'prod') {
           console.log('error updating part in BOM')

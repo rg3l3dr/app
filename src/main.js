@@ -41,9 +41,13 @@ if (sub == 'app') {
     .install();
 }
 
+// Vue.http.headers.common['Access-Control-Allow-Origin'] = '*'
+// Vue.http.headers.common['Access-Control-Request-Method'] = '*'
+
 // Vue Resource Config
 Vue.http.interceptors.push((request, next) => {
   if (store.state.session.token) {
+
     request.headers.set('Authorization', 'JWT ' + store.state.session.token)
     request.headers.set('Accept', 'application/json')
     next()

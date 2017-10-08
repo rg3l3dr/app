@@ -1,4 +1,4 @@
-<template lang="html" v-if='rootDesign'>
+<template lang="html" v-if='profile'>
   <div class="ui grid" style='padding: 0px 25px 0px 25px'>
     <div class="sixteen wide column">
       <div class="ui grid">

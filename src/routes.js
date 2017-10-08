@@ -101,7 +101,7 @@ export const routes = [
   },
   {
     path: '/:profile_slug/:design_slug/:revision_slug',
-    redirect: '/:profile_slug/:design_slug/latest/home',
+    // redirect: '/:profile_slug/:design_slug/latest/home',
     name: 'DesignFullRoute',
     component: Design,
     meta: { requiresAuth: true },
