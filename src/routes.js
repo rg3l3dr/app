@@ -110,10 +110,10 @@ export const routes = [
       {path: 'parts', components: {designContent: PartsTab}},
       {path: 'files', components: {designContent: FilesTab}},
       {path: 'specs', components: {designContent: SpecsTab}},
-      {path: 'revs', components: {designContent: RevsTab}},
       {path: 'settings', components: {designContent: SettingsTab},
         children: [
           {path: 'basic', components: {settingsContent: BasicTab}},
+          {path: 'revs', components: {settingsContent: RevsTab}},
           {path: 'collaborators', components: {settingsContent: CollaboratorsTab}},
           {path: 'revisions', components: {settingsContent: RevisionsTab}},
           {path: 'advanced', components: {settingsContent: AdvancedTab}},

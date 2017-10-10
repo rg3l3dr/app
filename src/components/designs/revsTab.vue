@@ -1,8 +1,11 @@
 <template lang="html">
   <div>
-    <div></div>
-    <div class="ui top attached grey header">
-      REVISIONS &#8212; See the full version history of your design
+    <div class="ui small top attached header">
+      <i class="fa-files-o icon" aria-hidden="true"></i>
+      <div class="content">
+        &nbsp
+        Revisions
+      </div>
     </div>
     <transition name='fade'>
       <div class="ui bottom attached segment">
@@ -14,7 +17,7 @@
                   <th>#</th>
                   <th>Name</th>
                   <th>Message</th>
-                  <th>Created</th>
+                  <th>Creator</th>
                   <th>Created</th>
                   <th></th>
                 </tr>
@@ -30,10 +33,14 @@
                 </tr>
               </tfoot>
               <tbody name='fade' is='transition-group'>
-                <tr v-for='(rev, index) in this.design.revisions' :key='rev.name'>
+                <tr
+                v-for='(rev, index) in this.design.revisions'
+                :key='rev.name'
+                :class='{active : revision.slug == rev.slug}'
+                >
 
                   <td id='rev-number' class='collapsing'>
-                    {{ index + 1 }}
+                    {{ index }}
                   </td>
 
                   <td id='rev-name' class='collapsing'>
@@ -42,7 +49,11 @@
                     </a>
                   </td>
 
-                  <td id='rev-message'>
+                  <td id='rev-message' v-if='index==0'>
+                    This is your working copy
+                  </td>
+
+                  <td id='rev-message' v-else>
                     {{ rev.message }}
                   </td>
 

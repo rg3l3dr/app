@@ -34,33 +34,34 @@
                     >
                       <i class="repeat icon"></i>Revise
                     </div>
-                    <a
+                    <router-link
+                      tag='a'
                       class="ui small basic left pointing label"
-                      v-if='design.revisions.length > 0'
-                      @click.prevent='showRevTab()'
                       :class='{disabled : this.revision.slug != "latest"}'
+                      :to='designRoute + "/settings/revs"'
                     >
-                      {{ design.revisions.length }}
-                    </a>
-                    <div
-                      class='ui small basic left pointing label'
-                      :class='{disabled : this.revision.slug != "latest"}'
-                       v-else
-                    >
-                      0
-                    </div>
+                      <a>
+                        {{ design.revisions.length - 1 }}
+                      </a>
+                    </router-link>
                   </div>
                 </div>
                 <div id="import-button" >
                   &nbsp&nbsp
-                  <div class="ui small labeled button" tabindex="0">
-                    <div class="ui small basic button">
+                  <div
+                    class="ui small labeled button"
+                    tabindex="0"
+                    >
+                    <div
+                      class="ui small basic button"
+                      @click='showExportModal()'
+                    >
                       <i class="upload icon"></i>Export
                     </div>
                     <a
                       class="ui small basic left pointing label"
                       v-if='design.imports > 0'
-                      @click='showExportModal()'
+                      @click='viewImports()'
                     >
                       {{ design.imports }}
                     </a>
@@ -75,9 +76,19 @@
                     <div class="ui small basic button" @click='clonePart()'>
                       <i class="clone icon"></i>Clone
                     </div>
-                    <a class="ui small basic left pointing label">
-                      0
+                    <a
+                      v-if='design.clones > 0'
+                      class="ui small basic left pointing label"
+                      @click='viewClones()'
+                    >
+                      {{ design.clones }}
                     </a>
+                    <div
+                      v-else
+                      class='ui small basic left pointing label'
+                    >
+                      0
+                    </div>
                   </div>
                 </div>
               </div>
@@ -125,7 +136,7 @@
           <!-- main design content -->
           <div class="twelve wide column" style='padding-top: 0px; padding-bottom: 0px' id='example'>
             <!-- tabular menu (records) -->
-            <div class="ui large top attached fluid six item tabular menu" style='padding: 8px 0px 0px 0px'>
+            <div class="ui large top attached fluid five item tabular menu" style='padding: 8px 0px 0px 0px'>
               <router-link tag='a' class='item' :to='this.designRoute  + "/home"'>
                 <a>
                   <i class="home icon"></i>
@@ -161,19 +172,19 @@
                   <!-- <div class="ui circular mini label"></div> -->
                 </a>
               </router-link>
-              <router-link tag='a' class='item' :to='this.designRoute + "/revs"'>
+              <!-- <router-link tag='a' class='item' :to='this.designRoute + "/revs"'>
                 <a>
                   <i class="fa-files-o icon"></i>
                   Revs
                 </a>
-              </router-link>
+              </router-link> -->
               <router-link v-if='this.pre_endpoint == "settings"' tag='a' class='item' :to='this.designRoute + "/settings/" + this.endpoint'>
                 <a>
                   <i class="fa-cog icon"></i>
                   Settings
                 </a>
               </router-link>
-              <router-link v-else-if='design.is_collaborator' tag='a' class='item' :to='this.designRoute + "/settings/configs"'>
+              <router-link v-else-if='design.is_collaborator' tag='a' class='item' :to='this.designRoute + "/settings/basic"'>
                 <a>
                   <i class="fa-cog icon"></i>
                   Settings
@@ -197,7 +208,7 @@
       </div>
     </div>
 
-    <div class='ui modal' id='revision-modal'>
+    <div class='ui small modal' id='revision-modal'>
       <div class="header">
         <h3>
          Create a New Revision
@@ -205,13 +216,26 @@
       </div>
       <div class="content">
         <form class="ui form">
-          <div class="field">
+          <div class="field" :class="{ 'error': new_rev.hasError }">
             <label>Revision Name</label>
-            <input type="text" v-model='new_rev.name'>
+            <input
+              type="text"
+              v-model='new_rev.name'
+              id='revision-name'
+            >
+            <span
+              v-if='new_rev.hasError'
+              class="help-block"
+              >{{new_rev.error}}
+            </span>
           </div>
           <div class="field">
             <label>Change Message</label>
-            <textarea name="name" rows="5" v-model='new_rev.message'></textarea>
+            <input
+              type='text'
+              v-model='new_rev.message'
+              id='change-message'
+            >
           </div>
         </form>
 
@@ -219,6 +243,58 @@
       <div class="actions">
         <button class="ui small blue basic button" @click='hideRevModal()'>Close</button>
         <button class="ui green small basic button" @click='revisePart()'>Create Revision</button>
+      </div>
+    </div>
+
+    <div class='ui small modal' id='export-modal'>
+      <div class="header">
+        <h3>
+         Add {{ design.name }} as a part into an existing design
+       </h3>
+      </div>
+      <div class="content">
+        <form class="ui form">
+          <div class="field" id='parent-design'>
+            <label>Existing Design</label>
+            <div class="ui transparent search input fluid">
+              <input
+                class="prompt compact"
+                type="text"
+                placeholder="Search for an existing design"
+              >
+            </div>
+          </div>
+          <div class="field" id='part-revision'>
+            <label>Revision for {{ design.name }}</label>
+            <div class="ui selection dropdown" id='revision-dropdown'>
+              <input type="hidden" name="revision">
+              <i class="dropdown icon"></i>
+              <div class="default text">Select a Revision</div>
+              <div class="menu">
+                <div
+                  class="item"
+                  v-for='revision in design.revisions'
+                  @click='importRevision=revision'
+                >
+                  {{ revision.name}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field" id='part-quantity'>
+            <label>Quantity for {{ design.name }}</label>
+            <input type="number" v-model='importQuantity' step='1' min='1'>
+          </div>
+        </form>
+
+      </div>
+      <div class="actions">
+        <button class="ui small blue basic button" @click='hideExportModal()'>Close</button>
+        <button
+          class="ui green small basic button"
+          @click='exportPart()'
+          :class="{'disabled' : !result || !importRevision}"
+        >Export Part</button>
       </div>
     </div>
   </div>
@@ -260,6 +336,11 @@ export default {
       current_rev: {},
       part: null,
       testPath: [],
+      results: [],
+      result: null,
+      resultSelected: false,
+      importQuantity: 1,
+      importRevision: null,
     }
   },
   computed: {
@@ -281,9 +362,12 @@ export default {
       'endpoint',
       'pre_endpoint'
     ]),
+    new_rev_slug() {
+      return this.new_rev.name.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
+    }
   },
   watch: {
-    node() {
+    node () {
       if (this.env != 'prod') {
         console.log('node watcher called in design.vue')
         console.dir(this.node)
@@ -393,75 +477,185 @@ export default {
         }
       }
     },
-    showRevTab() {
-      this.$router.push(`/${this.designRoute}/revs`)
-    },
     showRevModal() {
-      $('.ui.modal').modal()
-      $('#revision-modal').modal('show')
+
+      let new_rev_number = this.design.revisions.length
+      this.new_rev.name = `Rev ${new_rev_number}`
+
+      this.$nextTick(() => {
+        $('#revision-modal').modal('setting', {
+          autofocus: false,
+          onVisible: function () {
+            setTimeout(function () {
+              document.getElementById("change-message").focus();
+            }, 0);
+          }
+        }).modal('show')
+      })
     },
     hideRevModal() {
-      $('#revision-modal').modal('hide')
-    },
-    revisePart() {
-      let payload = {
-        design_id: this.design.id,
-        name: this.new_rev.name,
-        message: this.new_rev.message
-      }
-
-      this.$http.post('revise_part', payload).then(success => {
-        if (this.env != 'prod') {
-          console.log('successfully created revision for part')
-          console.dir(success)
-        }
-
-        let design_payload = {
-          design_slug: this.design.slug,
-          owner_slug: this.design.owner_slug,
-          revision_slug: this.revision.slug
-        }
-
-        this.$store.dispatch('getDesign', design_payload).then(success => {
-          this.$store.commit('setDesign', success.body)
-        }, error => {})
-
-        $('#revision-modal').modal('hide')
-
+      return new Promise((resolve, reject) => {
         this.new_rev = {
           name: '',
           message: '',
           hasError: null,
           error: ''
         }
-
-      }, error => {
-        if (this.env != 'prod') {
-          console.log('error creating revision for part')
-          console.dir(error)
-        }
+        $('#revision-modal').modal('hide')
+        this.$nextTick(() => {
+          resolve()
+        })
       })
+    },
+    revisePart() {
 
+      this.new_rev.hasError = false
+      this.new_rev.error = ''
+
+      let revision_slugs = this.design.revisions.map(revision => revision.slug)
+
+      if (revision_slugs.includes(this.new_rev_slug)) {
+
+        // render the error message in the modal
+        this.new_rev.hasError = true
+        this.new_rev.error = 'Design already has a revision with this name'
+
+      } else {
+        let payload = {
+          design_id: this.design.id,
+          name: this.new_rev.name,
+          message: this.new_rev.message
+        }
+
+        this.$http.post('revise_part', payload).then(success => {
+          if (this.env != 'prod') {
+            console.log('successfully created revision for part')
+            console.dir(success)
+          }
+
+          let design_payload = {
+            design_slug: this.design.slug,
+            owner_slug: this.design.owner_slug,
+            revision_slug: this.revision.slug
+          }
+
+          this.$store.dispatch('getDesign', design_payload).then(success => {
+            this.$store.commit('setDesign', success.body)
+          }, error => {})
+
+          this.hideRevModal().then(
+            this.$router.push(this.designRoute + "/settings/revs")
+          )
+
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('error creating revision for part')
+            console.dir(error)
+          }
+        })
+      }
     },
     showExportModal() {
-      $('.ui.modal').modal()
-      $('#exportModal').modal('show')
+      console.log('show export modal clicked')
+      $('#export-modal').modal('show')
+      this.$nextTick(() => {
+        $('#revision-dropdown').dropdown()
+        let vue = this
+        if (vue.env == 'prod') {
+          $('.ui.search').search(
+            {
+              apiSettings: {
+                  url: 'https://www.omnibuilds.com/shareddesignquery/?q={query}',
+                  beforeXHR: function(xhr) {
+                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                    return xhr;
+                  }
+                },
+              fields: {
+                title: 'name',
+                description: 'number'
+              },
+              showNoResults: false,
+              onSelect: function(result, response) {
+                vue.resultSelected = true
+                vue.result = result
+                if (vue.env != 'prod') {
+                  console.log('Result selected, set result Selected to true')
+                }
+              },
+              onResults: function(response) {
+                vue.results = response.results
+              }
+            }
+          )
+        } else {
+          $('.ui.search').search(
+            {
+              apiSettings: {
+                  url: 'https://stage.omnibuilds.com/shareddesignquery/?q={query}',
+                  beforeXHR: function(xhr) {
+                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                    return xhr;
+                  }
+                },
+              fields: {
+                title: 'name',
+                description: 'number'
+              },
+              showNoResults: false,
+              onSelect: function(result, response) {
+                vue.resultSelected = true
+                vue.result = result
+                if (vue.env != 'prod') {
+                  console.log('Result selected, set result Selected to true')
+                }
+              },
+              onResults: function(response) {
+                vue.results = response.results
+              }
+            }
+          )
+        }
+
+      })
+
+
     },
     hideExportModal() {
-      $('#exportModal').modal('hide')
+      $('#export-modal').modal('hide')
     },
     exportPart() {
-      $('#exportModal').modal('hide')
-      $('body .modals').remove()
-      // open a modal with a search box
-      // search your design library
-      // set the quantity and tracking point
-      // add the part to that designs bom
-      // present a success message
+      // call add existing design (will have to replicate logic from parts.vue)
+      let export_design_payload = {
+        root_design_id: this.result.id,
+        quantity: this.importQuantity,
+        existing_design_id: this.design.id,
+        revision_id: this.importRevision.id,
+        trail_ids: []
+      }
 
-      // on click imports link, submit a search request for all designs this has been imported into
+      this.$store.dispatch('addExistingPart', export_design_payload).then(success => {
+        this.hideExportModal()
+        this.resultSelected = false
+        this.result = {}
+        this.importQuantity = 1
+        this.importRevision = null
 
+        // present a success messsage
 
+      }, error => {
+
+      })
+    },
+    viewImports() {
+      let payload = {
+        query: this.design.name,
+        clones: false,
+        imports: true
+
+      }
+      this.$store.commit('setQuery', payload)
+      this.$router.push('/search')
     },
     clonePart() {
       let payload = {
@@ -474,6 +668,15 @@ export default {
         }
 
         // reset the URL to the design
+        let clone_slug = success.body.slug
+
+        // this.route.params.design_slug = clone_slug
+
+
+        this.$router.push(`/${this.profile.slug}/${clone_slug}/latest/home`)
+        location.reload()
+
+
       }, error => {
         if (this.env != 'prod') {
           console.log('error cloning design')
@@ -482,7 +685,14 @@ export default {
       })
     },
     viewClones() {
-        // on click clones link, submit a search request for all clones for this design (if > 0)
+        let payload = {
+          query: this.design.name,
+          clones: true,
+          imports: false
+
+        }
+        this.$store.commit('setQuery', payload)
+        this.$router.push('/search')
     }
   },
   created() {

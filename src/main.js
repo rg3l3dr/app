@@ -50,7 +50,33 @@ Vue.http.interceptors.push((request, next) => {
 
     request.headers.set('Authorization', 'JWT ' + store.state.session.token)
     request.headers.set('Accept', 'application/json')
-    next()
+    next(function(response) {
+      if (response.body == 'Signature has expired.') {
+        if (sub != 'app') {
+          console.log('Token has expired')
+        }
+        let path = '/accounts/auth/login'
+        Vue.http.post('rest-auth/logout').then(response => {
+          if (sub != 'app') {
+            console.log('Logout successful')
+            console.log(response)
+          }
+          Vue.store.commit('endSession')
+          Vue.router.push(path)
+        }, response => {
+          if (sub != 'app') {
+            console.log('Error logging out user')
+            console.log(response)
+          }
+          Vue.store.commit('endSession')
+        })
+      } else {
+        if (sub != 'app') {
+          console.log('Token is still active')
+        }
+      }
+
+    })
   } else {
     // if route is get token then ignore
     if (sub != 'app') {

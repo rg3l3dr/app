@@ -21,6 +21,12 @@
                 <i class="fa fa-info-circle"></i> &nbsp; Info
               </a>
             </router-link>
+            <router-link tag='a' class='item' :to='this.designRoute + "/settings/revs"'>
+              <a>
+                <i class="fa-files-o icon"></i>
+                Revisions
+              </a>
+            </router-link>
             <router-link
               v-if='!design.is_collaborator'
               tag='a'

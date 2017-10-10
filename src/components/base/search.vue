@@ -5,7 +5,7 @@
       <div class="fourteen wide column">
         <div class="row">
           <div class="eight wide column">
-            Your search for {{ query }} returned {{ results.length }} results
+            Your search for {{ query.query }} returned {{ results.length }} results
           </div>
         </div>
         <div class="row">
@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     getResults: function() {
-      this.$http.get('designquery/?q=' + this.query).then(success => {
+      this.$http.get(`designquery/?q=${this.query.query}&clones=${this.query.clones}&imports=${this.query.imports}`).then(success => {
         if (this.env != 'prod') {
           console.log('Got query results')
           console.log(success)
@@ -79,7 +79,7 @@ export default {
     },
     viewResult: function(index) {
       let result = this.results[index]
-      let path = '/' + result.creator + '/' + result.slug 
+      let path = '/' + result.creator + '/' + result.slug
       this.$router.push(path)
     }
   },

@@ -303,8 +303,49 @@ export default {
         if (this.env != 'prod') {
           console.log('New user created')
         }
-        this.$store.commit('signUp')
-        this.$router.push({ path: '/accounts/auth/login' })
+
+        // create the payload object
+        let login = {
+          username: this.username.data,
+          password: this.password.data
+        }
+        this.$http.post('rest-auth/login/', login).then(success => {
+          if (this.env != 'prod') {
+            console.log('Login successful')
+            console.log(success)
+          }
+          // get the token and user
+          let payload = {
+            user_id: success.body.user.pk,
+            username: success.body.user.username,
+            token: success.body.token,
+            active: true
+          }
+          // store user in vuex store
+          this.$store.commit('startSession', payload)
+          this.$store.dispatch('getProfile').then(success => {
+            if (this.env != 'prod') {
+              console.log('Got profile at login')
+            }
+            this.$router.push({ path: '/home' })
+          }, error => {
+
+          })
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('Error logging in user')
+            console.log(error)
+          }
+          if (typeof error.body.non_field_errors !== 'undefined') {
+            this.password.hasError = true
+            this.password.error = error.body.non_field_errors[0]
+          }
+        })
+
+
+
+        // this.$store.commit('signUp')
+        // this.$router.push({ path: '/accounts/auth/login' })
       }, response => {
         if (this.env != 'prod') {
           console.log('Error creating new user')

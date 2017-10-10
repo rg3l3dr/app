@@ -20,12 +20,12 @@
             @change='uploadImage($event)'
             style='display:none'
           >
-          <div v-if='design.data.images[0]' style='height:225px'>
+          <div v-if='design.data.images[0]' style='height:300px'>
             <!-- <span v-for='image in displayDefaultImage(design.data.images)' :key='image.url'> -->
               <img  class="ui centered rounded image" :src='selectedImage.url' style='height: 100%'>
             <!-- </span> -->
             <br>
-            <div class="carousel" >
+            <!-- <div class="carousel" >
               <i class="caret left icon"></i>
               <div class="ui middle aligned horizontal selection list tiny images" style='height: 40px !important'>
                 <div class="ui grid">
@@ -43,8 +43,8 @@
             </div>
             <br>
             <button class="ui tiny basic left floated blue button" @click='setDefaultImage()'>
-              Set As Default Picture <!-- only display when not default -->
-            </button>
+              Set As Default Picture only display when not default
+            </button> -->
             <button class="ui tiny basic right floated blue button" @click='selectFilesForUpload()'>
               Upload Picture
             </button>

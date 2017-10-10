@@ -135,7 +135,12 @@ export default {
               console.log('No result selected, redirecting to results list page')
               console.log(vue.inputQuery)
             }
-            vue.$store.commit('setQuery', vue.inputQuery)
+            let payload = {
+              query: vue.inputQuery,
+              clones: false,
+              imports: false
+            }
+            vue.$store.commit('setQuery', payload)
             vue.inputQuery = null
             vue.resultSelected = false
             vue.result = {}
@@ -175,9 +180,10 @@ export default {
       }, 30000)
     },
     logout () {
-      console.log('clicked logout')
+      if (this.env != 'prod') {
+        console.log('clicked logout')
+      }
       let path = '/accounts/auth/login'
-      this.$store.commit('endSession')
       this.$http.post('rest-auth/logout').then(response => {
         if (this.env != 'prod') {
           console.log('Logout successful')
@@ -189,8 +195,8 @@ export default {
         if (this.env != 'prod') {
           console.log('Error logging out user')
           console.log(response)
-          this.$store.commit('endSession')
         }
+        this.$store.commit('endSession')
       })
     },
     setSearch() {
