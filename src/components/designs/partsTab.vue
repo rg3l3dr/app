@@ -1045,7 +1045,8 @@ export default {
         root_design_id: this.design.id,
         quantity: existingPart.quantity,
         existing_design_id: result.id,
-        trail_ids: trail_ids
+        trail_ids: trail_ids,
+        revision_id: null
       }
 
       this.resultSelected = false

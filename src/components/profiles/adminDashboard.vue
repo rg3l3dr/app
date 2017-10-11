@@ -125,7 +125,7 @@
                 </td>
 
                 <td id='project-data'>
-                  {{ formatBytes(profile.data, 1) }}
+                  {{ formatBytes(profile.storage, 1) }}
                 </td>
 
                 <td id='project-plan'>
@@ -209,7 +209,7 @@ export default {
           this.profiles.splice(index, 1)
         } else {
           this.designs += profile.design_count
-          this.data += profile.data
+          this.data += profile.storage
           this.invites += profile.owner.invitation_set.length
           if (profile.plan) {
             if (profile.plan.name == 'Freelancer') {

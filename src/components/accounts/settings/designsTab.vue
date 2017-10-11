@@ -14,8 +14,6 @@
           <td>Last Updated</td>
           <td>Parts</td>
           <td>Files</td>
-          <td>Configs</td>
-          <td>Builds</td>
           <td>Revs</td>
           <td>Data</td>
         </thead>
@@ -26,31 +24,23 @@
             </td>
 
             <td id='project-last-updated'>
-              {{ design.last_updated | moment("from", "now") }}
+              {{ design.edited_at | moment("from", "now") }}
             </td>
 
             <td id='project-parts'>
-              {{ design.bom.data.length }}
+              NA
             </td>
 
             <td id='project-files'>
-              {{ design.files.data.length }}
-            </td>
-
-            <td id='project-configs'>
-              {{ design.config_set.length }}
-            </td>
-
-            <td id='project-builds'>
-              {{ design.build_set.length }}
+              NA
             </td>
 
             <td id='project-revs'>
-              {{ design.rev_set.length }}
+              {{ design.revisions.length }}
             </td>
 
             <td id='project-data'>
-              {{ formatBytes(design.data + 100000, 1) }}
+              {{ formatBytes(design.storage + 100000, 1) }}
             </td>
 
           </tr>

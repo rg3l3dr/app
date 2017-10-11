@@ -214,10 +214,10 @@ export default {
       'profile'
     ]),
 		data_percent: function() {
-			return (this.profile.data / this.profile.data_cap) * 100
+			return (this.profile.storage / this.profile.storage_cap) * 100
 		},
 		data_cap_fmt: function() {
-			return formatBytes(this.profile.data_cap)
+			return formatBytes(this.profile.storage_cap)
 		},
     is_active_customer: function() {
       if (this.profile.customer_set[0]) {
