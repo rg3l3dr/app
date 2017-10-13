@@ -184,7 +184,7 @@ export default {
         console.log('clicked logout')
       }
       let path = '/accounts/auth/login'
-      this.$http.post('rest-auth/logout').then(response => {
+      this.$http.post('rest-auth/logout/').then(response => {
         if (this.env != 'prod') {
           console.log('Logout successful')
           console.log(response)

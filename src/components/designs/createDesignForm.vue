@@ -182,7 +182,7 @@ export default {
 
               this.$store.dispatch('createDesign', design_payload).then(success => {
                 // this.$store.commit('setDesign', success.body)
-                this.$router.push({path: `/${payload.owner_slug}/${payload.design_slug}/`})
+                this.$router.push({path: `/${payload.owner_slug}/${payload.design_slug}/latest/home`})
               }, error => {
                 if (error.body.non_field_errors[0]) {
                   this.name.hasError = true

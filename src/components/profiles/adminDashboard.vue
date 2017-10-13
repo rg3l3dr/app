@@ -185,7 +185,7 @@ export default {
        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
     },
     getProfiles() {
-      this.$http.get('auth-profiles').then(success => {
+      this.$http.get('auth-profiles/').then(success => {
         if (this.env != 'prod') {
           console.log('Got profiles')
           console.log(success)
@@ -235,7 +235,7 @@ export default {
 
     },
     getDesigns() {
-      this.$http.get('designs').then(success => {
+      this.$http.get('designs/').then(success => {
         if (this.env != 'prod') {
           console.log('Got designs')
           console.log(success)

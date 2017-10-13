@@ -527,7 +527,7 @@ export default {
           message: this.new_rev.message
         }
 
-        this.$http.post('revise_part', payload).then(success => {
+        this.$http.post('revise_part/', payload).then(success => {
           if (this.env != 'prod') {
             console.log('successfully created revision for part')
             console.dir(success)
@@ -661,7 +661,7 @@ export default {
       let payload = {
         design_id: this.design.id
       }
-      this.$http.post('clone_design', payload).then(success => {
+      this.$http.post('clone_design/', payload).then(success => {
         if (this.env != 'prod') {
           console.log('cloned design')
           console.dir(success)

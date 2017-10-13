@@ -56,7 +56,7 @@ Vue.http.interceptors.push((request, next) => {
           console.log('Token has expired')
         }
         let path = '/accounts/auth/login'
-        Vue.http.post('rest-auth/logout').then(response => {
+        Vue.http.post('rest-auth/logout/').then(response => {
           if (sub != 'app') {
             console.log('Logout successful')
             console.log(response)
@@ -122,7 +122,7 @@ sync(store, router)
 
 // Apollo Config
 const networkInterface = createNetworkInterface({
-  uri: 'https://stage.omnibuilds.com/graphql_token',
+  uri: 'https://stage.omnibuilds.com/graphql_token/',
 })
 
 networkInterface.use([{
