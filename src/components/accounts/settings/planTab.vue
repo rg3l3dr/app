@@ -275,7 +275,7 @@ export default {
         $('#cancelModal').modal('hide')
 
         this.$store.dispatch('getProfile').then(success => {
-          this.$router.push('/profile/plan')
+          this.$router.push('/accounts/settings/plan')
         }, error => {
 
         })
@@ -330,7 +330,7 @@ export default {
             			exp_year: '',
             			address_zip: '',
             		}
-                vue.$router.push('/profile/plan')
+                vue.$router.push('/accounts/settings/plan')
               }, error => {
 
               })
@@ -359,7 +359,7 @@ export default {
                     exp_year: '',
                     address_zip: '',
                   }
-                  vue.$router.push('/profile/plan')
+                  vue.$router.push('/accounts/settings/plan')
                 }, error => {
 
                 })

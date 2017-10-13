@@ -119,7 +119,7 @@ export const actions = {
   getDesign ({commit, state}, payload) {
     // gets and sets a design from the DRF design viewset
     return new Promise((resolve, reject) => {
-      Vue.http.get('designs/' + payload.design_slug + '?owner_slug=' + payload.owner_slug.toLowerCase() + '&revision_slug=' + payload.revision_slug).then(success => {
+      Vue.http.get('designs/' + payload.design_slug + '/?owner_slug=' + payload.owner_slug.toLowerCase() + '&revision_slug=' + payload.revision_slug).then(success => {
         if (state.env != 'prod') {
           console.log('Got design')
           console.dir(success)

@@ -78,7 +78,7 @@ export default {
        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
     },
     getDesigns() {
-      this.$http.get('designs').then(success => {
+      this.$http.get('designs/').then(success => {
         if (this.env != 'prod') {
           console.log('Got designs')
           console.log(success)
