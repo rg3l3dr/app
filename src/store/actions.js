@@ -99,7 +99,7 @@ export const actions = {
   createDesign({state}, payload) {
     // creates a new design using DRF function based API view
     return new Promise((resolve, reject) => {
-      Vue.http.post('create_design', payload).then(success => {
+      Vue.http.post('create_design/', payload).then(success => {
         if (success) {
           if (state.env != 'prod') {
             console.log('created new design')
@@ -167,7 +167,7 @@ export const actions = {
   updateDesignData ({commit, state}, payload) {
     // used to update specific fields within the data field (JSON field) without overwriting the entire object, generally from specs or settings, vs from the BOM
     return new Promise((resolve, reject) => {
-      Vue.http.post('update_design_data', payload).then(success => {
+      Vue.http.post('update_design_data/', payload).then(success => {
         if (success) {
           if (state.env != 'prod') {
             console.log('updated existing design (part)')
@@ -187,7 +187,7 @@ export const actions = {
   addNewPart({state}, payload) {
     // creates a new part and adds it to the BOM, function based API view
     return new Promise((resolve, reject) => {
-      Vue.http.post('add_new_part', payload).then(success => {
+      Vue.http.post('add_new_part/', payload).then(success => {
         if (success) {
           if (state.env != 'prod') {
             console.log('created new part and added to BOM')
@@ -207,7 +207,7 @@ export const actions = {
   addExistingPart({state}, payload) {
     // adds an existing part to the BOM, function based API view
     return new Promise((resolve, reject) => {
-      Vue.http.post('add_existing_part', payload).then(success => {
+      Vue.http.post('add_existing_part/', payload).then(success => {
         if (success) {
           if (success.body.inBom) {
             if (state.env != 'prod') {
@@ -255,7 +255,7 @@ export const actions = {
   updatePart({state}, payload) {
     // updates an existing part within a BOM, changing either the qty or revision, function based API view
     return new Promise((resolve, reject) => {
-      Vue.http.post('update_part', payload).then(success => {
+      Vue.http.post('update_part/', payload).then(success => {
         if (success.body.updated) {
           if (state.env != 'prod') {
             console.log('updated part in BOM')
@@ -281,7 +281,7 @@ export const actions = {
   deletePart({state}, payload) {
     // removes a part from the BOM, function based API view
     return new Promise((resolve, reject) => {
-      Vue.http.post('delete_part', payload).then(success => {
+      Vue.http.post('delete_part/', payload).then(success => {
         if (success) {
           if (state.env != 'prod') {
             console.log('deleted part from BOM')
