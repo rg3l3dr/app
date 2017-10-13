@@ -96,15 +96,15 @@ export const routes = [
   },
   {
     path: '/:profile_slug/:design_slug',
-    // redirect: '/:profile_slug/:design_slug/latest/home',
-    // meta: { requiresAuth: true },
+    redirect: '/:profile_slug/:design_slug/latest/home',
+    meta: { requiresAuth: true },
   },
   {
     path: '/:profile_slug/:design_slug/:revision_slug',
-    // redirect: '/:profile_slug/:design_slug/latest/home',
+    redirect: '/:profile_slug/:design_slug/latest/home',
     name: 'DesignFullRoute',
     component: Design,
-    // meta: { requiresAuth: true },
+    meta: { requiresAuth: true },
     children: [
       {path: 'home', components: {designContent: HomeTab}},
       {path: 'parts', components: {designContent: PartsTab}},
