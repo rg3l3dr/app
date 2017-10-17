@@ -20,7 +20,7 @@
        </h3>
       </div>
 
-      <div class="content" v-if='design.imports'>
+      <div class="content" v-if='design.imports > 0'>
         <div class="ui large error message">
           <div class="header">
             You cannot delete this design yet...
@@ -89,7 +89,7 @@ export default {
       // must test to see if this design is part of any other project
       $('#deleteModal').modal('hide')
       $('body .modals').remove()
-      this.$http.delete('designs/' + this.design.slug + '?owner_slug=' + this.design.owner_slug).then(response => {
+      this.$http.delete('designs/' + this.design.slug + '/?owner_slug=' + this.design.owner_slug).then(response => {
         if (this.env != 'prod') {
           console.log('Design has been deleted')
           console.log(response)
