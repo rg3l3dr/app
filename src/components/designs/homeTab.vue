@@ -22,7 +22,8 @@
           >
           <div v-if='design.data.images[0]' style='height:300px'>
             <!-- <span v-for='image in displayDefaultImage(design.data.images)' :key='image.url'> -->
-              <img  class="ui centered rounded image" :src='selectedImage.url' style='height: 100%'>
+              <img  class="ui centered rounded image" :src='design.data.images[0].url' style='height: 100%'>
+              <!-- <img  class="ui centered rounded image" :src='selectedImage.url' style='height: 100%'> -->
             <!-- </span> -->
             <br>
             <!-- <div class="carousel" >
@@ -324,14 +325,14 @@ export default {
                  isDefault: false
                }
 
-              // if (vue.design.data.images[0]) {
-              //   vue.design.data.images.pop()
-              //   vue.design.data.images.push(image)
-              // } else{
-              //   vue.design.data.images.push(image)
-              // }
+              if (vue.design.data.images[0]) {
+                vue.design.data.images.pop()
+                vue.design.data.images.push(image)
+              } else{
+                vue.design.data.images.push(image)
+              }
 
-              vue.design.data.images.push(image)
+              // vue.design.data.images.push(image)
               // if(!this.selectedImage) {
                 console.log('image: ')
                 console.dir(image)

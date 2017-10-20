@@ -63,19 +63,14 @@
       								<i class="fa fa-folder-open-o text-primary" aria-hidden="true"></i>
                       <div class="content">
                         &nbsp
-        								Public Projects
+        								Shared Projects
                       </div>
       						</div>
       						<div class="ui bottom attached clearing segment">
                     <div class="ui relaxed divided list">
                       <div class="item" v-if='projects.length == 0'>
                         <div class="sixteen wide column">
-                          <h3 class="ui icon header">
-                            <i class="meh icon"></i>
-                            <div class="content">
-                              No Public Projects Yet...
-                            </div>
-                          </h3>
+                          <p>{{ profile.name }} has not shared any projects with you yet.</p>
                         </div>
                       </div>
                       <div v-else class="item" v-for='project in projects'>
@@ -87,6 +82,33 @@
                         </div>
                       </div>
                     </div>
+                    <div class="ui tiny pagination menu" v-if='projectsPages.length > 1'>
+                      <a
+                        class="item"
+                        :class='{disabled: !previousProjects}'
+                        @click='selectProjectsPage(projectsPageIndex - 1)'
+                      >
+                        Previous
+                      </a>
+                      <a
+                        class="item"
+                        v-for='page in projectsPages'
+                        :class='{active: page === projectsPageIndex}'
+                        @click='selectProjectsPage(page)'
+                      >
+                        {{ page }}
+                      </a>
+                    <!--   <a class="disabled item" v-else>
+                      ...
+                    </a> -->
+                      <a
+                        class="item"
+                        :class='{disabled: !nextProjects}'
+                        @click='selectProjectsPage(projectsPageIndex + 1)'
+                      >
+                        Next
+                      </a>
+                    </div>
     							</div>
                 </div>
               </div>
@@ -96,26 +118,20 @@
                 <div class="ui small top attached header">
                   <i class="cubes icon text-primary"></i>
                   <div class="content">
-                    Public Parts
+                    Shared Parts & Assemblies
                   </div>
                 </div>
                 <div class="ui bottom attached clearing segment">
-                  <div style='text-align:center'>
+                  <div>
                     <span v-if='parts.length == 0'>
                       <br><br>
-                      <h1 class="ui icon header">
-                        <i class="meh icon"></i>
-                        <div class="content">
-                          No Public Parts
-                          <div class="sub header">{{profile.name}} has not created any public parts yet...</div>
-                        </div>
-                      </h1>
+                      <p>{{ profile.name }} have not shared any parts or assemblies with you</p>
                       <br><br><br>
                     </span>
                     <span v-else>
                       <div class="ui relaxed divided list">
                         <div class="item" v-for='part in parts'>
-                          <i class="large cubes middle aligned icon" v-if='part.parts'></i>
+                          <i class="large cubes middle aligned icon" v-if='part.parts > 0'></i>
                           <i class="large cube middle aligned icon" v-else></i>
                           <div class="content">
                             <router-link tag='a' class='header' :to=' "/" + part.creator + "/" + part.slug + "/latest/home" '> {{ part.name }}
@@ -125,6 +141,33 @@
                             </div>
                           </div>
                         </div>
+                      </div>
+                      <div class="ui tiny pagination menu" v-if='partsPages.length > 1'>
+                        <a
+                          class="item"
+                          :class='{disabled: !previousParts}'
+                          @click='selectPartsPage(partsPageIndex - 1)'
+                        >
+                          Previous
+                        </a>
+                        <a
+                          class="item"
+                          v-for='page in partsPages'
+                          :class='{active: page === partsPageIndex}'
+                          @click='selectPartsPage(page)'
+                        >
+                          {{ page }}
+                        </a>
+                      <!--   <a class="disabled item" v-else>
+                        ...
+                      </a> -->
+                        <a
+                          class="item"
+                          :class='{disabled: !nextParts}'
+                          @click='selectPartsPage(partsPageIndex + 1)'
+                        >
+                          Next
+                        </a>
                       </div>
                     </span>
                   </div>
@@ -149,7 +192,17 @@ export default {
     return {
       profile: {},
       projects: [],
-      parts: []
+      projectsPages: [],
+      previousProjects: null,
+      nextProjects: null,
+      projectsPageIndex: null,
+      projectsPageRange: null,
+      parts: [],
+      partsPages: [],
+      previousParts: null,
+      nextParts: null,
+      partsPageIndex: null,
+      partsPageRange: null,
     }
   },
   computed: {
@@ -177,14 +230,25 @@ export default {
         })
       })
     },
-    getPublicProjects() {
+    getPublicProjects(page) {
       return new Promise((resolve, reject) => {
-        this.$http.get('publicprojects/' + '?profile_slug=' + this.$route.params.profile_slug.toLowerCase()).then(success => {
+        this.$http.get(`privateprojects/?page=${page}&profile_slug=${this.profile.slug.toLowerCase()}`).then(success => {
           if (this.env != 'prod') {
             console.log('Got users public projects')
             console.log(success)
           }
           this.projects = success.body.results
+          this.previousProjects = success.body.previous
+          this.nextProjects = success.body.next
+          if (this.projectsPages.length == 0) {
+            this.projectsPageIndex = 1
+            let count = Math.ceil(success.body.count / 10)
+            console.log(count)
+            for (let i = 1; i <= count; i++) {
+              this.projectsPages.push(i)
+            }
+            this.projectsPageRange = 5
+          }
           resolve(success)
         }, error => {
           if (this.env != 'prod') {
@@ -195,14 +259,27 @@ export default {
         })
       })
     },
-    getPublicParts() {
+    getPublicParts(page) {
       return new Promise((resolve, reject) => {
-        this.$http.get('publicparts/' + '?profile_slug=' + this.$route.params.profile_slug.toLowerCase()).then(success => {
+        this.$http.get(`privateparts/?page=${page}&profile_slug=${this.profile.slug.toLowerCase()}`).then(success => {
           if (this.env != 'prod') {
             console.log('Got users public parts')
             console.log(success)
           }
           this.parts = success.body.results
+
+          this.previousParts = success.body.previous
+          this.nextParts = success.body.next
+          if (this.partsPages.length == 0) {
+            this.partsPageIndex = 1
+            let count = Math.ceil(success.body.count / 10)
+            for (let i = 1; i <= count; i++) {
+              this.partsPages.push(i)
+            }
+            this.partsPageRange = 5
+          }
+
+
           resolve(success)
         }, error => {
           if (this.env != 'prod') {
@@ -213,11 +290,19 @@ export default {
         })
       })
     },
+    selectPartsPage(index) {
+      this.getPublicParts(index)
+      this.partsPageIndex = index
+    },
+    selectProjectsPage(index) {
+      this.getPublicProjects(index)
+      this.projectsPageIndex = index
+    },
   },
   created() {
     this.getPublicProfile().then(success => {
-      this.getPublicProjects()
-      this.getPublicParts()
+      this.getPublicProjects(1)
+      this.getPublicParts(1)
     }, error => {
       if (error.body.detail == 'Not found.') {
         this.$router.push('/404')

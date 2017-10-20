@@ -12,7 +12,6 @@
         <div class="ui bottom attached clearing segment">
           <div class="ui secondary vertical menu">
             <router-link
-              v-if='!design.is_collaborator'
               tag='a'
               class='item'
               :to=' this.designRoute + "/settings/basic"'

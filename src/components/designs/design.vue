@@ -156,7 +156,7 @@
             <div class="ui text menu" style='margin-top: 0px; margin-bottom:0px'>
               <div class="item">
                 <div class="ui massive breadcrumb">
-                  <router-link tag='a' to='/home' v-if='profile.slug == $route.params.profile_slug'>
+                  <router-link tag='a' to='/home' v-if='profile.slug == design.owner_slug'>
                     {{ profile.name }}
                   </router-link>
                   <router-link tag='a' :to='`/${$route.params.profile_slug}`'  v-else>

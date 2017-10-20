@@ -5,7 +5,7 @@
         <router-link v-if='session.active' class='item' to='/home' style="font-family:Exo, sans-serif;font-size: 33px; padding: 5px 3rem 0px 10px">
           <i class="fa fa-cogs" style='font-size:32px; color:#4c6972'></i>
           &nbsp
-          <span style='color:4c6972'>Omni</span><span style='color:4c6972'>Builds</span>
+          <span style='color:#4c6972'>Omni</span><span style='color:#4c6972'>Builds</span>
         </router-link>
         <a href='https://www.omnibuilds.com' v-else-if='env == "prod"' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px">
           <i class="fa fa-cogs" style='font-size:32px; color:#4c6972'></i>

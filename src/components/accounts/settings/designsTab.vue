@@ -20,7 +20,9 @@
         <tbody>
           <tr v-for='design in designs'>
             <td id='project-name'>
-              {{ design.name }}
+              <router-link :to='`/${profile.slug}/${design.slug}/latest/home`' tag='a'>
+                {{ design.name }}
+              </router-link>
             </td>
 
             <td id='project-last-updated'>
@@ -28,15 +30,15 @@
             </td>
 
             <td id='project-parts'>
-              NA
+              {{ design.parts }}
             </td>
 
             <td id='project-files'>
-              NA
+              {{ design.files }}
             </td>
 
             <td id='project-revs'>
-              {{ design.revisions.length }}
+              {{ design.revs }}
             </td>
 
             <td id='project-data'>

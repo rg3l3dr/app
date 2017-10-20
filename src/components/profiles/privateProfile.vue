@@ -213,7 +213,7 @@
                   <i class="cubes icon text-primary"></i>
                   <div class="content">
                     &nbsp
-                    My Parts
+                    My Parts & Assemblies
                   </div>
                 </div>
                 <div class="ui bottom attached clearing segment">
@@ -221,7 +221,7 @@
                     <!-- <div class="ui relaxed divided list"> -->
                       <div class='ui relaxed divided list'>
                         <div class="item" v-for='part in parts'>
-                          <i class="large cubes middle aligned icon" v-if='part.parts'></i>
+                          <i class="large cubes middle aligned icon" v-if='part.parts > 0'></i>
                           <i class="large cube middle aligned icon" v-else></i>
                           <div class="content" v-if='part.owner == profile.name'>
                             <router-link tag='a' :to=' "/" + part.owner + "/" + part.slug + "/latest/home" '>
@@ -386,7 +386,7 @@ export default {
   methods: {
     getDesigns(page) {
       return new Promise ((resolve, reject) => {
-        this.$http.get('privateprojects/?page=' + page).then(success => {
+        this.$http.get(`privateprojects/?page=${page}&profile_slug=${this.profile.slug.toLowerCase()}`).then(success => {
           if (this.env != 'prod') {
             console.log('Got design list')
             console.log(success)
@@ -415,7 +415,7 @@ export default {
     },
     getParts(page) {
       return new Promise((resolve, reject) => {
-        this.$http.get('privateparts/?page=' + page).then(success => {
+        this.$http.get(`privateparts/?page=${page}&profile_slug=${this.profile.slug.toLowerCase()}`).then(success => {
           if (this.env != 'prod') {
             console.log('Got users private parts')
             console.log(success)

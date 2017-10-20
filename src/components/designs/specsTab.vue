@@ -9,7 +9,7 @@
         <span>
           <form class="ui form">
             <h3 class="ui dividing header">Basic Data</h3>
-            <div class="one field">
+            <div class="one field"> 
               <div class="sixteen wide field" id='design-class'>
                 <label>Design Class</label>
                 <div
