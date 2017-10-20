@@ -84,7 +84,7 @@
               <div class='row'>
       					<div class='sixteen wide column' id='projects'>
       						<div class='ui small top attached header'>
-      								<i class="fa fa-folder-open-o text-primary" aria-hidden="true"></i>
+      								<i class="fa fa-folder-open text-primary" aria-hidden="true"></i>
                       <div class="content">
                         &nbsp
         								My Projects
@@ -96,7 +96,7 @@
                         You have not created any design projects yet
                       </div>
                       <div v-else class="item" v-for='project in projects'>
-                        <i class="folder icon"></i>
+                        <i class="folder open outline icon"></i>
                         <div class="content" v-if='project.owner == profile.name'>
                           <router-link tag='a' :to=' "/" + project.owner + "/" + project.slug + "/latest/home" '>
                             {{ project.name }}
@@ -113,10 +113,38 @@
                         </div>
                       </div>
                     </div>
+                    <div class="ui tiny pagination menu" v-if='projectsPages.length > 1'>
+                      <a
+                        class="item"
+                        :class='{disabled: !previousProjects}'
+                        @click='selectProjectsPage(projectsPageIndex - 1)'
+                      >
+                        Previous
+                      </a>
+                      <a
+                        class="item"
+                        v-for='page in projectsPages'
+                        :class='{active: page === projectsPageIndex}'
+                        @click='selectProjectsPage(page)'
+                      >
+                        {{ page }}
+                      </a>
+                    <!--   <a class="disabled item" v-else>
+                      ...
+                    </a> -->
+                      <a
+                        class="item"
+                        :class='{disabled: !nextProjects}'
+                        @click='selectProjectsPage(projectsPageIndex + 1)'
+                      >
+                        Next
+                      </a>
+                    </div>
+                    <br><br>
                     <router-link to='/designs/create_design'>
       								<button class='ui right floated small compact basic black button'>
       									<i class="fa fa-plus" aria-hidden="true"> </i>
-      									&nbsp New Design
+      									&nbsp New Project
       								</button>
                     </router-link>
     							</div>
@@ -190,52 +218,55 @@
                 </div>
                 <div class="ui bottom attached clearing segment">
                   <div>
-                    <div class="ui relaxed divided list">
-                      <div class="item" v-for='part in parts'>
-                        <i class="large cubes middle aligned icon" v-if='part.parts'></i>
-                        <i class="large cube middle aligned icon" v-else></i>
-                        <div class="content" v-if='part.owner == profile.name'>
-                          <router-link tag='a' :to=' "/" + part.owner + "/" + part.slug + "/latest/home" '>
-                            {{ part.name }}
-                          </router-link>
-                          <div class="description">
-                            {{ part.number }}
+                    <!-- <div class="ui relaxed divided list"> -->
+                      <div class='ui relaxed divided list'>
+                        <div class="item" v-for='part in parts'>
+                          <i class="large cubes middle aligned icon" v-if='part.parts'></i>
+                          <i class="large cube middle aligned icon" v-else></i>
+                          <div class="content" v-if='part.owner == profile.name'>
+                            <router-link tag='a' :to=' "/" + part.owner + "/" + part.slug + "/latest/home" '>
+                              {{ part.name }}
+                            </router-link>
+                            <div class="description">
+                              {{ part.number }}
+                            </div>
                           </div>
+                          <div v-else class="content">
+                            <router-link tag='a' :to=' "/" + part.owner'>
+                              {{ part.owner }}
+                            </router-link>
+                            /
+                            <router-link tag='a' :to=' "/" + part.owner + "/" + part.slug + "/latest/home" '>
+                              {{ part.name }}
+                            </router-link>
+                            <div class="description">
+                              {{ part.number }}
+                            </div>
+                          </div>
+                          <!-- <div class="content">
+                            <router-link tag='a' class='header' :to=' "/" + part.creator + "/" + part.slug + "/alpha/latest/parts" '> {{ part.name }}
+                            </router-link>
+                            <div class="description">
+                              {{ part.number }}
+                            </div>
+                          </div> -->
                         </div>
-                        <div v-else class="content">
-                          <router-link tag='a' :to=' "/" + part.owner'>
-                            {{ part.owner }}
-                          </router-link>
-                          /
-                          <router-link tag='a' :to=' "/" + part.owner + "/" + part.slug + "/latest/home" '>
-                            {{ part.name }}
-                          </router-link>
-                          <div class="description">
-                            {{ part.number }}
-                          </div>
-                        </div>
-                        <!-- <div class="content">
-                          <router-link tag='a' class='header' :to=' "/" + part.creator + "/" + part.slug + "/alpha/latest/parts" '> {{ part.name }}
-                          </router-link>
-                          <div class="description">
-                            {{ part.number }}
-                          </div>
-                        </div> -->
                       </div>
-                    </div>
-                    <div class="ui pagination menu" v-if='parts.length > 10'>
+
+                    <!-- </div> -->
+                    <div class="ui tiny pagination menu" v-if='partsPages.length > 1'>
                       <a
                         class="item"
-                        :class='{disabled: !previous}'
-                        @click='selectPage(pageIndex - 1)'
+                        :class='{disabled: !previousParts}'
+                        @click='selectPartsPage(partsPageIndex - 1)'
                       >
                         Previous
                       </a>
                       <a
                         class="item"
-                        v-for='page in pages'
-                        :class='{active: page === pageIndex}'
-                        @click='selectPage(page)'
+                        v-for='page in partsPages'
+                        :class='{active: page === partsPageIndex}'
+                        @click='selectPartsPage(page)'
                       >
                         {{ page }}
                       </a>
@@ -244,8 +275,8 @@
                     </a> -->
                       <a
                         class="item"
-                        :class='{disabled: !next}'
-                        @click='selectPage(pageIndex + 1)'
+                        :class='{disabled: !nextParts}'
+                        @click='selectPartsPage(partsPageIndex + 1)'
                       >
                         Next
                       </a>
@@ -322,12 +353,17 @@ export default {
   data() {
     return {
       projects: [],
+      projectsPages: [],
+      previousProjects: null,
+      nextProjects: null,
+      projectsPageIndex: null,
+      projectsPageRange: null,
       parts: [],
-      pages: [],
-      previous: null,
-      next: null,
-      pageIndex: null,
-      pageRange: null,
+      partsPages: [],
+      previousParts: null,
+      nextParts: null,
+      partsPageIndex: null,
+      partsPageRange: null,
       profiles: null,
     }
   },
@@ -348,14 +384,25 @@ export default {
 		},
   },
   methods: {
-    getDesigns() {
+    getDesigns(page) {
       return new Promise ((resolve, reject) => {
-        this.$http.get('privateprojects/').then(success => {
+        this.$http.get('privateprojects/?page=' + page).then(success => {
           if (this.env != 'prod') {
             console.log('Got design list')
             console.log(success)
           }
           this.projects = success.body.results
+          this.previousProjects = success.body.previous
+          this.nextProjects = success.body.next
+          if (this.projectsPages.length == 0) {
+            this.projectsPageIndex = 1
+            let count = Math.ceil(success.body.count / 10)
+            console.log(count)
+            for (let i = 1; i <= count; i++) {
+              this.projectsPages.push(i)
+            }
+            this.projectsPageRange = 5
+          }
           resolve()
         }, error => {
           if (this.env != 'prod') {
@@ -374,16 +421,15 @@ export default {
             console.log(success)
           }
           this.parts = success.body.results
-          this.previous = success.body.previous
-          this.next = success.body.next
-          if (this.pages.length == 0) {
-            this.pageIndex = 1
+          this.previousParts = success.body.previous
+          this.nextParts = success.body.next
+          if (this.partsPages.length == 0) {
+            this.partsPageIndex = 1
             let count = Math.ceil(success.body.count / 10)
-            console.log(count)
             for (let i = 1; i <= count; i++) {
-              this.pages.push(i)
+              this.partsPages.push(i)
             }
-            this.pageRange = 5
+            this.partsPageRange = 5
           }
           resolve(success)
         }, error => {
@@ -395,9 +441,13 @@ export default {
         })
       })
     },
-    selectPage(index) {
+    selectPartsPage(index) {
       this.getParts(index)
-      this.pageIndex = index
+      this.partsPageIndex = index
+    },
+    selectProjectsPage(index) {
+      this.getDesigns(index)
+      this.projectsPageIndex = index
     },
     startCalHeatMap() {
       var cal = new CalHeatMap()
@@ -423,7 +473,7 @@ export default {
     }
   },
   mounted() {
-    this.getDesigns().then( () => {
+    this.getDesigns(1).then( () => {
       // this.startCalHeatMap()
     })
     this.getParts(1)

@@ -1931,7 +1931,7 @@ export default {
   mounted() {
   },
   updated() {
-    $('.modal:not(:first)').remove()
+    // $('.modal:not(:first)').remove()
   }
 }
 </script>

@@ -29,7 +29,7 @@
                   class="prompt"
                   type="text"
                   size='35'
-                  placeholder=" Search your parts library..."
+                  placeholder=" Search your designs"
                   v-model='inputQuery'
                   @keydown.enter='getResult'
                 >
@@ -68,7 +68,7 @@
               </router-link>
               <router-link class='item' to='/designs/create_design'>
                 <i class='fa fa-folder-o fa-fw'></i>
-                &nbsp Create Design
+                &nbsp Create Project
               </router-link>
               <router-link class='item' to='/accounts/settings/public'>
                 <i class='fa fa-gear fa-fw'></i>
@@ -130,6 +130,7 @@ export default {
             vue.result = {}
             $('.ui.search').search('hide results')
             vue.$router.push('/' + path)
+            location.reload()
           } else {
             if (vue.env != 'prod') {
               console.log('No result selected, redirecting to results list page')
@@ -213,7 +214,8 @@ export default {
               },
             fields: {
               title: 'name',
-              description: 'number'
+              description: 'number',
+              design_type: 'price'
             },
             onSelect: function(result, response) {
               vue.resultSelected = true
@@ -234,7 +236,8 @@ export default {
             },
             fields: {
               title: 'name',
-              description: 'number'
+              description: 'number',
+              price: 'design_type'
             },
             onSelect: function(result, response) {
               vue.resultSelected = true

@@ -57,9 +57,19 @@ export const routes = [
       }
     }
   },
-  {path: '/accounts/auth/register', component: RegistrationForm},
+  {
+    path: '/accounts/auth/register',
+    redirect: to => {
+      if (store.state.session.active) {
+        return { path: '/home'}
+      } else {
+        return {path: '/accounts/auth/signup', component: RegistrationForm}
+      }
+    }
+  },
   {path: '/accounts/auth/login', component: LoginForm},
   {path: '/accounts/auth/logout', component: LogoutForm},
+  {path: '/accounts/auth/signup', component: RegistrationForm},
   {path: '/accounts/auth/request_reset', component: RequestPasswordResetForm},
   {path: '/accounts/auth/reset', component: ResetPasswordForm},
   {path: '/accounts/auth/confirm_reset', component: ConfirmResetForm},

@@ -2,7 +2,154 @@
   <div class="ui grid" style='padding: 0px 25px 0px 25px'>
     <div class="sixteen wide column">
       <div class="ui grid">
+        <div class="modals">
+          <div class='ui small modal' id='revision-modal'>
+            <div class="header">
+              <h3>
+               Create a New Revision
+             </h3>
+            </div>
+            <div class="content">
+              <form class="ui form">
+                <div class="field" :class="{ 'error': new_rev.hasError }">
+                  <label>Revision Name</label>
+                  <input
+                    type="text"
+                    v-model='new_rev.name'
+                    id='revision-name'
+                  >
+                  <span
+                    v-if='new_rev.hasError'
+                    class="help-block"
+                    >{{new_rev.error}}
+                  </span>
+                </div>
+                <div class="field">
+                  <label>Change Message</label>
+                  <input
+                    type='text'
+                    v-model='new_rev.message'
+                    id='change-message'
+                  >
+                </div>
+              </form>
 
+            </div>
+            <div class="actions">
+              <button class="ui small blue basic button" @click='hideRevModal()'>Close</button>
+              <button class="ui green small basic button" @click='revisePart()'>Create Revision</button>
+            </div>
+          </div>
+          <div class='ui modal' id='export-modal'>
+            <div class="header">
+              <h3>
+               Add {{ design.name }} as a part into an existing design
+             </h3>
+            </div>
+            <div class="content">
+              <form class="ui form">
+                <div class="field" id='parent-design'>
+                  <label>Existing Design</label>
+                  <div class="ui transparent search input fluid">
+                    <input
+                      class="prompt compact"
+                      type="text"
+                      placeholder="Search for an existing design"
+                    >
+                  </div>
+                </div>
+                <div class="field" id='part-revision'>
+                  <label>Revision for {{ design.name }}</label>
+                  <div class="ui selection dropdown" id='revision-dropdown'>
+                    <input type="hidden" name="revision">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Select a Revision</div>
+                    <div class="menu">
+                      <div
+                        class="item"
+                        v-for='revision in design.revisions'
+                        @click='importRevision=revision'
+                      >
+                        {{ revision.name}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field" id='part-quantity'>
+                  <label>Quantity for {{ design.name }}</label>
+                  <input type="number" v-model='importQuantity' step='1' min='1'>
+                </div>
+              </form>
+
+            </div>
+            <div class="actions">
+              <button class="ui small blue basic button" @click='hideExportModal()'>Close</button>
+              <button
+                class="ui green small basic button"
+                @click='exportPart()'
+                :class="{'disabled' : !result || !importRevision}"
+              >Export Part</button>
+            </div>
+          </div>
+          <div class='ui small modal' id='clone-modal'>
+            <div class="header">
+              <h3>
+               Clone this Design
+             </h3>
+            </div>
+            <div class="content">
+              <form class="ui form">
+                <div class="field" :class="{ 'error': clone.hasError }">
+                  <label>Clone Name</label>
+                  <input
+                    type="text"
+                    v-model='clone.name'
+                    id='clone-name'
+                  >
+                  <span
+                    v-if='clone.hasError'
+                    class="help-block"
+                    >{{ clone.error }}
+                  </span>
+                </div>
+              </form>
+            </div>
+            <div class="actions">
+              <button class="ui small blue basic button" @click='hideCloneModal()'>Close</button>
+              <button class="ui green small basic button" @click='clonePart()'>Create Clone</button>
+            </div>
+          </div>
+          <div class='ui small modal' id='share-modal'>
+            <div class="header">
+              <h3>
+               Share this design
+             </h3>
+
+            </div>
+            <div class="content">
+
+              <form class="ui form">
+                <div class="field" :class="{ 'error': share.hasError }">
+                  <label>Enter an email</label>
+                  <input
+                    type="email"
+                    v-model='share.email'
+                    id='revision-name'
+                  >
+                  <span
+                    v-if='share.hasError'
+                    class="help-block"
+                    >{{ share.error }}
+                  </span>
+                </div>
+              </form>
+            </div>
+            <div class="actions">
+              <button class="ui small blue basic button" @click='hideShareModal()'>Close</button>
+              <button class="ui green small basic button" @click='shareDesign()'>Share Design</button>
+            </div>
+          </div>
+        </div>
         <!-- design header bar -->
         <div class="row" style='padding-bottom: 0px; padding-top: 10px'>
           <div class="sixteen wide column" style='padding-bottom: 0px'>
@@ -70,10 +217,10 @@
                     </div>
                   </div>
                 </div>
-                <div id='copy-button'>
+                <div id='clone-button'>
                   &nbsp&nbsp
                   <div class="ui small labeled button" tabindex="0">
-                    <div class="ui small basic button" @click='clonePart()'>
+                    <div class="ui small basic button" @click='showCloneModal()'>
                       <i class="clone icon"></i>Clone
                     </div>
                     <a
@@ -91,6 +238,27 @@
                     </div>
                   </div>
                 </div>
+                <!-- <div id='share-button'>
+                  &nbsp&nbsp
+                  <div class="ui small labeled button" tabindex="0">
+                    <div class="ui small basic button" @click='showShareModal()'>
+                      <i class="share icon"></i>Share
+                    </div>
+                    <a
+                      v-if='design.shares > 0'
+                      class="ui small basic left pointing label"
+                      @click='viewShares()'
+                    >
+                      {{ design.shares }}
+                    </a>
+                    <div
+                      v-else
+                      class='ui small basic left pointing label'
+                    >
+                      0
+                    </div>
+                  </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -207,96 +375,6 @@
 
       </div>
     </div>
-
-    <div class='ui small modal' id='revision-modal'>
-      <div class="header">
-        <h3>
-         Create a New Revision
-       </h3>
-      </div>
-      <div class="content">
-        <form class="ui form">
-          <div class="field" :class="{ 'error': new_rev.hasError }">
-            <label>Revision Name</label>
-            <input
-              type="text"
-              v-model='new_rev.name'
-              id='revision-name'
-            >
-            <span
-              v-if='new_rev.hasError'
-              class="help-block"
-              >{{new_rev.error}}
-            </span>
-          </div>
-          <div class="field">
-            <label>Change Message</label>
-            <input
-              type='text'
-              v-model='new_rev.message'
-              id='change-message'
-            >
-          </div>
-        </form>
-
-      </div>
-      <div class="actions">
-        <button class="ui small blue basic button" @click='hideRevModal()'>Close</button>
-        <button class="ui green small basic button" @click='revisePart()'>Create Revision</button>
-      </div>
-    </div>
-
-    <div class='ui small modal' id='export-modal'>
-      <div class="header">
-        <h3>
-         Add {{ design.name }} as a part into an existing design
-       </h3>
-      </div>
-      <div class="content">
-        <form class="ui form">
-          <div class="field" id='parent-design'>
-            <label>Existing Design</label>
-            <div class="ui transparent search input fluid">
-              <input
-                class="prompt compact"
-                type="text"
-                placeholder="Search for an existing design"
-              >
-            </div>
-          </div>
-          <div class="field" id='part-revision'>
-            <label>Revision for {{ design.name }}</label>
-            <div class="ui selection dropdown" id='revision-dropdown'>
-              <input type="hidden" name="revision">
-              <i class="dropdown icon"></i>
-              <div class="default text">Select a Revision</div>
-              <div class="menu">
-                <div
-                  class="item"
-                  v-for='revision in design.revisions'
-                  @click='importRevision=revision'
-                >
-                  {{ revision.name}}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="field" id='part-quantity'>
-            <label>Quantity for {{ design.name }}</label>
-            <input type="number" v-model='importQuantity' step='1' min='1'>
-          </div>
-        </form>
-
-      </div>
-      <div class="actions">
-        <button class="ui small blue basic button" @click='hideExportModal()'>Close</button>
-        <button
-          class="ui green small basic button"
-          @click='exportPart()'
-          :class="{'disabled' : !result || !importRevision}"
-        >Export Part</button>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -312,28 +390,22 @@ export default {
   },
   data () {
     return {
-      new_config: {
-        data: '',
-        hasError: null,
-        error: '',
-      },
-      new_build: {
-        data: '',
-        hasError: null,
-        error: ''
-      },
       new_rev: {
         name: '',
         message: '',
         hasError: null,
         error: ''
       },
-      current_config: {},
-      current_build_set: [],
-      current_build: {},
-      current_rev_set: [],
-      current_rev_index: 0,
-      current_rev: {},
+      clone: {
+        name: '',
+        hasError: null,
+        error: ''
+      },
+      share: {
+        email: '',
+        hasError: null,
+        error: ''
+      },
       part: null,
       testPath: [],
       results: [],
@@ -364,7 +436,10 @@ export default {
     ]),
     new_rev_slug() {
       return this.new_rev.name.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
-    }
+    },
+    clone_slug() {
+      return this.clone.name.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
+    },
   },
   watch: {
     node () {
@@ -478,7 +553,6 @@ export default {
       }
     },
     showRevModal() {
-
       let new_rev_number = this.design.revisions.length
       this.new_rev.name = `Rev ${new_rev_number}`
 
@@ -557,7 +631,9 @@ export default {
     },
     showExportModal() {
       console.log('show export modal clicked')
-      $('#export-modal').modal('show')
+      $('#export-modal').modal('setting', {
+        detachable: false,
+      }).modal('show')
       this.$nextTick(() => {
         $('#revision-dropdown').dropdown()
         let vue = this
@@ -618,8 +694,6 @@ export default {
         }
 
       })
-
-
     },
     hideExportModal() {
       $('#export-modal').modal('hide')
@@ -657,31 +731,69 @@ export default {
       this.$store.commit('setQuery', payload)
       this.$router.push('/search')
     },
+    showCloneModal() {
+      this.clone.name = `Clone of ${this.design.name}`
+      $('#clone-modal').modal('show')
+    },
+    hideCloneModal() {
+      $('#clone-modal').modal('hide')
+      this.clone.name = ''
+    },
     clonePart() {
+
+      this.clone.hasError = false
+      this.clone.error = ''
+
+      this.clone.name = this.clone.name.trim()
+
       let payload = {
-        design_id: this.design.id
+        design_slug: this.clone_slug,
+        owner_slug: this.profile.slug
       }
-      this.$http.post('clone_design/', payload).then(success => {
-        if (this.env != 'prod') {
-          console.log('cloned design')
-          console.dir(success)
+      this.$http.post('check_design/', payload).then(success => {
+        if (success.body.active) {
+          if (this.env != 'prod') {
+            console.log('Design name is already taken')
+            console.log(success)
+          }
+          this.clone.hasError = true
+          this.clone.error = "You already have a design with the same name"
+        } else {
+          let payload = {
+            design_id: this.design.id,
+            clone_name: this.clone.name
+          }
+          this.$http.post('clone_design/', payload).then(success => {
+            if (this.env != 'prod') {
+              console.log('cloned design')
+              console.dir(success)
+            }
+
+            this.hideCloneModal()
+
+            // reset the URL to the design
+            let clone_slug = success.body.slug
+
+            // this.route.params.design_slug = clone_slug
+
+
+            this.$router.push(`/${this.profile.slug}/${clone_slug}/latest/home`)
+            location.reload()
+
+
+          }, error => {
+            if (this.env != 'prod') {
+              console.log('error cloning design')
+              console.dir(error)
+            }
+          })
         }
-
-        // reset the URL to the design
-        let clone_slug = success.body.slug
-
-        // this.route.params.design_slug = clone_slug
-
-
-        this.$router.push(`/${this.profile.slug}/${clone_slug}/latest/home`)
-        location.reload()
-
-
       }, error => {
         if (this.env != 'prod') {
-          console.log('error cloning design')
-          console.dir(error)
+          console.log('Error checking new design name')
+          console.log(error)
         }
+        this.hideCloneModal()
       })
     },
     viewClones() {
@@ -693,7 +805,51 @@ export default {
         }
         this.$store.commit('setQuery', payload)
         this.$router.push('/search')
-    }
+    },
+    showShareModal() {
+      $('#share-modal').modal('show')
+    },
+    hideShareModal() {
+      $('#share-modal').modal('hide')
+    },
+    shareDesign() {
+
+      // validate email is correct
+      // validate design has not already been shared with email
+
+
+      // have to create a route to handle the unlisted design
+
+      let share_design_payload = {
+        design_id: this.design.id,
+        email: this.share.email
+      }
+
+      this.$http.post('share_design/', share_design_payload).then(success => {
+        if (this.env != 'prod') {
+          console.log('Shared design')
+          console.dir(success)
+        }
+        this.share.email = ''
+        this.hideShareModal()
+
+      }, error => {
+        if (this.env != 'prod') {
+          console.log('Error sharing design')
+          console.dir(error)
+        }
+      })
+    },
+    viewShares() {
+
+
+
+      let payload = {
+
+      }
+      this.$store.commit('setQuery', payload)
+      this.$router.push('/search')
+    },
   },
   created() {
     this.$store.commit('clearDesign')

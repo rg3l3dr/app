@@ -46,6 +46,33 @@
           </tr>
         </tbody>
       </table>
+      <div class="ui pagination menu" v-if='pages.length > 1'>
+        <a
+          class="item"
+          :class='{disabled: !previous}'
+          @click='selectPage(pageIndex - 1)'
+        >
+          Previous
+        </a>
+        <a
+          class="item"
+          v-for='page in pages'
+          :class='{active: page === pageIndex}'
+          @click='selectPage(page)'
+        >
+          {{ page }}
+        </a>
+      <!--   <a class="disabled item" v-else>
+        ...
+      </a> -->
+        <a
+          class="item"
+          :class='{disabled: !next}'
+          @click='selectPage(pageIndex + 1)'
+        >
+          Next
+        </a>
+      </div>
     </div>
   </div>
 
@@ -58,6 +85,11 @@ export default {
   data() {
     return {
       designs: [],
+      pages: [],
+      previous: null,
+      next: null,
+      pageIndex: null,
+      pageRange: null,
     }
   },
   computed: {
@@ -77,23 +109,39 @@ export default {
        var i = Math.floor(Math.log(bytes) / Math.log(k))
        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
     },
-    getDesigns() {
-      this.$http.get('designs/').then(success => {
+    getDesigns(page) {
+      this.$http.get('designs/?page=' + page).then(success => {
         if (this.env != 'prod') {
           console.log('Got designs')
           console.log(success)
         }
         this.designs = success.body.results
+
+        this.previous = success.body.previous
+        this.next = success.body.next
+        if (this.pages.length == 0) {
+          this.pages = []
+          this.pageIndex = 1
+          let count = Math.ceil(success.body.count / 25)
+          for (let i = 1; i <= count; i++) {
+            this.pages.push(i)
+          }
+          this.pageRange = 10
+        }
       }, error => {
         if (this.env != 'prod') {
           console.log('Error getting designs')
           console.log(error)
         }
       })
-    }
+    },
+    selectPage(index) {
+      this.getDesigns(index)
+      this.pageIndex = index
+    },
   },
   created() {
-    this.getDesigns()
+    this.getDesigns(1)
   },
   mounted() {},
   updated() {}
