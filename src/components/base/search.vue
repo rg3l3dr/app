@@ -5,7 +5,7 @@
       <div class="fourteen wide column">
         <div class="row">
           <div class="eight wide column">
-            Your search for {{ query.query }} returned {{ results.length }} results
+            Your search for {{ query.query }} returned {{ count }} results
           </div>
         </div>
         <div class="row">
@@ -76,6 +76,7 @@ export default {
   data () {
     return {
       results: [],
+      count: null,
       pages: [],
       previous: null,
       next: null,
@@ -110,8 +111,9 @@ export default {
         if (this.pages.length == 0 || newQuery) {
           this.pages = []
           this.pageIndex = 1
-          let count = Math.ceil(success.body.count / 10)
-          for (let i = 1; i <= count; i++) {
+          this.count = success.body.count
+          let pageCount = Math.ceil(this.count / 10)
+          for (let i = 1; i <= pageCount; i++) {
             this.pages.push(i)
           }
           this.pageRange = 10
