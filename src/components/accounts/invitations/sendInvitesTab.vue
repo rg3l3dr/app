@@ -57,7 +57,7 @@
             value='Send Invites'
             id='sendInvites'
             class='ui small basic blue button'
-            @click.prevent='submitInvites'
+            @click.prevent.once='submitInvites'
             :disabled='valid_invites.length === 0 || invalid_invites.length > 0'>
 
 

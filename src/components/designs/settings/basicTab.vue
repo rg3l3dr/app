@@ -77,7 +77,7 @@
             <option value='3'>Public</option>
           </select>
         </div> -->
-        <button class='ui small basic blue button' @click='submit' v-if='revision.slug == "latest"'>
+        <button class='ui small basic blue button' @click.once='submit' v-if='revision.slug == "latest"'>
           Update Design
         </button>
       </div>

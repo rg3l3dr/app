@@ -48,7 +48,7 @@
             >Successfully updated email address
           </span>
         </div>
-        <button class='ui small basic blue button' @click.prevent='changeEmail'>
+        <button class='ui small basic blue button' @click.prevent.once='changeEmail'>
           Change Email
         </button>
       </form>
@@ -137,7 +137,7 @@
            > {{password2.error}}
          </span>
         </div>
-        <button class='ui small basic blue button' @click.prevent='changePassword'>
+        <button class='ui small basic blue button' @click.prevent.once='changePassword'>
           Change Password
         </button>
         <br><br>
@@ -178,7 +178,7 @@
             > {{username.error}}
           </span>
         </div>
-        <button class='ui button' @click.prevent='changeUsername'>
+        <button class='ui button' @click.prevent.once='changeUsername'>
           Change Username
         </button>
       </form> -->

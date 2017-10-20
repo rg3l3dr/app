@@ -66,7 +66,7 @@
                     > {{description.error}}
                   </div>
                 </div> -->
-                <button class='ui basic blue button' @click='submit()'>Create Design</button>
+                <button class='ui basic blue button' @click.once='submit()'>Create Design</button>
               </div>
             </div>
           </div>

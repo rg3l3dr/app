@@ -144,8 +144,8 @@
        </div>
       <div class="actions">
          <button id='closeModal' type="button" class="ui small basic red button" @click='hidePaymentModal'>Cancel</button>
-          <button v-if='is_active_customer' type="submit" class="ui button" id='submit-card' @click='submitPayment("update")' data-dismiss="modal">Update Payment Info</button>
-          <button v-else type="submit" class="ui small basic blue button" id='submit-card' @click='submitPayment("create")' data-dismiss="modal">Submit Payment</button>
+          <button v-if='is_active_customer' type="submit" class="ui button" id='submit-card' @click.once='submitPayment("update")' data-dismiss="modal">Update Payment Info</button>
+          <button v-else type="submit" class="ui small basic blue button" id='submit-card' @click.once='submitPayment("create")' data-dismiss="modal">Submit Payment</button>
        </div>
     </div>
 

@@ -44,7 +44,7 @@
                   type="submit"
                   class="ui blue basic button"
                   :disabled='email.isValid != true || email.isActive != true'
-                  @click.prevent='submit'
+                  @click.prevent.once='submit'
                   >Reset Password
                 </button>
               </form>

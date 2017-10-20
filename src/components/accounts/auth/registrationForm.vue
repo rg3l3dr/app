@@ -115,7 +115,7 @@
                 <button
                   type="submit"
                   class="ui basic blue button"
-                  @click.prevent='submit'
+                  @click.prevent.once='submit'
 
                   >Signup
                   <!-- :disabled='username.isValid != true || email.isValid != true || password.isValid != true' -->
