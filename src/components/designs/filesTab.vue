@@ -369,6 +369,7 @@ export default {
         slug: this.design.slug,
         owner_slug: this.design.owner_slug,
         data: {
+          storage: this.design.storage,
           data: this.design.data
         }
       }
@@ -469,9 +470,12 @@ export default {
 
           file_record.versions.push(version)
           this.design.data.files.push(file_record)
+          this.design.storage += file.size
+
         }
       }
 
+      // check file version and upload to s3
       var index = 0
       for (let file of this.filesInput) {
         if (this.env != 'prod') {
@@ -678,10 +682,16 @@ export default {
       })
     },
     deleteFileAndFileRecord:  async function (index) {
+
+      // a user should be able to delete the file from S3 if it only exists in the latest record
+      // if the file exists in a revision then it should be immutable, unless the revision is deleted
+      // how do you know if the file exists in across different revisions, and which versions exist at which reviions?
+
+
       // check to make sure files are not a dependency
-      let file = this.files.data[index]
+      let file = this.design.data.files[index]
       // let deleteFile = await this.deleteFileFromS3(index)
-      this.files.data.splice(index, 1)
+      this.design.data.files.splice(index, 1)
 
       let action = `removed ${file.name} from files`
       let message = null
@@ -726,6 +736,11 @@ export default {
   // since we already have a design this
   created() {
     // if not design (loading directly on files page) then wait for design
+  },
+  mounted() {
+    $('.ui.dropdown.options').dropdown(
+      { 'silent': true }
+      );
   }
 
 
