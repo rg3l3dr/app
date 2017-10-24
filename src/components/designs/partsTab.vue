@@ -63,6 +63,7 @@
                       @keydown.tab.prevent='tabOver($event)'
                       @keydown.esc='removePart(index)'
                       @keydown.delete='newPartName.data ? null : removePart(index)'
+                      maxlength="50"
                     >
                     <div
                       v-if='!newPartName.hasError'

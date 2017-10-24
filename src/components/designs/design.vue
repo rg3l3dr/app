@@ -105,6 +105,7 @@
                     type="text"
                     v-model='clone.name'
                     id='clone-name'
+                    maxlength="50"
                   >
                   <span
                     v-if='clone.hasError'

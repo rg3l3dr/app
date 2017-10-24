@@ -18,6 +18,7 @@
                     placeholder="Input a name for your design project"
                     v-model='name.data'
                     @keydown.enter='submit()'
+                    maxlength="50"
                   >
                   <div
                     v-if='name.hasError'
