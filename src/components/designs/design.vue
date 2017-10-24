@@ -463,7 +463,7 @@ export default {
       if (this.env != 'prod') {
         console.log('Route watcher has been called in design.vue')
       }
-      if (this.route.params.design_slug != this.rootDesign.slug || this.route.params.revision_slug != this.revision.slug) {
+      if (this.route.params.design_slug != this.rootDesign.slug) {
         if (this.env != 'prod') {
           console.log('Root design or revision has changed, getting new data')
         }
@@ -508,7 +508,6 @@ export default {
             slug: part.design_slug,
             id: part.design_id
           })
-          console.log(path)
           return path
         } else {
           if (part.parts.length > 0) {
@@ -841,8 +840,6 @@ export default {
       })
     },
     viewShares() {
-
-
 
       let payload = {
 

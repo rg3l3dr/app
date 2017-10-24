@@ -33,12 +33,12 @@ import PartsTab from './components/designs/partsTab.vue'
 import FilesTab from './components/designs/filesTab.vue'
 import DocsTab from './components/designs/docsTab.vue'
 import SpecsTab from './components/designs/specsTab.vue'
-import RevsTab from './components/designs/revsTab.vue'
 import SettingsTab from './components/designs/settingsTab.vue'
 import AdvancedTab from './components/designs/settings/advancedTab.vue'
 import BasicTab from './components/designs/settings/BasicTab.vue'
+import RevsTab from './components/designs/settings/revsTab.vue'
+
 import CollaboratorsTab from './components/designs/settings/collaboratorsTab.vue'
-import RevisionsTab from './components/designs/settings/revisionsTab.vue'
 
 import AdminDashboard from './components/profiles/adminDashboard.vue'
 import PrivateProfile from './components/profiles/privateProfile.vue'
@@ -125,7 +125,6 @@ export const routes = [
           {path: 'basic', components: {settingsContent: BasicTab}},
           {path: 'revs', components: {settingsContent: RevsTab}},
           {path: 'collaborators', components: {settingsContent: CollaboratorsTab}},
-          {path: 'revisions', components: {settingsContent: RevisionsTab}},
           {path: 'advanced', components: {settingsContent: AdvancedTab}},
         ]
       }

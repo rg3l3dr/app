@@ -65,7 +65,7 @@ export default {
       }
     },
     getStyle(part) {
-      if (part.design_id == this.node.design_id) {
+      if (part.unique_id == this.node.unique_id) {
         return {
           'font-weight': 'bold',
           'background-color': '#e9e9e9',
@@ -101,7 +101,9 @@ export default {
       }
 
       this.$store.dispatch('getDesign', design_payload).then(success => {
+        console.log("part id is: " + part_id)
         this.findNode(this.tree, part_id)
+
       }, error => {})
 
       let payload = {

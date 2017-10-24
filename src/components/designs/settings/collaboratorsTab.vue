@@ -64,7 +64,7 @@
             <div class="content">
               <router-link tag='a' :to='`/${collaborator.slug}`'>
                 <a href="" class="header" v-if='collaborator.owner.first_name'> {{ collaborator.owner.first_name }} </a>
-                <a href="" class="header" v-else> Profile </a>
+                <a href="" class="header" v-else> {{ collaborator.owner.email }} </a>
               </router-link>
               <div class="description"> {{ collaborator.name }} </div>
             </div>
@@ -387,6 +387,10 @@ export default {
       }, error => {})
     },
     sendInvite() {
+
+      // this will send an invite but we still have to add the user to the project ...
+      // this can only be done once they create an account, meaning it would have to be a hook inside create or update user profile
+
       let payload = {
         user: this.session.user_id,
         emails: [ this.invite.email ]

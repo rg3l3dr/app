@@ -9,9 +9,9 @@
         <span>
           <form class="ui form">
             <h3 class="ui dividing header">Basic Data</h3>
-            <div class="one field"> 
+            <div class="one field">
               <div class="sixteen wide field" id='design-class'>
-                <label>Design Class</label>
+                <label>Design Class (type to search)</label>
                 <div
                   class="ui fluid search selection dropdown classes"
                   @keydown.enter.prevent

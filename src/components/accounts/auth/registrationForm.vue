@@ -115,8 +115,8 @@
                 <button
                   type="submit"
                   class="ui basic blue button"
-                  @click.prevent.once='submit'
-
+                  :class='isDisabled ? "disabled" : null'
+                  @click.prevent='submit()'
                   >Signup
                   <!-- :disabled='username.isValid != true || email.isValid != true || password.isValid != true' -->
                 </button>
@@ -165,7 +165,8 @@ export default {
         id: null,
         token: null,
         username: null
-      }
+      },
+      isDisabled: false,
     }
   },
   computed: {
@@ -289,6 +290,7 @@ export default {
       }
     },
     submit: function () {
+      this.isDisabled = true
       if (this.env != 'prod') {
         console.log('submitting registraiton form')
       }
@@ -340,6 +342,7 @@ export default {
             this.password.hasError = true
             this.password.error = error.body.non_field_errors[0]
           }
+          this.isDisabled = false
         })
 
 
@@ -362,6 +365,7 @@ export default {
           this.password.hasError = true
           this.password.error = response.body.password1[0]
         }
+        this.isDisabled = false
       })
     }
   }
