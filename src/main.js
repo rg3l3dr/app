@@ -121,28 +121,28 @@ router.beforeEach((to, from, next) => {
 sync(store, router)
 
 // Apollo Config
-const networkInterface = createNetworkInterface({
-  uri: 'https://stage.omnibuilds.com/graphql_token/',
-})
-
-networkInterface.use([{
-  applyMiddleware (req, next) {
-    if (!req.options.headers) {
-      req.options.headers = {}
-    }
-    req.options.headers['authorization'] = 'JWT ' + store.state.session.token
-    next()
-  }
-}])
-
-const apolloClient = new ApolloClient({
-  networkInterface: networkInterface,
-  connectToDevTools: true
-})
-
-const apolloProvider = new VueApollo({
-  defaultClient: apolloClient,
-})
+// const networkInterface = createNetworkInterface({
+//   uri: 'https://stage.omnibuilds.com/graphql_token/',
+// })
+//
+// networkInterface.use([{
+//   applyMiddleware (req, next) {
+//     if (!req.options.headers) {
+//       req.options.headers = {}
+//     }
+//     req.options.headers['authorization'] = 'JWT ' + store.state.session.token
+//     next()
+//   }
+// }])
+//
+// const apolloClient = new ApolloClient({
+//   networkInterface: networkInterface,
+//   connectToDevTools: true
+// })
+//
+// const apolloProvider = new VueApollo({
+//   defaultClient: apolloClient,
+// })
 
 
 
@@ -152,7 +152,7 @@ new Vue({
   el: '#app',
   store,
   router,
-  apolloProvider,
+  // apolloProvider,
   template: '<App/>',
   components: { App },
 })

@@ -339,17 +339,17 @@ export default {
     }
     next()
   },
-  apollo: {
-    profiles: gql`{
-      profiles {
-        id,
-        name,
-        slug,
-        storage,
-        storageCap
-      }
-    }`
-  },
+  // apollo: {
+  //  profiles: gql`{
+  //    profiles {
+  //      id,
+  //      name,
+  //      slug,
+  //      storage,
+  //      storageCap
+  //    }
+  //  }`
+  // },
   data() {
     return {
       projects: [],
