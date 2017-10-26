@@ -392,6 +392,7 @@ export default {
       // this can only be done once they create an account, meaning it would have to be a hook inside create or update user profile
 
       let payload = {
+        design_id: this.design.id,
         user: this.session.user_id,
         emails: [ this.invite.email ]
       }
@@ -402,6 +403,7 @@ export default {
           console.log(response)
         }
         this.invite = {
+
           email: null,
           isValid: null,
           isUser: null,

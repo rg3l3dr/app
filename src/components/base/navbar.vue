@@ -37,14 +37,8 @@
               </div>
               <div class="results" @click='getResult'></div>
             </div>
-
-            <!-- <div class="ui action left icon input small">
-              <i class="search icon"></i>
-              <input type="text" placeholder="Search projects..." size='35'>
-              <button class="ui button small">Submit</button>
-            </div> -->
           </div>
-          <!-- <router-link class='item' id='nav-inbox' to='/notify/unread' v-if='session.active===true'>
+          <router-link class='item' id='nav-inbox' to='/accounts/notifications/unread' v-if='session.active===true'>
             <span v-if='unread_count > 0' class="fa-stack fa-lg has-badge" :data-count='unread_count'>
               <i class="fa fa-circle fa-stack-2x"></i>
               <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
@@ -53,7 +47,7 @@
               <i class="fa fa-circle fa-stack-2x"></i>
               <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
             </span>
-          </router-link> -->
+          </router-link>
           <div class="ui dropdown" id='nav-profile' v-if='session.active' style='padding-top: 12px'>
             <span v-if='profile'>
 
@@ -151,34 +145,37 @@ export default {
       }, 0);
     },
     getUnreadCount() {
-      this.$http.get('notifications/get-unread-count/').then(response => {
-        if (this.env != 'prod') {
-          console.log('Got unread count')
-          console.log(response)
-        }
-        self.unread_count = response.body.unread_count
-      }, response => {
-        if (this.env != 'prod') {
-          console.log('Error getting unread count')
-          console.log(response)
-        }
-      })
-
-      var self = this
-      setInterval( function () {
-        self.$http.get('notifications/get-unread-count/').then(response => {
-          if (self.env != 'prod') {
+      if (this.session.active) {
+        this.$http.get('notifications/get-unread-count/').then(response => {
+          if (this.env != 'prod') {
             console.log('Got unread count')
             console.log(response)
           }
           self.unread_count = response.body.unread_count
         }, response => {
-          if (self.env != 'prod') {
+          if (this.env != 'prod') {
             console.log('Error getting unread count')
             console.log(response)
           }
         })
-      }, 30000)
+
+        var self = this
+        setInterval( function () {
+          self.$http.get('notifications/get-unread-count/').then(response => {
+            if (self.env != 'prod') {
+              console.log('Got unread count')
+              console.log(response)
+            }
+            self.unread_count = response.body.unread_count
+          }, response => {
+            if (self.env != 'prod') {
+              console.log('Error getting unread count')
+              console.log(response)
+            }
+          })
+        }, 30000)
+      }
+
     },
     logout () {
       if (this.env != 'prod') {
@@ -215,7 +212,7 @@ export default {
             fields: {
               title: 'name',
               description: 'number',
-              design_type: 'price'
+              price: 'design_type'
             },
             onSelect: function(result, response) {
               vue.resultSelected = true
@@ -248,7 +245,9 @@ export default {
       }
     }
   },
-  created() {},
+  created() {
+    this.getUnreadCount()
+  },
   mounted() {
     $('.ui.dropdown').dropdown({ 'silent': true })
     this.setSearch()

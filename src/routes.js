@@ -102,6 +102,21 @@ export const routes = [
       {path: 'read', components: {notifyContent: ReadNotificationsTab}},
     ]
   },
+  // {
+  //   path: '/shares/:token',
+  //   redirect: '/shares/:token/home'
+  // },
+  {
+    path: '/shares/:token',
+    name: 'DesignShare',
+    component: Design,
+    children: [
+      {path: 'home', components: {designContent: HomeTab}},
+      {path: 'parts', components: {designContent: PartsTab}},
+      {path: 'files', components: {designContent: FilesTab}},
+      {path: 'specs', components: {designContent: SpecsTab}},
+    ]
+  },
   {path: '/:profile_slug', component: PublicProfile, meta: { requiresAuth: true },
   },
   {
@@ -129,5 +144,5 @@ export const routes = [
         ]
       }
     ]
-  }
+  },
 ]

@@ -143,6 +143,23 @@
                     >{{ share.error }}
                   </span>
                 </div>
+                <div class="field" id='part-revision'>
+                  <label>Revision for {{ design.name }}</label>
+                  <div class="ui selection dropdown" id='share-dropdown'>
+                    <input type="hidden" name="revision">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Select a Revision</div>
+                    <div class="menu">
+                      <div
+                        class="item"
+                        v-for='revision in design.revisions'
+                        @click='shareRevision=revision'
+                      >
+                        {{ revision.name}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </form>
             </div>
             <div class="actions">
@@ -414,6 +431,8 @@ export default {
       resultSelected: false,
       importQuantity: 1,
       importRevision: null,
+      shareRevision: null,
+      token: null,
     }
   },
   computed: {
@@ -630,7 +649,6 @@ export default {
       }
     },
     showExportModal() {
-      console.log('show export modal clicked')
       $('#export-modal').modal('setting', {
         detachable: false,
       }).modal('show')
@@ -807,7 +825,13 @@ export default {
         this.$router.push('/search')
     },
     showShareModal() {
-      $('#share-modal').modal('show')
+      // $('#share-modal').modal('show')
+      $('#share-modal').modal('setting', {
+        detachable: false,
+      }).modal('show')
+      this.$nextTick(() => {
+        $('#share-dropdown').dropdown()
+      })
     },
     hideShareModal() {
       $('#share-modal').modal('hide')
@@ -816,12 +840,11 @@ export default {
 
       // validate email is correct
       // validate design has not already been shared with email
-
-
       // have to create a route to handle the unlisted design
 
       let share_design_payload = {
         design_id: this.design.id,
+        revision_id: this.shareRevision.id,
         email: this.share.email
       }
 
@@ -855,11 +878,65 @@ export default {
       console.log('Design.vue has been created')
     }
 
+    // console.dir(this.route.params.token)
+    //
+    // let share_payload = {
+    //   token : this.route.params.token
+    // }
+    //
+    // console.log(share_payload)
+
+    // if (this.route.params.token) {
+    //
+    // } else {
+    //
+    //
+    // }
+
+    // if (this.route.params.token != null) {
+    //   this.$http.post('get_shared_design/', share_payload).then(success => {
+    //     if (this.env != 'prod') {
+    //       console.log('got shared design')
+    //       console.dir(success)
+    //
+    //       this.$store.commit('setDesign', success.body)
+    //       this.$store.commit('setRootDesign', this.design)
+    //       let tree_payload = {
+    //         design_id: this.design.id,
+    //         revision_slug: this.design.revisions[0].slug
+    //       }
+    //       this.$store.dispatch('getTree', tree_payload).then(success => {
+    //         this.$store.commit('setTree', success)
+    //         this.$store.commit('setNode', this.tree[0])
+    //       }, error => {})
+    //
+    //     }
+    //   }, error => {
+    //     if (this.env != 'prod') {
+    //       console.log('error getting shared design')
+    //       console.dir(error)
+    //     }
+    //   })
+    // } else {
+
+    // if (this.route.params.token != null) {
+    //   var design_payload = {
+    //     token: this.route.params.token
+    //   }
+    // } else {
+    //   var design_payload = {
+    //     design_slug: this.route.params.design_slug,
+    //     owner_slug: this.route.params.profile_slug,
+    //     revision_slug: this.route.params.revision_slug,
+    //   }
+    // }
+
     let design_payload = {
       design_slug: this.route.params.design_slug,
       owner_slug: this.route.params.profile_slug,
-      revision_slug: this.route.params.revision_slug
+      revision_slug: this.route.params.revision_slug,
     }
+
 
     this.$store.dispatch('getDesign', design_payload).then(success => {
       this.$store.commit('setRootDesign', this.design)

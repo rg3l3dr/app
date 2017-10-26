@@ -12,14 +12,14 @@
           <table class='ui table'>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Category</th>
+              <th class='four wide'>Date</th>
+              <th class='four wide'>Category</th>
               <th>Message</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for='notification in read_notifications'>
-              <td>{{ notification.timestamp | moment("MMMM Do YYYY h:mm a")  }}</td>
+              <td>{{ notification.timestamp | moment("MMMM Do YYYY")  }}</td>
               <td>{{ notification.verb }}</td>
               <td>{{ notification.description }}</td>
             </tr>

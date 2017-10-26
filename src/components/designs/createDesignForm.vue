@@ -173,8 +173,8 @@ export default {
 
               let design_payload = {
                 name: this.name.data,
-                creator_id: this.profile.id,
-                owner_id: this.profile.id,
+                creator_id: this.profile.owner.id,
+                owner_id: this.profile.owner.id,
                 license: 1,
                 design_class: 1,
                 visibility: 'PRIVATE',

@@ -331,9 +331,10 @@ export default {
               username: this.username.data,
               email: this.email.data
             }
-            this.$http.put('users/' + this.session.user_id + '/', payload).then(response => {
+            this.$http.put('users/' + this.session.user_id + '/', payload).then(success => {
               if (this.env != 'prod') {
                 console.log('Email updated')
+                console.dir(success)
               }
               this.$store.dispatch('getProfile')
               }, response => {
@@ -341,14 +342,19 @@ export default {
                   console.log('Error updating email')
                   console.log(response)
                 }
-                if (typeof response.body.email !== 'undefined') {
+                if (typeof success.body.email !== 'undefined') {
                   this.email.hasError = true
-                  this.email.error = response.body.username[0]
+                  this.email.error = success.body.username[0]
                 }
               }
             )
           }
-        }, response => {})
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('Error updating email')
+            console.dir(error)
+          }
+        })
       } else {
         // return error message on form
         if (this.env != 'prod') {

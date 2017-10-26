@@ -82,7 +82,7 @@
             </p>
           </div>
           <div class="actions">
-            <button type="button" class="ui small basic bluebutton" @click='toggleSuccessModal'>Close</button>
+            <button type="button" class="ui small basic blue button" @click='toggleSuccessModal'>Close</button>
           </div>
         </div>
 

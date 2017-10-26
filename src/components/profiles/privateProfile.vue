@@ -14,10 +14,10 @@
               </span>
       			</div>
       			<div class='eight wide column' >
-      				 Private Storage:  {{ data_fmt }} / {{data_cap_fmt}} &nbsp;
-               <!-- <router-link to='accounts/invitations/send'>
+      				 Private Storage:  {{ data_fmt }} / {{data_cap_fmt}} &nbsp; &nbsp;
+               <router-link to='accounts/invitations/send'>
                  Invite friends to add storage
-               </router-link> -->
+               </router-link>
                <div id="myProgress">
                  <div id="myBar" :style="{width: data_percent + '%'  }">
                  </div>

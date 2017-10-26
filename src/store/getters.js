@@ -4,6 +4,14 @@ let _ = require('lodash')
 
 export const getters = {
   designRoute() {
+    if (store.state.route.params.token) {
+      return `/shares/${store.state.route.params.token}`
+    } else if (store.state.route.params) {
+      return `/${store.state.route.params.profile_slug}/${store.state.route.params.design_slug}/${store.state.route.params.revision_slug}`
+    } else {
+      return null
+    }
+
      return store.state.route.params ?  `/${store.state.route.params.profile_slug}/${store.state.route.params.design_slug}/${store.state.route.params.revision_slug}`: null
   },
   // partRoute() {

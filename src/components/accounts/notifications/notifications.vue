@@ -1,43 +1,51 @@
 <template lang="html">
   <div class='ui grid'>
-	  <div class='row' style='margin: 20px 0px 0px 0px'>
-			<div class="four wide column">
-			  <div class='ui small top attached header'>
-				<i class="fa fa-bell text-primary" aria-hidden="true"></i>
-        <div class="content">
-          &nbsp
-					Notifications
+    <div class="one wide column"></div>
+    <div class="fourteen wide column">
+      <div class="ui grid">
+        <div class='row' style='margin: 20px 0px 0px 0px'>
+    			<div class="four wide column">
+    			  <div class='ui small top attached header'>
+    				<i class="fa fa-bell text-primary" aria-hidden="true"></i>
+            <div class="content">
+              &nbsp
+    					Notifications
+            </div>
+    			</div>
+    			  <div class="ui bottom attached clearing segment">
+    					<div class="ui secondary vertical menu">
+                <router-link class="item" tag='a' to='/accounts/notifications/unread'>
+                  <a>
+                    <i class="fa fa-envelope"></i> &nbsp; New Notifications
+                    <div v-if='unread_notifications.length > 0' class='ui circular label'>
+                      {{ unread_notifications.length }}
+                    </div>
+                  </a>
+                </router-link>
+                <router-link class="item" tag='a' to='/accounts/notifications/read'>
+                  <a>
+                    <i class="fa fa-bars"></i> &nbsp; Old Notifications
+                    <div v-if='read_notifications.length > 0' class='ui circular label'>
+                      {{ read_notifications.length }}
+                    </div>
+                  </a>
+                </router-link>
+    					</div><!-- /.nav nav-pills nav-stacked -->
+    				</div>
+    			</div>
+          <div class="twelve wide column">
+      			<div class="tab-content">
+              <transition name='fade'>
+                <router-view name='notifyContent'></router-view>
+              </transition>
+      			</div><!-- /.tab-content -->
+      		</div><!-- /.col-xs-9 -->
         </div>
-			</div>
-			  <div class="ui bottom attached clearing segment">
-					<div class="ui secondary vertical menu">
-            <router-link class="item" tag='a' to='/accounts/notifications/unread'>
-              <a>
-                <i class="fa fa-envelope"></i> &nbsp; New Notifications
-                <div v-if='unread_notifications.length > 0' class='ui circular label'>
-                  {{ unread_notifications.length }}
-                </div>
-              </a>
-            </router-link>
-            <router-link class="item" tag='a' to='/accounts/notifications/read'>
-              <a>
-                <i class="fa fa-bars"></i> &nbsp; Old Notifications
-                <div v-if='read_notifications.length > 0' class='ui circular label'>
-                  {{ read_notifications.length }}
-                </div>
-              </a>
-            </router-link>
-					</div><!-- /.nav nav-pills nav-stacked -->
-				</div>
-			</div>
-      <div class="twelve wide column">
-  			<div class="tab-content">
-          <transition name='fade'>
-            <router-view name='notifyContent'></router-view>
-          </transition>
-  			</div><!-- /.tab-content -->
-  		</div><!-- /.col-xs-9 -->
+      </div>
+
     </div>
+    <div class="one wide column"></div>
+
 	</div>
 </template>
 
