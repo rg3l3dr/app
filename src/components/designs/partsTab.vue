@@ -24,7 +24,7 @@
               <td></td>
               <td>
                 <button
-                  v-if='revision.slug == "latest"'
+                  v-if='revision.slug == "latest" && route.params.token == null'
                   class="ui small basic blue button"
                   @click='addNewEmptyPart'
                   id='add-part-button'
@@ -50,7 +50,7 @@
               </td>
 
               <!-- Part Name -->
-              <td v-if='!part.created && revision.slug == "latest"'>
+              <td v-if='!part.created && revision.slug == "latest"  && route.params.token == null'>
                   <div class="ui transparent search input fluid" id='part-name-editable-div'>
                     <input
                       class="prompt compact"
@@ -73,7 +73,7 @@
                   </div>
               </td>
 
-              <td v-else-if='part.created && part.editable && revision.slug == "latest" '>
+              <td v-else-if='part.created && part.editable && revision.slug == "latest" && route.params.token == null'>
                 <div id='part-name-editable-div'>
                   <router-link tag='a' to='' @click.native.prevent='openPart(index)'
                   id ='part-name-editable'>
@@ -94,7 +94,7 @@
               </td>
 
               <!-- Part Revision -->
-              <td id='part-revision' v-if='revision.slug == "latest"'>
+              <td id='part-revision' v-if='revision.slug == "latest" && route.params.token == null'>
                 <div class="ui dropdown revision" v-if='part.revision_name'>
                   <div class="text">
                     {{ part.revision_name }}
@@ -133,7 +133,7 @@
 
               <!-- Part Quantity -->
               <td
-                v-if='!part.created && revision.slug == "latest"'
+                v-if='!part.created && revision.slug == "latest" && route.params.token == null'
                 class='collapsing'
               >
                 <div class="ui transparent input" style='width:50px'>
@@ -151,7 +151,7 @@
               </td>
 
               <td
-                v-else-if='part.created && part.editable && revision.slug == "latest"'
+                v-else-if='part.created && part.editable && revision.slug == "latest" && route.params.token == null'
                 class='collapsing'
               >
                 <div class="ui transparent input" style='width:50px'>
@@ -169,7 +169,7 @@
               </td>
 
               <td
-                v-else-if="revision.slug=='latest'"
+                v-else-if="revision.slug=='latest' && route.params.token == null"
                 id='part-quantity'
                 @click='makePartEditable(index, "quantity")'
                 class='collapsing'
@@ -182,7 +182,7 @@
               </td>
 
               <!-- Part Cost -->
-              <td v-if='!part.created && revision.slug == "latest" && part.editable' class='collapsing'>
+              <td v-if='!part.created && revision.slug == "latest" && part.editable && route.params.token == null' class='collapsing'>
                 <div class="ui transparent input" style='width:50px'>
                   <input
                     type="number"
@@ -196,7 +196,7 @@
                 </div>
               </td>
 
-              <td v-else-if='part.created && part.editable && revision.slug == "latest" && part.parts.length == 0' class='collapsing' >
+              <td v-else-if='part.created && part.editable && revision.slug == "latest" && part.parts.length == 0 && route.params.token == null' class='collapsing' >
                 <div class="ui transparent input" style='width:50px'>
                   <input
                     id='part-cost-editable'
@@ -217,7 +217,7 @@
               </td>
 
               <td
-                v-else-if='revision.slug == "latest"'
+                v-else-if='revision.slug == "latest" && route.params.token == null'
                 id='part-cost'
                 @click='makePartEditable(index, "cost")'
                 class='collapsing'
@@ -248,7 +248,7 @@
 
               <!-- Part Menu Options -->
               <!-- <td v-if='!part.created'> -->
-              <td v-if='revision.slug == "latest"'>
+              <td v-if='revision.slug == "latest" && route.params.token == null'>
                 <button
                   class="circular ui mini basic icon button"
                   @click='removePart(index)'
@@ -282,7 +282,7 @@
             </tr>
             <tr v-if='!parts[parts.length - 1].created'>
               <td></td>
-              <td colspan='3'  style='color: #848f99' class='collapsing'>
+              <td colspan='3'  style='color: #848f99' class='collapsing' v-if='route.params.token == null'>
                Press enter to add part or tab to input qty and cost
               </td>
               <td></td>
@@ -304,21 +304,23 @@
           </tbody>
         </table>
 
-        <!-- <div style='text-align:center' v-else-if='revision.slug=="latest"' >
+        <div style='text-align:center' v-else-if='route.params.token != null' >
           <br>
           <h2 class="ui icon header" >
             <i class="cubes icon"></i>
             <br>
             <div class="content">
-              <button class="ui huge blue basic button" @click='addNewEmptyPart()'>
+              <!-- <button class="ui huge blue basic button" @click='addNewEmptyPart()'>
                 Click here to add parts
-              </button>
+              </button> -->
+              No parts yet
               <div class="sub header">
                 <br>
-                <a href="http://help.omnibuilds.com#parts-are-the-building-blocks-of-designs" style='font-size:18px'>
+                <!-- <a href="http://help.omnibuilds.com#parts-are-the-building-blocks-of-designs" style='font-size:18px'>
 
                   How do parts work?
-                </a>
+                </a> -->
+                The owner of this design has not added any parts to the BOM yet
                 <br>
                 <br>
                 <br>
@@ -326,21 +328,21 @@
             </div>
           </h2>
         </div>
-        <div style='text-align:center' v-else>
+      <!--   <div style='text-align:center' v-else>
+        <br>
+        <h2 class="ui icon header" >
+          <i class="cubes icon"></i>
           <br>
-          <h2 class="ui icon header" >
-            <i class="cubes icon"></i>
-            <br>
-            <div class="content">
-              Change rev back to latest to add parts
-              <div class="sub header">
-                <br>
-                You have not added any parts yet<br>
-                Your project is read only when rev is not latest
-              </div>
+          <div class="content">
+            Change rev back to latest to add parts
+            <div class="sub header">
+              <br>
+              You have not added any parts yet<br>
+              Your project is read only when rev is not latest
             </div>
-          </h2>
-        </div> -->
+          </div>
+        </h2>
+      </div> -->
       <!-- </transition> -->
 
       <transition name='fade'>
@@ -450,7 +452,7 @@ export default {
       }, error => {})
     },
     parts() {
-      if (this.parts.length == 0) {
+      if (this.parts.length == 0 && this.route.params.token == null) {
         this.addNewEmptyPart()
       }
     }
@@ -1916,7 +1918,8 @@ export default {
       }
       let payload = {
         design_id: this.design.id,
-        revision_slug: this.revision.slug,
+        revision_slug: this.route.params.revision_slug ? this.route.params.revision_slug : null,
+        token: this.route.params.token ? this.route.params.token : null
       }
       // this.$store.dispatch('getBom', payload)
       this.$store.dispatch('getParts', payload).then(success => {

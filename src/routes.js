@@ -102,10 +102,6 @@ export const routes = [
       {path: 'read', components: {notifyContent: ReadNotificationsTab}},
     ]
   },
-  // {
-  //   path: '/shares/:token',
-  //   redirect: '/shares/:token/home'
-  // },
   {
     path: '/shares/:token',
     name: 'DesignShare',
@@ -117,7 +113,9 @@ export const routes = [
       {path: 'specs', components: {designContent: SpecsTab}},
     ]
   },
-  {path: '/:profile_slug', component: PublicProfile, meta: { requiresAuth: true },
+  {
+    path: '/:profile_slug', component: PublicProfile,
+    meta: { requiresAuth: true },
   },
   {
     path: '/:profile_slug/:design_slug',

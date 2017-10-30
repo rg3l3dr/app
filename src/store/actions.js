@@ -119,17 +119,24 @@ export const actions = {
   getDesign ({commit, state}, payload) {
     // gets and sets a design from the DRF design viewset
     return new Promise((resolve, reject) => {
-      Vue.http.get('designs/' + payload.design_slug + '/?owner_slug=' + payload.owner_slug.toLowerCase() + '&revision_slug=' + payload.revision_slug).then(success => {
+      if (payload.token) {
+        var design_path = `designs/shared_design/?token=${payload.token}`
+      } else {
+        var design_path = `designs/${payload.design_slug}/?owner_slug=${payload.owner_slug}&revision_slug=${payload.revision_slug}`
+      }
+      Vue.http.get(design_path).then(success => {
         if (state.env != 'prod') {
           console.log('Got design')
           console.dir(success)
         }
 
-        success.body.revisions.forEach(rev => {
-          if (rev.slug == payload.revision_slug) {
-            commit('setRevision', rev)
-          }
-        })
+        if (payload.revision_slug) {
+          success.body.revisions.forEach(rev => {
+            if (rev.slug == payload.revision_slug) {
+              commit('setRevision', rev)
+            }
+          })
+        }
         commit('setDesign', success.data)
         resolve(success)
       }, error => {
@@ -298,5 +305,4 @@ export const actions = {
       })
     })
   },
-
 }

@@ -86,7 +86,7 @@
                           Download File
                         </div>
                         <div
-                          v-if='revision.slug == "latest"'
+                          v-if='revision.slug == "latest" && route.params.token == null'
                           class="item"
                           @click='selectFilesForUpload'
                         >
@@ -98,7 +98,7 @@
                           See Version History
                         </div>
                         <div
-                          v-if='revision.slug == "latest"'
+                          v-if='revision.slug == "latest" && route.params.token == null'
                           class="item"
                           @click='deleteFileAndFileRecord(index)'
                         >
@@ -128,7 +128,7 @@
             </div>
             <br>
             <button
-              v-if='revision.slug == "latest"'
+              v-if='revision.slug == "latest" && route.params.token == null'
               class="ui small basic blue button"
               @click='selectFilesForUpload'
               id='upload-file-button'
@@ -142,7 +142,7 @@
             <h2 class="ui icon header" >
               <i class="file folder outline open icon"></i>
               <br>
-              <div class="content">
+              <div class="content" v-if='route.params.token == null'>
                 <div class="ui huge blue basic button" @click='selectFilesForUpload'>
                   Click here to add files
                 </div>
@@ -152,6 +152,13 @@
                   <a href="http://help.omnibuilds.com#files-are-cad-agnostic" style='font-size:18px'>
                     How do files work?
                   </a>
+                </div>
+              </div>
+              <div class="content" v-else>
+                No files yet
+                <div class="sub header" >
+                  <br>
+                  The owner of this design has not added any files yet
                 </div>
               </div>
             </h2>
@@ -257,13 +264,13 @@
                       <div
                         class="item"
                         @click='selectFilesForUpload'
-                        v-if='revision.slug == "latest"'
+                        v-if='revision.slug == "latest" && route.params.token == null'
                       >
                         <i class="upload icon"></i>
                         Upload New Version
                       </div>
                       <div
-                        v-if='revision.slug == "latest" && selectedFile.versions.length > 1'
+                        v-if='revision.slug == "latest" && selectedFile.versions.length > 1 && route.params.token == null'
                         class="item"
                         @click='deleteVersionAndVersionRecord(index)'
                       >
@@ -334,6 +341,7 @@ export default {
       'design',
       'bucket',
       'revision',
+      'route'
     ]),
     file_names() {
       if (this.files) {
