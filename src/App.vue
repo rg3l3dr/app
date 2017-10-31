@@ -30,10 +30,13 @@ export default {
     if (sub == 'app') {
       let payload = 'prod'
       this.$store.commit('setEnv', payload)
+    } else if (sub == 'appstage') {
+      let payload = 'stage'
+      this.$store.commit('setEnv', payload)
+      console.log(sub)
     } else {
       let payload = 'dev'
       this.$store.commit('setEnv', payload)
-      console.log(sub)
     }
 
     // window.Intercom("boot", {

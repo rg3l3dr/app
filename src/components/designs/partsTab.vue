@@ -974,11 +974,38 @@ export default {
               }
             }
           )
-        } else {
+        } else if (this.env == 'stage') {
           $('.ui.search').search(
             {
               apiSettings: {
                   url: 'https://stage.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_ids,
+                  beforeXHR: function(xhr) {
+                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                    return xhr;
+                  }
+                },
+              fields: {
+                title: 'name',
+                description: 'number'
+              },
+              showNoResults: false,
+              onSelect: function(result, response) {
+                vue.resultSelected = true
+                vue.result = result
+                if (vue.env != 'prod') {
+                  console.log('Result selected, set result Selected to true')
+                }
+              },
+              onResults: function(response) {
+                vue.results = response.results
+              }
+            }
+          )
+        } else {
+          $('.ui.search').search(
+            {
+              apiSettings: {
+                  url: 'https://localhost:8000/shareddesignquery/?q={query}' + owner_id + design_ids,
                   beforeXHR: function(xhr) {
                     xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
                     return xhr;
