@@ -654,12 +654,14 @@ export default {
       }).modal('show')
       this.$nextTick(() => {
         $('#revision-dropdown').dropdown()
+        let owner_id = '&owner_id=' + this.profile.id
+        let design_id = '&design_id=' + this.design.id
         let vue = this
         if (vue.env == 'prod') {
           $('.ui.search').search(
             {
               apiSettings: {
-                  url: 'https://www.omnibuilds.com/shareddesignquery/?q={query}',
+                  url: 'https://www.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_id,
                   beforeXHR: function(xhr) {
                     xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
                     return xhr;
@@ -686,7 +688,7 @@ export default {
           $('.ui.search').search(
             {
               apiSettings: {
-                  url: 'https://stage.omnibuilds.com/shareddesignquery/?q={query}',
+                  url: 'https://stage.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_id,
                   beforeXHR: function(xhr) {
                     xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
                     return xhr;
