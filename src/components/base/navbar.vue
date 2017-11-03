@@ -73,7 +73,7 @@
                 <i class='fa fa-gear fa-fw'></i>
                 &nbsp My Account
               </router-link>
-              <template v-if='profile.owner'>
+              <template v-if='profile'>
                 <router-link class='item' to='/profiles/admin' v-if='profile.owner.is_superuser'><i class='dashboard icon'></i>Admin Dashboard
                 </router-link>
               </template>
