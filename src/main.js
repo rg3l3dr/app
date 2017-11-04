@@ -42,7 +42,7 @@ if (sub == 'app') {
 } else {
   Vue.http.options.root = 'http://localhost:8000'
   Vue.config.devtools = true
-  store.commit('setBucket', {data: 'omni-dev-designs'})
+  store.commit('setBucket', {data: 'omni-dev-designs/jmw'})
 }
 
 // Vue.http.headers.common['Access-Control-Allow-Origin'] = '*'
