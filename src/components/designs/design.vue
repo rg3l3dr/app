@@ -52,6 +52,7 @@
                   <label>Existing Design</label>
                   <div class="ui transparent search input fluid">
                     <input
+                      v-model='importName'
                       class="prompt compact"
                       type="text"
                       placeholder="Search for an existing design"
@@ -429,6 +430,7 @@ export default {
       results: [],
       result: null,
       resultSelected: false,
+      importName: null,
       importQuantity: 1,
       importRevision: null,
       shareRevision: null,
@@ -468,6 +470,7 @@ export default {
         console.dir(this.node)
       }
       if (this.node) {
+
         if (this.node.parent_id) {
           let path = []
            this.testPath = this.getTrail(this.node.unique_id, this.tree, path)
@@ -477,6 +480,16 @@ export default {
           slug: this.node.design_slug
         })
         this.$store.commit('setTrail', this.testPath)
+        if (this.env != 'prod') {
+          console.log('trail has been edited')
+          console.dir(this.trail)
+        }
+
+      } else {
+        if (this.env != 'prod') {
+          console.log('did not edit trail')
+          console.dir(this.trail)
+        }
       }
     },
     route () {
@@ -536,6 +549,7 @@ export default {
               id: part.design_id
             })
             this.getTrail(unique_id, part.parts, path)
+            return path
           }
         }
       }
@@ -716,7 +730,13 @@ export default {
       })
     },
     hideExportModal() {
+      this.result = {}
+      this.importName = null
+      this.resultSelected = false
+      this.importQuantity = 1
+      this.importRevision = null
       $('#export-modal').modal('hide')
+
     },
     exportPart() {
       // call add existing design (will have to replicate logic from parts.vue)
@@ -730,11 +750,6 @@ export default {
 
       this.$store.dispatch('addExistingPart', export_design_payload).then(success => {
         this.hideExportModal()
-        this.resultSelected = false
-        this.result = {}
-        this.importQuantity = 1
-        this.importRevision = null
-
         // present a success messsage
 
       }, error => {
@@ -836,6 +851,12 @@ export default {
       })
     },
     hideShareModal() {
+      this.share = {
+        email: '',
+        hasError: null,
+        error: ''
+      }
+      this.shareRevision = null
       $('#share-modal').modal('hide')
     },
     shareDesign() {

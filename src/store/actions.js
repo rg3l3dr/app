@@ -34,7 +34,7 @@ export const actions = {
           console.log('Got design tree')
           console.dir(success)
         }
-        resolve(success.data)
+        resolve(success.body)
       }, error => {
         if (state.env != 'prod') {
           console.log('Error getting design tree')
@@ -298,5 +298,4 @@ export const actions = {
       })
     })
   },
-
 }

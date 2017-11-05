@@ -106,15 +106,15 @@ export default {
 
       }, error => {})
 
-      let payload = {
-        design_id: part.design_id,
-        revision_slug: part.revision_slug,
-      }
-
-      this.$store.dispatch('getParts', payload).then(success => {
-        $('.ui.dropdown.part').dropdown({ 'silent': true })
-        $('.ui.dropdown.revision').dropdown({ 'silent': true })
-      }, error => {})
+      // let payload = {
+      //   design_id: part.design_id,
+      //   revision_slug: part.revision_slug,
+      // }
+      //
+      // this.$store.dispatch('getParts', payload).then(success => {
+      //   $('.ui.dropdown.part').dropdown({ 'silent': true })
+      //   $('.ui.dropdown.revision').dropdown({ 'silent': true })
+      // }, error => {})
 
       if (part.design_id == this.rootDesign.id) {
         var part_id = 0

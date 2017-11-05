@@ -426,29 +426,29 @@ export default {
     }
   },
   watch: {
-    node() {
-      // get parts for the node
-      if (this.env != 'prod') {
-        console.log('node change detected in partsTab, getting new parts context')
-      }
-
-      let payload = {
-        design_id: this.node.design_id,
-        revision_slug: this.node.revision_slug,
-      }
-
-      if (this.env != 'prod') {
-        console.log('Node is:')
-        console.dir(this.node)
-        console.log('Payload is:')
-        console.dir(payload)
-      }
-      // this.$store.dispatch('getBom', payload)
-      this.$store.dispatch('getParts', payload).then(success => {
-        $('.ui.dropdown.part').dropdown({ 'silent': true })
-        $('.ui.dropdown.revision').dropdown({ 'silent': true })
-      }, error => {})
-    },
+    // node() {
+    //   // get parts for the node
+    //   if (this.env != 'prod') {
+    //     console.log('node change detected in partsTab, getting new parts context')
+    //   }
+    //
+    //   let payload = {
+    //     design_id: this.node.design_id,
+    //     revision_slug: this.node.revision_slug,
+    //   }
+    //
+    //   if (this.env != 'prod') {
+    //     console.log('Node is:')
+    //     console.dir(this.node)
+    //     console.log('Payload is:')
+    //     console.dir(payload)
+    //   }
+    //   // this.$store.dispatch('getBom', payload)
+    //   this.$store.dispatch('getParts', payload).then(success => {
+    //     $('.ui.dropdown.part').dropdown({ 'silent': true })
+    //     $('.ui.dropdown.revision').dropdown({ 'silent': true })
+    //   }, error => {})
+    // },
     parts() {
       if (this.parts.length == 0) {
         this.addNewEmptyPart()
@@ -678,8 +678,12 @@ export default {
             revision_slug: 'latest'
           }
 
+          this.$http.get('designs/' + design_payload.design_slug + '/?owner_slug=' + design_payload.owner_slug.toLowerCase() + '&revision_slug=' + design_payload.revision_slug).then(success => {
+            if (this.env != 'prod') {
+              console.log('Got design during design trail check')
+              console.dir(success)
+            }
 
-          this.$store.dispatch('getDesign', design_payload).then(success => {
             let design = success.body
             let trail_ids = this.trail.map((part) => {return part.id})
 
@@ -732,8 +736,12 @@ export default {
               }
               this.addExistingPart(index, result)
             }
-          }, error => {})
-
+          }, error => {
+            if (this.env != 'prod') {
+              console.log('Error getting design during design trail check')
+              console.dir(success)
+            }
+          })
         } else {
           this.checkIfPartExists(index, null)
         }
@@ -810,6 +818,10 @@ export default {
       // check to see if part is already in BOM
       let part_ids = this.parts.map((part) => {return part.design_id})
       part_ids.pop()
+      if (this.env != 'prod') {
+        console.dir(part_ids)
+        console.dir(result.id)
+      }
       if (part_ids.includes(result.id)) {
         if (this.env != 'prod') {
           console.log('New part being added is already in the BOM, checking to see if they have the same ref')
@@ -939,6 +951,10 @@ export default {
         design_ids += ('&design_id=' + design.id)
       }
       let owner_id = `&owner_id=${this.design.owner}`
+
+      if (this.env != 'prod') {
+        console.dir(design_ids)
+      }
 
       this.$nextTick(() => {
         $('.ui.dropdown.part').dropdown({ 'silent': true })
@@ -1249,6 +1265,15 @@ export default {
           }
 
           this.updateNode(this.tree, updated_node)
+
+          this.$store.dispatch('getTree', tree_payload).then(success => {
+            this.$store.commit('setTree', success)
+            if (this.env != 'prod') {
+              console.dir(this.tree)
+            }
+          }, error => {})
+
+
         }
       }, error => {})
     },
@@ -1267,8 +1292,15 @@ export default {
       }
     },
     findNode(tree, part_id) {
+      if (this.env != 'prod') {
+        console.log('Searching for node after clicing on part in parts table')
+      }
       for (let part of tree) {
-        if (part.unique_id == part_id) {
+        if (this.env != 'prod') {
+          console.log(`Part unique id is : ${part.part_id}`)
+          console.log(`Part id is: ${part_id}`)
+        }
+        if (part.part_id == part_id) {
           if (this.env != 'prod') {
             console.log('Node in findNode(partsTab) is:')
             console.dir(part)
@@ -1394,14 +1426,14 @@ export default {
 
       this.$store.dispatch('getDesign', design_payload)
 
-      let payload = {
-        design_id: selectedPart.design_id,
-        revision_slug: 'latest',
-      }
-      this.$store.dispatch('getParts', payload).then(success => {
-        $('.ui.dropdown.part').dropdown({ 'silent': true })
-        $('.ui.dropdown.revision').dropdown({ 'silent': true })
-      }, error => {})
+      // let payload = {
+      //   design_id: selectedPart.design_id,
+      //   revision_slug: 'latest',
+      // }
+      // this.$store.dispatch('getParts', payload).then(success => {
+      //   $('.ui.dropdown.part').dropdown({ 'silent': true })
+      //   $('.ui.dropdown.revision').dropdown({ 'silent': true })
+      // }, error => {})
 
       if (selectedPart.design_id == this.rootDesign.id) {
         if (this.env != 'prod') {
@@ -1467,6 +1499,7 @@ export default {
 
         this.$store.dispatch('getTree', tree_payload).then(success => {
           this.$store.commit('setTree', success.body)
+
         }, error => {})
       }, error => {})
     },
