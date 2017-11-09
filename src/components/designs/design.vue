@@ -1,6 +1,6 @@
 <template lang="html" v-if='profile'>
   <div class="ui grid" style='padding: 0px 25px 0px 25px'>
-    <div class="sixteen wide column">
+    <div class="sixteen wide column" v-if='design'>
       <div class="ui grid">
         <div class="modals">
           <div class='ui small modal' id='revision-modal'>
@@ -173,15 +173,15 @@
           <div class="sixteen wide column" style='padding-bottom: 0px'>
             <div class="ui text menu" style='margin-top: 0px; margin-bottom:0px'>
               <div class="item">
-                <div class="ui massive breadcrumb">
-                  <router-link tag='a' to='/home' v-if='profile.slug == design.owner_slug'>
+                <div class="ui massive breadcrumb" v-if='rootDesign'>
+                  <router-link tag='a' to='/home' v-if='profile.slug == design.owner_slug && profile'>
                     {{ profile.name }}
                   </router-link>
                   <router-link tag='a' :to='`/${$route.params.profile_slug}`'  v-else>
                     {{ $route.params.profile_slug }}
                   </router-link>
                   <span  class='divider'>/</span>
-                  <router-link tag='a' to='' @click.native='selectRootDesign()'>
+                  <router-link tag='a' to='' @click.native='selectRootDesign()' >
                     {{ rootDesign.name }}
                   </router-link>
                   <span v-if='design.name != rootDesign.name' style='font-weight: normal; color: black'>
@@ -296,7 +296,7 @@
 
                   </div>
                 </div>
-                <div class="ui bottom attached clearing segment">
+                <div class="ui bottom attached clearing segment" v-if='tree'>
                   <template v-if='tree[0]'>
                     <div class="ui right floated mini icon buttons">
                       <button class="ui mini basic grey icon button" @click='closeParts(tree)'>
@@ -684,11 +684,38 @@ export default {
               }
             }
           )
-        } else {
+        } else if (vue.env == 'stage') {
           $('.ui.search').search(
             {
               apiSettings: {
                   url: 'https://stage.omnibuilds.com/shareddesignquery/?q={query}' + owner_id + design_id,
+                  beforeXHR: function(xhr) {
+                    xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                    return xhr;
+                  }
+                },
+              fields: {
+                title: 'name',
+                description: 'number'
+              },
+              showNoResults: false,
+              onSelect: function(result, response) {
+                vue.resultSelected = true
+                vue.result = result
+                if (vue.env != 'prod') {
+                  console.log('Result selected, set result Selected to true')
+                }
+              },
+              onResults: function(response) {
+                vue.results = response.results
+              }
+            }
+          )
+        } else {
+          $('.ui.search').search(
+            {
+              apiSettings: {
+                  url: 'http://localhost:8000/shareddesignquery/?q={query}',
                   beforeXHR: function(xhr) {
                     xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
                     return xhr;
@@ -880,6 +907,11 @@ export default {
       console.log('Design.vue has been created')
     }
 
+    if (this.env != 'prod') {
+      console.log('Design at created is:')
+      console.dir(this.design)
+    }
+
     // console.dir(this.route.params.token)
     //
     // let share_payload = {
@@ -952,10 +984,7 @@ export default {
       }, error => {})
     }, error => {})
 
-    if (this.env != 'prod') {
-      console.log('Design at created is:')
-      console.dir(this.design)
-    }
+
   },
   mounted() {
 
