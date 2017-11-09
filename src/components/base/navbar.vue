@@ -2,26 +2,22 @@
   <div class="ui grid" style='padding-right: 25px; padding-left:25px'>
     <div class="sixteen wide column">
       <div class="ui text menu" style='margin-bottom: 0px; margin-top: 0px'>
-        <router-link v-if='session.active' class='item' to='/home' style="font-family:Exo, sans-serif;font-size: 33px; padding: 5px 3rem 0px 10px" id='brand-link'>
+        <router-link v-if='session.active' class='item' to='/home' style="font-family:Exo, sans-serif;font-size: 32px; padding: 5px 3rem 0px 10px" id='brand-link'>
           <i class="fa fa-cogs" style='font-size:32px; color:#4c6972'></i>
           &nbsp
           <span style='color:#4c6972'>Omni</span><span style='color:#4c6972'>Builds</span>
         </router-link>
-        <a href='https://www.omnibuilds.com' v-else-if='env == "prod"' style="font-family:Exo, sans-serif;font-size: 30px; padding: 5px 3rem 5px 10px" id='brand-link'>
+        <a href='https://www.omnibuilds.com' v-else-if='env == "prod"' style="font-family:Exo, sans-serif;font-size: 32px; padding: 5px 3rem 5px 10px" id='brand-link'>
           <i class="fa fa-cogs" style='font-size:32px; color:#4c6972'></i>
           &nbsp
           <span style='color:#4c6972'>Omni</span><span style='color:#4c6972'>Builds</span>
         </a>
-<<<<<<< HEAD
-        <a href='https://stage.omnibuilds.com' v-else style="font-family:Exo, sans-serif;font-size: 32px; padding: 5px 3rem 5px 10px" id='brand-link'>
-=======
         <a href='https://stage.omnibuilds.com' v-else-if='env=="stage"' style="font-family:Exo, sans-serif;font-size: 32px; padding: 5px 3rem 5px 10px">
           <i class="fa fa-cogs" style='font-size:30px; color:#4c6972'></i>
           &nbsp
           <span style='color:#4c6972'>Omni</span><span style='color:#4c6972'>Builds</span>
         </a>
         <a href='http://localhost:8000' v-else style="font-family:Exo, sans-serif;font-size: 32px; padding: 5px 3rem 5px 10px">
->>>>>>> 2963b0b4882fbe76ab680b7f06cf0307133bc937
           <i class="fa fa-cogs" style='font-size:30px; color:#4c6972'></i>
           &nbsp
           <span style='color:#4c6972'>Omni</span><span style='color:#4c6972'>Builds</span>
