@@ -1215,8 +1215,8 @@ export default {
       let part_payload = {
         root_design_id: this.design.id,
         name: this.newPartName.data,
-        creator_id: this.profile.id,
-        owner_id: this.design.owner,
+        creator_id: this.profile.owner.id,
+        owner_id: this.design.owner_user_id,
         visibility: 'PRIVATE',
         license: 1,
         design_class: 3,
