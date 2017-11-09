@@ -12,7 +12,16 @@
           &nbsp
           <span style='color:#4c6972'>Omni</span><span style='color:#4c6972'>Builds</span>
         </a>
+<<<<<<< HEAD
         <a href='https://stage.omnibuilds.com' v-else style="font-family:Exo, sans-serif;font-size: 32px; padding: 5px 3rem 5px 10px" id='brand-link'>
+=======
+        <a href='https://stage.omnibuilds.com' v-else-if='env=="stage"' style="font-family:Exo, sans-serif;font-size: 32px; padding: 5px 3rem 5px 10px">
+          <i class="fa fa-cogs" style='font-size:30px; color:#4c6972'></i>
+          &nbsp
+          <span style='color:#4c6972'>Omni</span><span style='color:#4c6972'>Builds</span>
+        </a>
+        <a href='http://localhost:8000' v-else style="font-family:Exo, sans-serif;font-size: 32px; padding: 5px 3rem 5px 10px">
+>>>>>>> 2963b0b4882fbe76ab680b7f06cf0307133bc937
           <i class="fa fa-cogs" style='font-size:30px; color:#4c6972'></i>
           &nbsp
           <span style='color:#4c6972'>Omni</span><span style='color:#4c6972'>Builds</span>
@@ -68,7 +77,7 @@
                 <i class='fa fa-gear fa-fw'></i>
                 &nbsp My Account
               </router-link>
-              <template v-if='profile.owner'>
+              <template v-if='profile'>
                 <router-link class='item' to='/profiles/admin' v-if='profile.owner.is_superuser'><i class='dashboard icon'></i>Admin Dashboard
                 </router-link>
               </template>
@@ -220,12 +229,34 @@ export default {
             }
           }
         )
-      } else {
+      } else if (this.env == 'stage') {
         $('.ui.search').search(
           {
             apiSettings: {
               searchFullText: true,
               url: 'https://stage.omnibuilds.com/designquery/?q={query}',
+              beforeXHR: function(xhr) {
+                xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
+                return xhr;
+              }
+            },
+            fields: {
+              title: 'name',
+              description: 'number',
+              price: 'design_type'
+            },
+            onSelect: function(result, response) {
+              vue.resultSelected = true
+              vue.result = result
+            }
+          }
+        )
+      } else {
+        $('.ui.search').search(
+          {
+            apiSettings: {
+              searchFullText: true,
+              url: 'http://localhost:8000/designquery/?q={query}',
               beforeXHR: function(xhr) {
                 xhr.setRequestHeader ('Authorization', 'JWT ' + vue.session.token)
                 return xhr;

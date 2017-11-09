@@ -30,7 +30,7 @@ if (sub == 'app') {
     .config('https://cc47c177364e4ca59afc07d083c36356@sentry.io/180771')
     .addPlugin(RavenVue, Vue)
     .install();
-} else {
+} else if(sub == 'appstage') {
   console.log('Current subdomain is: ' + sub)
   Vue.http.options.root = 'https://stage.omnibuilds.com'
   Vue.config.devtools = true
@@ -39,6 +39,10 @@ if (sub == 'app') {
     .config('https://3def935f457d4f61888ad45450af3d44@sentry.io/180768')
     .addPlugin(RavenVue, Vue)
     .install();
+} else {
+  Vue.http.options.root = 'http://localhost:8000'
+  Vue.config.devtools = true
+  store.commit('setBucket', {data: 'omni-dev-designs/jmw'})
 }
 
 // Vue.http.headers.common['Access-Control-Allow-Origin'] = '*'
