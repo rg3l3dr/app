@@ -97,7 +97,8 @@ export default {
       let design_payload = {
         design_slug: part.design_slug,
         owner_slug: part.owner_slug,
-        revision_slug: part.revision_slug
+        revision_slug: part.revision_slug,
+        token: this.route.params.token ? this.route.params.token : null
       }
 
       this.$store.dispatch('getDesign', design_payload).then(success => {

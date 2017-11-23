@@ -352,6 +352,7 @@ export default {
       }, response => {
         if (this.env != 'prod') {
           console.log('Error creating new user')
+          console.dir(response)
         }
         if (typeof response.body.username !== 'undefined') {
           this.username.hasError = true

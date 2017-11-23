@@ -306,6 +306,18 @@
 </template>
 
 <script>
+/*
+
+  1. Get the oath token via the Forge API using the client secret
+  2. Create a new object storage bucket (one time or every time?)
+  3. Upload file to the object storage bucket
+  4. Get the URN for the source file in the object storage bucket (response)
+  5. Convert the URN into Base64 Encoded format
+  6. Translate the source file into SVN format (poll)
+  7. Embed the source file URN into the viewer
+  8. Load the viewer
+
+*/
 var Rusha = require('Rusha')
 import { mapState } from 'vuex'
 export default {

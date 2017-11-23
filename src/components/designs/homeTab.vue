@@ -46,7 +46,7 @@
             <button class="ui tiny basic left floated blue button" @click='setDefaultImage()'>
               Set As Default Picture only display when not default
             </button> -->
-            <button class="ui tiny basic right floated blue button" @click='selectFilesForUpload()'>
+            <button class="ui tiny basic right floated blue button" @click='selectFilesForUpload()' v-if='route.params.token == null'>
               Upload Picture
             </button>
           </div>
@@ -59,8 +59,12 @@
                 <div
                   class="ui large blue basic button"
                   @click='selectFilesForUpload()'
+                  v-if='route.params.token == null'
                 >
                   Upload an image
+                </div>
+                <div v-else>
+                  No Picture Provided
                 </div>
               </div>
             </h2>
@@ -163,9 +167,12 @@
             </div>
           </div>
           <router-link :to='this.designRoute + "/specs" ' v-if='revision.slug == "latest"'>
-            <button class='ui tiny basic grey button'>
+            <button class='ui tiny basic grey button' v-if='route.params.token == null'>
               &nbsp Edit Specs
             </button>
+            <span v-else>
+              <br>
+            </span>
           </router-link>
 
         </div>
@@ -226,17 +233,25 @@
             >
             </div>
 
-            <div v-else>
-              Click the button below to add a description for this design
-            </div>
-            <br>
-            <button
-              class="ui tiny grey basic button"
-              v-if='revision.slug == "latest"'
-              @click='editDescription()'
-            >
-              Edit Description
-            </button>
+            <span v-if='route.params.token == null'>
+              <div>
+                Click the button below to add a description for this design
+              </div>
+              <br>
+              <button
+                class="ui tiny grey basic button"
+                v-if='revision.slug == "latest"'
+                @click='editDescription()'
+              >
+                Edit Description
+              </button>
+            </span>
+            <span v-else>
+              <div>
+                No description has been provided for this design
+              </div>
+            </span>
+
         </div>
       </div>
     </div>
@@ -264,7 +279,8 @@ export default {
       'profile',
       'design',
       'revision',
-      'node'
+      'node',
+      'route'
     ]),
     ...mapGetters([
       'designRoute'

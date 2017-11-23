@@ -17,7 +17,7 @@
                   @keydown.enter.prevent
                   @keyup.enter.prevent
                   id='part-class'
-                  :class='{ disabled : revision.slug != "latest" }'
+                  :class='{ disabled : revision.slug != "latest" || route.params.token != null }'
                 >
                   <input
                     type="hidden"
@@ -57,7 +57,7 @@
                     v-model='design.data.summary'
                     @keydown.enter.prevent='createSupplier'
                     @keyup.enter.prevent
-                    :readonly='revision.slug == "latest" ? null : " "'
+                    :readonly='isReadOnly'
                     maxlength='100'
                   >
                 </div>
@@ -72,7 +72,7 @@
                     v-model='design.data["internalPartNumber"]'
                     @keydown.enter.prevent
                     @keyup.enter.prevent
-                    :readonly='revision.slug == "latest" ? null : " "'
+                    :readonly='isReadOnly'
                   >
                 </div>
               </div>
@@ -89,7 +89,7 @@
                       @keydown.enter.prevent='createSupplier($event)'
                       @keyup.enter.prevent
                       :id='`supplier-name-${supplierIndex}`'
-                      :class='{ disabled : revision.slug != "latest" }'
+                      :class='{ disabled : revision.slug != "latest" || route.params.token != null }'
                     >
                       <input
                         type="hidden"
@@ -123,7 +123,7 @@
                         v-model='supplier.supplierPartNumber'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
-                        :readonly='revision.slug == "latest" ? null : " "'
+                        :readonly='isReadOnly'
                       >
                     </div>
                   </div>
@@ -137,14 +137,14 @@
                         v-model='supplier.externalUrl'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
-                        :readonly='revision.slug == "latest" ? null : " "'
+                        :readonly='isReadOnly'
                       >
                     </div>
                   </div>
                   <div class="one wide field" id='spacer'></div>
                   <div class="two wide field" id='actions'>
                     <label>&nbsp</label>
-                    <span v-if='revision.slug=="latest"'>
+                    <span v-if='revision.slug=="latest" && route.params.token == null'>
                       <div class="ui left action input" v-if='supplierIndex == 0'>
                         <button
                           class="ui primary basic icon button"
@@ -181,7 +181,7 @@
                             step="0.01"
                             @keydown.enter.prevent
                             @keyup.enter.prevent
-                            :readonly='revision.slug == "latest" ? null : " "'
+                            :readonly='isReadOnly'
                           >
                         </div>
                       </div>
@@ -197,7 +197,7 @@
                             step="1"
                             @keydown.enter.prevent
                             @keyup.enter.prevent
-                            :readonly='revision.slug == "latest" ? null : " "'
+                            :readonly='isReadOnly'
                           >
                         </div>
                       </div>
@@ -213,11 +213,11 @@
                             step='1'
                             @keydown.enter.prevent
                             @keyup.enter.prevent
-                            :readonly='revision.slug == "latest" ? null : " "'
+                            :readonly='isReadOnly'
                           >
                           <div
                             class="ui basic floating dropdown button period"
-                            :class='{ disabled : revision.slug != "latest" }'
+                            :class='{ disabled : revision.slug != "latest" || route.params.token != null}'
                           >
                             <div class="text">{{ schedule.leadTimePeriod }}</div>
                             <i class="dropdown icon"></i>
@@ -227,7 +227,7 @@
                                 @click='schedule.leadTimePeriod="Days"'
                                 @keydown.enter='schedule.leadTimePeriod="Days"'
                                 @keyup.enter='schedule.leadTimePeriod="Days"'
-                                :readonly='revision.slug == "latest" ? null : " "'
+                                :readonly='isReadOnly'
                               >
                                 Days
                               </div>
@@ -236,7 +236,7 @@
                                 @click='schedule.leadTimePeriod="Weeks"'
                                 @keydown.enter='schedule.leadTimePeriod="Weeks"'
                                 @keyup.enter='schedule.leadTimePeriod="Days"'
-                                :readonly='revision.slug == "latest" ? null : " "'
+                                :readonly='isReadOnly'
                               >
                                 Weeks
                             </div>
@@ -247,7 +247,7 @@
                       <div class="one wide field" id='spacer'></div>
                       <div class="two wide field" id='actions'>
                         <label>&nbsp</label>
-                        <span v-if='revision.slug=="latest"'>
+                        <span v-if='revision.slug=="latest" && route.params.token == null'>
                           <div class="ui left action input" v-if='scheduleIndex == 0'>
                             <button
                               class="ui primary basic icon button"
@@ -295,7 +295,7 @@
                         v-model='spec.name'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
-                        :readonly='revision.slug == "latest" ? null : " "'
+                        :readonly='isReadOnly'
                         >
                     </div>
                   </div>
@@ -316,7 +316,7 @@
                         v-model='spec.value'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
-                        :readonly='revision.slug == "latest" ? null : " "'
+                        :readonly='isReadOnly'
                       >
                     </div>
                   </div>
@@ -330,14 +330,14 @@
                         v-model='spec.units'
                         @keydown.enter.prevent
                         @keyup.enter.prevent
-                        :readonly='revision.slug == "latest" ? null : " "'
+                        :readonly='isReadOnly'
                       >
                     </div>
                   </div>
                   <div class="one wide field" id='spacer'></div>
                   <div class="three wide field" id='actions'>
                     <label>&nbsp</label>
-                    <span v-if='revision.slug=="latest"'>
+                    <span v-if='revision.slug=="latest" && route.params.token == null'>
                       <div class="ui left action input" v-if='specIndex == 0'>
                         <button
                           class="ui primary basic icon button"
@@ -366,7 +366,7 @@
               </div>
             </transition-group>
           </form>
-          <span v-if='revision.slug=="latest"'>
+          <span v-if='revision.slug=="latest" && route.params.token == null'>
             <button
               v-if='!specsUpdated'
               class="ui blue basic button"
@@ -411,7 +411,15 @@ export default {
       'profile',
       'design',
       'revision',
-    ])
+      'route'
+    ]),
+    isReadOnly(){
+      if (this.revision.slug != "latest " || route.params.token != null) {
+        return true
+      } else {
+        false
+      }
+    }
   },
   watch: {
     design() {
@@ -443,8 +451,11 @@ export default {
       })
     },
     getSuppliers() {
+      let supplier_payload = {
+        owner_id : this.design.owner
+      }
       return new Promise((resolve, reject) => {
-        this.$http.get('suppliers/').then(success => {
+        this.$http.get('suppliers/?owner_id=' + this.design.owner).then(success => {
           if (this.env != 'prod') {
             console.log('Got suppliers')
             console.log(success)
