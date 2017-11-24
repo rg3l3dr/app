@@ -44,6 +44,7 @@ export default {
       'rootDesign',
       'node',
       'tree',
+      'route'
     ])
   },
   methods: {

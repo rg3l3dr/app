@@ -119,11 +119,18 @@ export const actions = {
   getDesign ({commit, state}, payload) {
     // gets and sets a design from the DRF design viewset
     return new Promise((resolve, reject) => {
-      if (payload.token) {
+      if (!payload.design_slug) {
         var design_path = `designs/shared_design/?token=${payload.token}`
       } else {
-        var design_path = `designs/${payload.design_slug}/?owner_slug=${payload.owner_slug}&revision_slug=${payload.revision_slug}`
+        if (payload.token != undefined) {
+          var design_path = `designs/${payload.design_slug}/?owner_slug=${payload.owner_slug}&revision_slug=${payload.revision_slug}&token=${payload.token}`
+        } else {
+          var design_path = `designs/${payload.design_slug}/?owner_slug=${payload.owner_slug}&revision_slug=${payload.revision_slug}`
+        }
+
       }
+
+      // let design_path = `designs/${payload.design_slug}/?owner_slug=${payload.owner_slug}&revision_slug=${payload.revision_slug}&token=${payload.token}`
       Vue.http.get(design_path).then(success => {
         if (state.env != 'prod') {
           console.log('Got design')

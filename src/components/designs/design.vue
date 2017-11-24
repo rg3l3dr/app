@@ -1,4 +1,4 @@
-<template lang="html" v-if='profile'>
+<template lang="html">
   <div class="ui grid" style='padding: 0px 25px 0px 25px'>
     <div class="sixteen wide column" v-if='design'>
       <div class="ui grid">
@@ -175,7 +175,7 @@
             <div class="ui text menu" style='margin-top: 0px; margin-bottom:0px'>
               <div class="item">
                 <div class="ui massive breadcrumb" v-if='rootDesign'>
-                  <router-link tag='a' to='/home' v-if='profile.slug == design.owner_slug && profile'>
+                  <router-link tag='a' to='/home' v-if='profile && profile.slug == design.owner_slug'>
                     {{ design.owner_slug }}
                   </router-link>
 
@@ -510,23 +510,23 @@ export default {
           slug: this.node.design_slug
         })
         this.$store.commit('setTrail', this.testPath)
-        if (this.env != 'prod') {
-          console.log('trail has been edited')
-          console.dir(this.trail)
-        }
+        // if (this.env != 'prod') {
+        //   console.log('trail has been edited')
+        //   console.dir(this.trail)
+        // }
 
       } else {
-        if (this.env != 'prod') {
-          console.log('did not edit trail')
-          console.dir(this.trail)
-        }
+        // if (this.env != 'prod') {
+        //   console.log('did not edit trail')
+        //   console.dir(this.trail)
+        // }
       }
     },
     route () {
       if (this.env != 'prod') {
         console.log('Route watcher has been called in design.vue')
       }
-      if (this.route.params.design_slug != this.rootDesign.slug) {
+      if (this.route.params.design_slug != this.rootDesign.slug && this.route.params.token==undefined) {
         if (this.env != 'prod') {
           console.log('Root design or revision has changed, getting new data')
         }
@@ -570,15 +570,15 @@ export default {
       }, error => {})
     },
     getTrail(unique_id, tree, path) {
-      if (this.env != 'prod') {
-        console.log('getTrail function called')
-      }
+      // if (this.env != 'prod') {
+      //   console.log('getTrail function called')
+      // }
       for (let part of tree) {
         if (part.unique_id === unique_id) {
-          if (this.env != 'prod') {
-            console.log('Found node in trail')
-            console.dir(path)
-          }
+          // if (this.env != 'prod') {
+          //   console.log('Found node in trail')
+          //   console.dir(path)
+          // }
           path.push({
             slug: part.design_slug,
             id: part.design_id
@@ -601,7 +601,8 @@ export default {
       let design_payload = {
         design_slug: this.route.params.design_slug,
         owner_slug: this.route.params.profile_slug,
-        revision_slug: this.route.params.revision_slug
+        revision_slug: this.route.params.revision_slug,
+        token: this.route.params.token ? this.route.params.token : null
       }
 
       this.$store.dispatch('getDesign', design_payload).then()

@@ -86,7 +86,7 @@
                           Download File
                         </div>
                         <div
-                          v-if='revision.slug == "latest"'
+                          v-if='revision.slug == "latest" && route.params.token == null'
                           class="item"
                           @click='selectFilesForUpload'
                         >
@@ -98,7 +98,7 @@
                           See Version History
                         </div>
                         <div
-                          v-if='revision.slug == "latest"'
+                          v-if='revision.slug == "latest" && route.params.token == null'
                           class="item"
                           @click='deleteFileAndFileRecord(index)'
                         >
@@ -128,13 +128,37 @@
             </div>
             <br>
             <button
-              v-if='revision.slug == "latest"'
+              v-if='revision.slug == "latest" && route.params.token == null'
               class="ui small basic blue button"
               @click='selectFilesForUpload'
               id='upload-file-button'
             >
               Upload New Files or Versions
             </button>
+          </div>
+          <div style='text-align:center' v-else-if='route.params.token != null' >
+            <br>
+            <h2 class="ui icon header" >
+              <i class="file folder outline open icon"></i>
+              <br>
+              <div class="content">
+                <!-- <button class="ui huge blue basic button" @click='addNewEmptyPart()'>
+                  Click here to add parts
+                </button> -->
+                No files yet
+                <div class="sub header">
+                  <br>
+                  <!-- <a href="http://help.omnibuilds.com#parts-are-the-building-blocks-of-designs" style='font-size:18px'>
+
+                    How do parts work?
+                  </a> -->
+                  The owner of this design has not added any files yet
+                  <br>
+                  <br>
+                  <br>
+                </div>
+              </div>
+            </h2>
           </div>
 
           <div style='text-align:center' v-else-if="revision.slug=='latest'" >
@@ -156,7 +180,7 @@
               </div>
             </h2>
           </div>
-          <div v-else style='text-align:center' @click='selectFilesForUpload'>
+          <div v-else style='text-align:center'>
             <br>
             <h2 class="ui icon header" >
               <i class="file folder outline open icon"></i>
@@ -257,7 +281,7 @@
                       <div
                         class="item"
                         @click='selectFilesForUpload'
-                        v-if='revision.slug == "latest"'
+                        v-if='revision.slug == "latest" && route.params.token == null'
                       >
                         <i class="upload icon"></i>
                         Upload New Version
@@ -346,6 +370,7 @@ export default {
       'design',
       'bucket',
       'revision',
+      'route'
     ]),
     file_names() {
       if (this.files) {
@@ -639,13 +664,20 @@ export default {
     },
     getFileFromS3(index) {
 
-      let file = this.design.data.files[index]
-      let s3 = new AWS.S3()
-      let s3_key = 'designs/' + this.design.owner + '/' + this.design.id + '/' + file.name
+      // this.$store.dispatch('getToken')
 
-      var params = {Bucket: this.bucket, Key: s3_key}
-      var url = s3.getSignedUrl('getObject', params)
-      window.location = url
+      this.$store.dispatch('getToken').then(success => {
+        let file = this.design.data.files[index]
+        let s3 = new AWS.S3()
+        let s3_key = 'designs/' + this.design.owner + '/' + this.design.id + '/' + file.name
+
+        var params = {Bucket: this.bucket, Key: s3_key}
+        if (this.env != 'prod') {
+          console.dir(params)
+        }
+        var url = s3.getSignedUrl('getObject', params)
+        window.location = url
+      }, error => {})
     },
     getVersionFromS3(index) {
       let version = this.selectedFile.versions[index]

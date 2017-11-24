@@ -1121,7 +1121,8 @@ export default {
 
         let tree_payload = {
           design_id: success.body.part.design_id,
-          revision_slug: 'latest'
+          revision_slug: 'latest',
+          token: this.route.params.token ? this.route.params.token : null
         }
 
         this.$store.dispatch('getTree', tree_payload).then(success => {
@@ -1242,6 +1243,10 @@ export default {
         quantity: newPart.quantity
       }
 
+      if (this.env != 'prod') {
+        console.dir(part_payload)
+      }
+
       // reset the new part
       this.newPartName = {
         data: null,
@@ -1281,7 +1286,8 @@ export default {
 
           let tree_payload = {
             design_id: this.rootDesign.id,
-            revision_slug: this.route.params.revision_slug
+            revision_slug: this.route.params.revision_slug,
+            token: this.route.params.token ? this.route.params.token : null
           }
 
           let updated_node = {
@@ -1329,7 +1335,7 @@ export default {
       }
       for (let part of tree) {
         if (this.env != 'prod') {
-          console.log(`Part unique id is : ${part.part_id}`)
+          console.log(`Part unique id is : ${part.unique_id}`)
           console.log(`Part id is: ${part_id}`)
         }
         if (part.part_id == part_id) {
@@ -1407,20 +1413,18 @@ export default {
         console.log('Open home clicked')
       }
       let selectedPart = this.parts[index]
-
-      console.log(selectedPart)
-
       let design_payload = {
         design_slug: selectedPart.design_slug,
         owner_slug: selectedPart.owner_slug,
-        revision_slug: selectedPart.revision_slug
+        revision_slug: selectedPart.revision_slug,
+        token: this.route.params.token ? this.route.params.token : null
       }
-
-      this.$store.dispatch('getDesign', design_payload).then(succes => {
+      this.$store.dispatch('getDesign', design_payload).then(success => {
         this.$router.push(`${this.designRoute}/home`)
         let payload = {
           design_id: selectedPart.design_id,
-          revision_slug: 'latest',
+          revision_slug: selectedPart.revision_slug,
+          token: this.route.params.token ? this.route.params.token : null
         }
         this.$store.dispatch('getParts', payload).then(success => {
           $('.ui.dropdown.part').dropdown({ 'silent': true })
@@ -1429,14 +1433,8 @@ export default {
       }, error => {})
 
       if (selectedPart.design_id == this.rootDesign.id) {
-        if (this.env != 'prod') {
-          console.log('getting root node')
-        }
         var part_id = 0
       } else {
-        if (this.env != 'prod') {
-          console.log('getting a child node')
-        }
         var part_id = selectedPart.part_id
       }
 
@@ -1453,10 +1451,21 @@ export default {
       let design_payload = {
         design_slug: selectedPart.design_slug,
         owner_slug: selectedPart.owner_slug,
-        revision_slug: selectedPart.revision_slug
+        revision_slug: selectedPart.revision_slug,
+        token: this.route.params.token ? this.route.params.token : null
       }
 
       this.$store.dispatch('getDesign', design_payload)
+
+      let payload = {
+        design_id: selectedPart.design_id,
+        revision_slug: selectedPart.revision_slug,
+        token: this.route.params.token ? this.route.params.token : null
+      }
+      this.$store.dispatch('getParts', payload).then(success => {
+        $('.ui.dropdown.part').dropdown({ 'silent': true })
+        $('.ui.dropdown.revision').dropdown({ 'silent': true })
+      }, error => {})
 
       // let payload = {
       //   design_id: selectedPart.design_id,
@@ -1526,7 +1535,8 @@ export default {
 
         let tree_payload = {
           design_id: this.rootDesign.id,
-          revision_slug: this.$route.params.revision_slug
+          revision_slug: this.$route.params.revision_slug,
+          token: this.route.params.token ? this.route.params.token : null
         }
 
         this.$store.dispatch('getTree', tree_payload).then(success => {
@@ -1981,7 +1991,7 @@ export default {
       }
       let payload = {
         design_id: this.design.id,
-        revision_slug: this.route.params.revision_slug ? this.route.params.revision_slug : null,
+        revision_slug: this.design.revision_slug ? this.design.revision_slug : 'latest',
         token: this.route.params.token ? this.route.params.token : null
       }
       // this.$store.dispatch('getBom', payload)
