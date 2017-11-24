@@ -1,4 +1,4 @@
-<template lang="html" v-if='profile'>
+<template lang="html">
   <div class="ui grid" style='padding: 0px 25px 0px 25px'>
     <div class="sixteen wide column" v-if='design'>
       <div class="ui grid">
@@ -175,12 +175,14 @@
             <div class="ui text menu" style='margin-top: 0px; margin-bottom:0px'>
               <div class="item">
                 <div class="ui massive breadcrumb" v-if='rootDesign'>
-                  <router-link tag='a' to='/home' v-if='profile.slug == design.owner_slug && profile'>
-                    {{ profile.name }}
+                  <router-link tag='a' to='/home' v-if='profile && profile.slug == design.owner_slug'>
+                    {{ design.owner_slug }}
                   </router-link>
-                  <router-link tag='a' :to='`/${$route.params.profile_slug}`'  v-else>
-                    {{ $route.params.profile_slug }}
+
+                  <router-link tag='a' :to='`/${design.owner_slug}`'  v-else>
+                    {{ design.owner_slug }}
                   </router-link>
+
                   <span  class='divider'>/</span>
                   <router-link tag='a' to='' @click.native='selectRootDesign()' >
                     {{ rootDesign.name }}
@@ -190,7 +192,7 @@
                  </span>
                 </div>
               </div>
-              <div class="right floated item" id='action-buttons' style='padding-top: 10px'>
+              <div class="right floated item" id='action-buttons' style='padding-top: 10px' v-if='route.params.token == null'>
                 <div id="revise-button" >
                   <div class="ui small labeled button" tabindex="0" >
                     <div
@@ -212,7 +214,7 @@
                     </router-link>
                   </div>
                 </div>
-                <div id="import-button" >
+                <div id="import-button">
                   &nbsp&nbsp
                   <div
                     class="ui small labeled button"
@@ -257,7 +259,7 @@
                     </div>
                   </div>
                 </div>
-                <!-- <div id='share-button'>
+                <div id='share-button'>
                   &nbsp&nbsp
                   <div class="ui small labeled button" tabindex="0">
                     <div class="ui small basic button" @click='showShareModal()'>
@@ -277,7 +279,7 @@
                       0
                     </div>
                   </div>
-                </div> -->
+                </div>
               </div>
             </div>
           </div>
@@ -323,7 +325,7 @@
           <!-- main design content -->
           <div class="twelve wide column" style='padding-top: 0px; padding-bottom: 0px' id='example'>
             <!-- tabular menu (records) -->
-            <div class="ui large top attached fluid five item tabular menu" style='padding: 8px 0px 0px 0px'>
+            <div class="ui large top attached fluid five item tabular menu" style='padding: 8px 0px 0px 0px' v-if='route.params.token == null'>
               <router-link tag='a' class='item' :to='this.designRoute  + "/home"'>
                 <a>
                   <i class="home icon"></i>
@@ -381,6 +383,34 @@
                 <a>
                   <i class="fa-cog icon"></i>
                   Settings
+                </a>
+              </router-link>
+
+            </div>
+            <div v-else class="ui large top attached fluid four item tabular menu" style='padding: 8px 0px 0px 0px'>
+              <router-link tag='a' class='item' :to='this.designRoute  + "/home"'>
+                <a>
+                  <i class="home icon"></i>
+                  Overview
+                </a>
+              </router-link>
+              <router-link tag='a' class='item' :to='this.designRoute + "/parts"'>
+                <a>
+                  <i class="cubes icon"></i>
+                  Parts
+                </a>
+              </router-link>
+              <router-link tag='a' class='item' :to='this.designRoute + "/files"'>
+                <a>
+                  <i class="folder open outline icon"></i>
+                  Files
+                </a>
+              </router-link>
+              <router-link tag='a' class='item' :to='this.designRoute + "/specs"'>
+                <a>
+                  <i class="unordered list icon"></i>
+                  Specs
+                  <!-- <div class="ui circular mini label"></div> -->
                 </a>
               </router-link>
             </div>
@@ -480,44 +510,27 @@ export default {
           slug: this.node.design_slug
         })
         this.$store.commit('setTrail', this.testPath)
-        if (this.env != 'prod') {
-          console.log('trail has been edited')
-          console.dir(this.trail)
-        }
+        // if (this.env != 'prod') {
+        //   console.log('trail has been edited')
+        //   console.dir(this.trail)
+        // }
 
       } else {
-        if (this.env != 'prod') {
-          console.log('did not edit trail')
-          console.dir(this.trail)
-        }
+        // if (this.env != 'prod') {
+        //   console.log('did not edit trail')
+        //   console.dir(this.trail)
+        // }
       }
     },
     route () {
       if (this.env != 'prod') {
         console.log('Route watcher has been called in design.vue')
       }
-      if (this.route.params.design_slug != this.rootDesign.slug) {
+      if (this.route.params.design_slug != this.rootDesign.slug && this.route.params.token==undefined) {
         if (this.env != 'prod') {
           console.log('Root design or revision has changed, getting new data')
         }
-        this.$store.commit('clearDesign')
-
-        let design_payload = {
-          design_slug: this.route.params.design_slug,
-          owner_slug: this.route.params.profile_slug,
-          revision_slug: this.route.params.revision_slug
-        }
-
-        this.$store.dispatch('getDesign', design_payload).then(success => {
-          this.$store.commit('setRootDesign', this.design)
-          let tree_payload = {
-            design_id: this.design.id,
-            revision_slug: this.route.params.revision_slug
-          }
-          this.$store.dispatch('getTree', tree_payload).then(success => {
-              this.$store.commit('setTree', success)
-          }, error => {})
-        }, error => {})
+        this.getDesign()
       }
       else {
         if (this.env != 'prod') {
@@ -527,16 +540,45 @@ export default {
     },
   },
   methods: {
-    getTrail(unique_id, tree, path) {
-      if (this.env != 'prod') {
-        console.log('getTrail function called')
+    getDesign() {
+      this.$store.commit('clearDesign')
+
+      let design_payload = {
+        design_slug: this.route.params.design_slug ? this.route.params.design_slug : null,
+        owner_slug: this.route.params.profile_slug ? this.route.params.profile_slug : null,
+        revision_slug: this.route.params.revision_slug ? this.route.params.revision_slug : null,
+        token: this.route.params.token ? this.route.params.token : null
       }
+
+      this.$store.dispatch('getDesign', design_payload).then(success => {
+        console.log('got design')
+        this.$store.commit('setRootDesign', this.design)
+        let tree_payload = {
+          design_id: this.design.id,
+          revision_slug: this.route.params.revision_slug ? this.route.params.revision_slug : null,
+          token: this.route.params.token ? this.route.params.token : null
+        }
+        this.$store.dispatch('getTree', tree_payload).then(success => {
+          this.$store.commit('setTree', success)
+          this.$store.commit('setNode', this.tree[0])
+        }, error => {
+          if (this.env != 'prod') {
+            console.log('Error getting tree')
+            console.dir(error)
+          }
+        })
+      }, error => {})
+    },
+    getTrail(unique_id, tree, path) {
+      // if (this.env != 'prod') {
+      //   console.log('getTrail function called')
+      // }
       for (let part of tree) {
         if (part.unique_id === unique_id) {
-          if (this.env != 'prod') {
-            console.log('Found node in trail')
-            console.dir(path)
-          }
+          // if (this.env != 'prod') {
+          //   console.log('Found node in trail')
+          //   console.dir(path)
+          // }
           path.push({
             slug: part.design_slug,
             id: part.design_id
@@ -559,7 +601,8 @@ export default {
       let design_payload = {
         design_slug: this.route.params.design_slug,
         owner_slug: this.route.params.profile_slug,
-        revision_slug: this.route.params.revision_slug
+        revision_slug: this.route.params.revision_slug,
+        token: this.route.params.token ? this.route.params.token : null
       }
 
       this.$store.dispatch('getDesign', design_payload).then()
@@ -923,88 +966,10 @@ export default {
     },
   },
   created() {
-    this.$store.commit('clearDesign')
     if (this.env != 'prod') {
       console.log('Design.vue has been created')
     }
-
-    if (this.env != 'prod') {
-      console.log('Design at created is:')
-      console.dir(this.design)
-    }
-
-    // console.dir(this.route.params.token)
-    //
-    // let share_payload = {
-    //   token : this.route.params.token
-    // }
-    //
-    // console.log(share_payload)
-
-    // if (this.route.params.token) {
-    //
-    // } else {
-    //
-    //
-    // }
-
-    // if (this.route.params.token != null) {
-    //   this.$http.post('get_shared_design/', share_payload).then(success => {
-    //     if (this.env != 'prod') {
-    //       console.log('got shared design')
-    //       console.dir(success)
-    //
-    //       this.$store.commit('setDesign', success.body)
-    //       this.$store.commit('setRootDesign', this.design)
-    //       let tree_payload = {
-    //         design_id: this.design.id,
-    //         revision_slug: this.design.revisions[0].slug
-    //       }
-    //       this.$store.dispatch('getTree', tree_payload).then(success => {
-    //         this.$store.commit('setTree', success)
-    //         this.$store.commit('setNode', this.tree[0])
-    //       }, error => {})
-    //
-    //     }
-    //   }, error => {
-    //     if (this.env != 'prod') {
-    //       console.log('error getting shared design')
-    //       console.dir(error)
-    //     }
-    //   })
-    // } else {
-
-    // if (this.route.params.token != null) {
-    //   var design_payload = {
-    //     token: this.route.params.token
-    //   }
-    // } else {
-    //   var design_payload = {
-    //     design_slug: this.route.params.design_slug,
-    //     owner_slug: this.route.params.profile_slug,
-    //     revision_slug: this.route.params.revision_slug,
-    //   }
-    // }
-
-    let design_payload = {
-      design_slug: this.route.params.design_slug,
-      owner_slug: this.route.params.profile_slug,
-      revision_slug: this.route.params.revision_slug,
-    }
-
-
-    this.$store.dispatch('getDesign', design_payload).then(success => {
-      this.$store.commit('setRootDesign', this.design)
-      let tree_payload = {
-        design_id: this.design.id,
-        revision_slug: this.route.params.revision_slug
-      }
-      this.$store.dispatch('getTree', tree_payload).then(success => {
-        this.$store.commit('setTree', success)
-        this.$store.commit('setNode', this.tree[0])
-      }, error => {})
-    }, error => {})
-
+    this.getDesign()
 
   },
   mounted() {
