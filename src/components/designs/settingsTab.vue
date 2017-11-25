@@ -40,6 +40,16 @@
               v-if='!design.is_collaborator'
               tag='a'
               class='item'
+              :to=' this.designRoute + "/settings/shares"'
+            >
+              <a>
+                <i class="share icon"></i> &nbsp; Shares
+              </a>
+            </router-link>
+            <router-link
+              v-if='!design.is_collaborator'
+              tag='a'
+              class='item'
               :to='this.designRoute + "/settings/advanced"'
             >
               <a>
