@@ -22,82 +22,32 @@
             <div class="six wide column" style='padding-left:30px'>
               <div class="ui comments">
                 <h3 class="ui dividing header">Comments</h3>
-                <div class="comment">
+                <div class="comment" v-for='comment in comments'>
                   <a class="avatar">
-                    <img src="https://semantic-ui.com/images/avatar/small/jenny.jpg">
+                    <img v-if='comment.profile_picture' :src='comment.profile_picture' style='height:40px'/>
+                    <i v-else class="fa fa-user fa-2x" aria-hidden="true"></i>
                   </a>
                   <div class="content">
-                    <a class="author">Callie</a>
+                    <a class="author"> {{ comment.profile_slug }} </a>
                     <div class="metadata">
-                      <span class="date">Today at 5:42PM</span>
+                      <span class="date"> {{ comment.created_at | moment("MMMM Do YYYY") }} </span>
                     </div>
                     <div class="text">
-                      Look at the awesome logo I made for y'all!
+                      {{ comment.text }}
                     </div>
-                    <div class="actions">
+                    <!-- <div class="actions">
                       <a class="reply">Reply</a>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
-                <div class="comment">
-                  <a class="avatar">
-                    <img src="https://semantic-ui.com/images/avatar/small/elliot.jpg">
-                  </a>
-                  <div class="content">
-                    <a class="author">Bryan</a>
-                    <div class="metadata">
-                      <span class="date">Yesterday at 12:30AM</span>
-                    </div>
-                    <div class="text">
-                      <p>This is the worst thing I've ever seen!</p>
-                    </div>
-                    <div class="actions">
-                      <a class="reply">Reply</a>
-                    </div>
-                  </div>
-                  <div class="comments">
-                    <div class="comment">
-                      <a class="avatar">
-                        <img src="https://semantic-ui.com/images/avatar/small/matt.jpg">
-                      </a>
-                      <div class="content">
-                        <a class="author">Jeremiah</a>
-                        <div class="metadata">
-                          <span class="date">Just now</span>
-                        </div>
-                        <div class="text">
-                          I have to agree with Bryan...
-                        </div>
-                        <div class="actions">
-                          <a class="reply">Reply</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="comment">
-                  <a class="avatar">
-                    <img src="https://semantic-ui.com/images/avatar/small/joe.jpg">
-                  </a>
-                  <div class="content">
-                    <a class="author">Jake</a>
-                    <div class="metadata">
-                      <span class="date">5 days ago</span>
-                    </div>
-                    <div class="text">
-                      What they really mean is, we love it, it's aweseome..
-                    </div>
-                    <div class="actions">
-                      <a class="reply">Reply</a>
-                    </div>
-                  </div>
-                </div>
-                <form class="ui reply form">
+
+                <form class="ui form">
+                  <br>
                   <div class="field">
-                    <textarea></textarea>
+                    <textarea rows="3" maxlength='100' v-model='new_comment'></textarea>
                   </div>
-                  <div class="ui blue labeled submit icon button">
-                    <i class="icon edit"></i> Add Reply
+                  <div class="ui blue labeled submit icon button" @click='addComment()'>
+                    <i class="icon edit"></i> Add Comment
                   </div>
                 </form>
                 </div>
@@ -133,14 +83,16 @@
               <thead>
                 <tr>
                   <th>File Name</th>
-                  <th>Last Change</th>
+                  <th>Version</th>
+                  <th>Modified</th>
+                  <th>Change</th>
                   <th>Size</th>
-                  <th>Versions</th>
                   <th></th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
+                  <td></td>
                   <td></td>
                   <td></td>
                   <td></td>
@@ -157,7 +109,18 @@
                     </a>
                   </td>
 
-                  <td id='file-last-change'>
+                  <td id='file-version'>
+                    <router-link to='' tag='a' @click.native='showVersions(index)'>
+                      <span v-if='file.versions'>
+                        v{{ file.versions.length }}
+                      </span>
+                      <span v-else>
+                        v1
+                      </span>
+                    </router-link>
+                  </td>
+
+                  <td id='file-modified'>
 
                     <router-link
                       v-if='file.uploaded'
@@ -168,7 +131,13 @@
                     </router-link>
 
                     <span>
-                      {{ file.versions[file.versions.length - 1].message }}
+                      <span v-if='file.versions.length == 1'>
+                        created
+                      </span>
+                      <span v-else-if='file.versions.length > 1'>
+                        updated
+                      </span>
+
                       <span v-if='file.versions[file.versions.length - 1].message == "Uploading"'>
                         &nbsp &nbsp
                         <i class="fa fa-spinner fa-pulse"></i>
@@ -179,22 +148,14 @@
                     <span v-if='file.uploaded'>
                       {{ file.versions[file.versions.length - 1].updated_at | moment("from", "now") }}
                     </span>
+                  </td>
 
+                  <td id='file-change'>
+                    {{ file.versions[file.versions.length - 1].message }}
                   </td>
 
                   <td id='file-size'>
                     {{ formatBytes(file.versions[file.versions.length - 1].size, 0) }}
-                  </td>
-
-                  <td id='file-versions'>
-                    <router-link to='' tag='a' @click.native='showVersions(index)'>
-                      <span v-if='file.versions'>
-                        {{ file.versions.length }}
-                      </span>
-                      <span v-else>
-                        1
-                      </span>
-                    </router-link>
                   </td>
 
                   <td id='file-menu'>
@@ -233,24 +194,10 @@
                       </div>
                     </div>
                   </td>
+
                 </tr>
               </tbody>
             </table>
-            <div class="ui success message" v-if='status.ready'>
-              <i class="close icon"></i>
-              <div class="header">
-                File Upload Complete
-              </div>
-              <ul class="list">
-                <li v-if='status.new == 1'> {{ status.new }} new file has been uploaded </li>
-                <li v-if='status.new > 1'> {{ status.new }} new files have been uploaded </li>
-                <li v-if='status.updated == 1'> {{ status.updated }} existing file has been updated to a new version </li>
-                <li v-if='status.updated > 1'> {{ status.updated }} existing files have been updated to a new version </li>
-                <li v-if='status.empty == 1'> {{ status.empty }} file has not changed and was not updated </li>
-                <li v-if='status.empty > 1'> {{ status.empty }} files have not changed and were not updated </li>
-              </ul>
-
-            </div>
             <br>
             <button
               v-if='revision.slug == "latest" && route.params.token == null'
@@ -330,7 +277,7 @@
           multiple
           id='upload-file-input'
           style="display:none"
-          @change='uploadFiles($event)'
+          @change='readFiles($event)'
           @click="$store.dispatch('getToken')"
         >
 
@@ -341,7 +288,8 @@
         <table class="ui striped selectable table" id='versions-table' >
             <thead>
               <tr>
-                <th>File Name</th>
+                <th>Name</th>
+                <th>Version</th>
                 <th>Last Update</th>
                 <th>Change</th>
                 <th>Size</th>
@@ -350,6 +298,7 @@
             </thead>
             <tfoot>
               <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>Total Size</td>
@@ -366,6 +315,10 @@
                   </a>
                 </td>
 
+                <td id='version-number'>
+                  v{{ index + 1 }}
+                </td>
+
                 <td id='version-last-update'>
 
                   <router-link
@@ -375,8 +328,12 @@
                     {{ version.editor_slug }}
                   </router-link>
 
-                  <span>
-                    {{ version.message }}
+                  <span v-if='index == 0'>
+                    created
+                  </span>
+
+                  <span v-else>
+                    updated
                   </span>
 
                   <span>
@@ -388,7 +345,7 @@
 
 
                 <td id='version-change'>
-                  {{ version.change_message }}
+                  {{ version.message }}
                 </td>
 
                 <td id='version-size'>
@@ -451,12 +408,77 @@
 
       </div>
 
-
     </transition>
+
+    <div class='ui small modal' id='files-modal'>
+      <div class="header">
+        <h3>
+         Review and commit design files
+       </h3>
+      </div>
+      <div class="content">
+        <h1 class='ui header' v-if='status.new > 1'>
+          <div class="sub header">
+            {{ status.new }} files are being added using {{ formatBytes(status.data, 0) }} of private storage
+          </div>
+        </h1>
+        <h1 class='ui header' v-else-if='status.new == 0'>
+          <div class="sub header">
+            No files have been added
+          </div>
+        </h1>
+        <h1 class='ui header' v-else>
+          <div class="sub header">
+            {{ status.new }} file has been added using {{ formatBytes(status.data, 0) }} of private storage
+          </div>
+        </h1>
+        <div class="ui large relaxed divided list" style='padding: 10px'>
+          <div class="item" v-for='file of status.files'>
+            <template v-if='file.status == "new"'>
+              <div class="right floated content">
+                  {{ formatBytes(file.size, 0) }}
+              </div>
+              <i class="medium green add circle icon"></i>
+              <div class="content">
+                {{ file.name }} &nbsp v{{ file.version }}
+              </div>
+            </template>
+            <template v-else-if='file.status == "updated"'>
+              <div class="right floated content">
+                  {{ formatBytes(file.size, 0) }}
+              </div>
+              <i class="medium yellow add circle icon"></i>
+              <div class="content">
+                {{ file.name }} &nbsp v{{ file.version }} -> v{{ file.version + 1 }}
+              </div>
+            </template>
+            <template v-else>
+              <i class="medium red add circle icon"></i>
+              <div class="content">
+                {{ file.name }} &nbsp v{{ file.version }} -> no change
+              </div>
+            </template>
+          </div>
+        </div>
+        <form class="ui large form">
+          <div class="field">
+            <label>Add a commit message</label>
+            <input
+              type='text'
+              v-model='status.message'
+              id='change-message'
+            >
+          </div>
+        </form>
+      </div>
+      <div class="actions">
+        <button class="ui  blue basic button" @click='hideFilesModal()'>Cancel</button>
+        <button class="ui green  basic button" @click='commitFiles()'>Commit Files</button>
+      </div>
+    </div>
 
   </div>
 </template>
-
 
 <script>
 
@@ -472,10 +494,9 @@ export default {
       sha1: null,
       status: {
         new: 0,
-        updated: 0,
-        empty: 0,
-        ready: false,
-        data: 0
+        data: 0,
+        message: null,
+        files: []
       },
       mode: 'files',
       token: null,
@@ -486,6 +507,9 @@ export default {
       image_viewer: false,
       image_url: null,
       loading: false,
+      comments: [],
+      new_comment: null,
+      s3_url: null,
     }
   },
   computed: {
@@ -545,66 +569,107 @@ export default {
       let fileElem = document.getElementById("upload-file-input")
       fileElem.click()
     },
-    readFile(index) {
+    readFileToArrayBuffer(file) {
       return new Promise((resolve,reject) => {
-        let file = this.filesInput[index]
-        // have to get the fileInput from index
-        let rusha = new Rusha()
         let reader = new FileReader()
-        var array_buffer
-
-        let vue = this
-        reader.onloadend = function () {
-          array_buffer = reader.result
-          vue.sha1 = rusha.digest(array_buffer)
-          console.log(vue.sha1)
-          resolve(array_buffer)
+        reader.onloadend = () => {
+          var arrayBuffer = reader.result
+          if (this.env != 'prod') {
+            console.log(`Read new file into array buffer`)
+          }
+          resolve(arrayBuffer)
         }
-
         reader.readAsArrayBuffer(file)
       })
     },
-    uploadFiles: async function(event) {
+    digestArrayBuffer(arrayBuffer) {
+      return new Promise((resolve, reject) => {
+        let rusha = new Rusha()
+        let sha1 = rusha.digest(arrayBuffer)
+        if (this.env != 'prod') {
+          console.log(`Digested file with rusha, sha1 is: ${sha1}`)
+        }
+        resolve(sha1)
+      })
+
+    },
+    readFiles: async function(event) {
+      if (this.env != 'prod') {console.log('Reading new files')}
+      // init vars
       this.status = {
         new: 0,
-        updated: 0,
-        empty: 0,
-        ready: false,
-        data: 0
+        data: 0,
+        message: null,
+        files: []
       }
       this.filesInput = event.target.files
       let s3_path = `https://s3-us-west-2.amazonaws.com/${this.bucket}/Designs`
 
-      // update the files record to reflect files input
       for (let file of this.filesInput) {
-        if (this.env != 'prod') {
-          console.log('In first for of loop')
-        }
+        // read the file in rusha
+        let arrayBuffer = await this.readFileToArrayBuffer(file)
+        let sha1 = await this.digestArrayBuffer(arrayBuffer)
         let s3_key = this.design.owner + '/' + this.design.id + '/' + file.name
+
+        // determine if new or existing files and new or empty commit
         if (this.file_names.includes(file.name)) {
           if (this.env != 'prod') {
             console.log('Detected an existing file, checking if the file should be updated')
           }
-          // edit existing file record
+
           let index = this.file_names.indexOf(file.name)
           let file_record = this.design.data.files[index]
+          let version_index = file_record.versions.length - 1
           file_record['commited'] = false
           file_record['uploaded'] = false
 
-          let version = {
-            editor: this.profile.id,
-            editor_slug: this.profile.slug,
-            sha1: null,
-            s3_version_id: null,
-            size: file.size,
-            message: 'Waiting to upload new version of file',
-            updated_at: Date.now()
+          if (file_record.versions[version_index].sha1 != sha1) {
+            // new commit to existing file
+            if (this.env != 'prod') {
+              console.log('New file version is different, adding version record')
+            }
+
+            let version = {
+              editor: this.profile.id,
+              editor_slug: this.profile.slug,
+              sha1: sha1,
+              s3_version_id: null,
+              size: file.size,
+              message: 'Waiting to upload new version of file',
+              updated_at: Date.now()
+            }
+
+            file_record.versions.push(version)
+            this.status.updated += 1
+            this.status.data += file.size
+            let status_file = {
+              name: file.name,
+              size: file.size,
+              version: version_index + 1,
+              status: 'updated'
+            }
+            this.status.files.push(status_file)
+
+          } else {
+            // empty commit to existing file
+            if (this.env != 'prod') {
+              console.log('New file version is the same, not adding version')
+            }
+
+            let status_file = {
+              name: file.name,
+              size: null,
+              version: version_index + 1,
+              status: 'empty'
+            }
+            this.status.files.push(status_file)
+
           }
-
-          file_record.versions.push(version)
-
         } else {
           // create a new file record
+          if (this.env != 'prod') {
+            console.log('New file detected')
+          }
           file.splits = file.name.split('.')
           file.format = file.splits[file.splits.length -1]
 
@@ -624,85 +689,74 @@ export default {
           let version = {
             editor: this.profile.id,
             editor_slug: this.profile.slug,
-            sha1: null,
+            sha1: sha1,
             s3_version_id: null,
             size: file.size,
             message: 'Waiting to upload file',
             updated_at: Date.now()
           }
 
+          this.status.new += 1
+          this.status.data += file.size
+
+          let status_file = {
+            name: file.name,
+            size: file.size,
+            version: 1,
+            status: 'new'
+          }
+          this.status.files.push(status_file)
+
           file_record.versions.push(version)
           this.design.data.files.push(file_record)
-          this.design.storage += file.size
 
         }
       }
+      // show files modal
+      $('#files-modal').modal('show')
 
-      // check file version and upload to s3
-      var index = 0
-      for (let file of this.filesInput) {
-        if (this.env != 'prod') {
-          console.log('In second for of loop')
+    },
+    hideFilesModal() {
+      this.filesInput = null
+      let payload = {
+        design_slug: this.design.slug,
+        owner_slug: this.design.owner_slug,
+        revision_slug: this.revision.slug
+      }
+      this.$store.dispatch('getDesign', payload).then(success => {
+
+        $('#files-modal').modal('hide')
+        this.status = {
+          new: 0,
+          data: 0,
+          message: null,
+          files: []
         }
-        // get file record for this input
+      }, error => {})
+    },
+    commitFiles: async function() {
+      $('#files-modal').modal('hide')
+
+      for (let file of this.filesInput) {
         let file_index = this.file_names.indexOf(file.name)
         let file_record = this.design.data.files[file_index]
         let version_index = file_record.versions.length - 1
         var s3_key = 'designs/' + this.design.owner + '/' + this.design.id + '/' + file.name
-
-        // this is where you would add the progress spinner
         file_record.versions[version_index].message = 'Uploading'
+        let array_buffer = await this.readFileToArrayBuffer(file)
+        let data = await this.putFileToS3(array_buffer, s3_key )
+        file_record.versions[version_index].s3_version_id = data.VersionId
+        file_record.versions[version_index].etag = data.ETag
+        file_record.versions[version_index].message = this.status.message
+        file_record.total_size += file_record.versions[version_index].size
+        file_record.uploaded = true
+      }
 
-        let array_buffer = await this.readFile(index)
-        index +=1
-
-
-        if (file_record.versions.length == 1) {
-          if (this.env != 'prod') {
-            console.log('Uploading a brand new file')
-          }
-          // uploaidng a new file or versioning an existing file
-          let data = await this.putFileToS3(array_buffer, s3_key )
-
-          file_record.versions[version_index].s3_version_id = data.VersionId
-          file_record.versions[version_index].etag = data.ETag
-          file_record.versions[version_index].sha1 = this.sha1
-          // update the file object
-          file_record.uploaded = true
-          file_record.versions[version_index].message = 'added'
-          file_record.total_size += file_record.versions[version_index].size
-          this.status.new += 1
-          this.status.data += file_record.versions[version_index].size
-
-          // display success or error message
-        } else if (file_record.versions[version_index - 1].sha1 != this.sha1) {
-          let data = await this.putFileToS3(array_buffer, s3_key )
-          if (this.env != 'prod') {
-            console.log('Updating an existing file')
-          }
-
-          file_record.versions[version_index].s3_version_id = data.VersionId
-          file_record.versions[version_index].etag = data.ETag
-          file_record.versions[version_index].sha1 = this.sha1
-          // update the file object
-          file_record.uploaded = true
-          file_record.versions[version_index].message = 'added a new version'
-          file_record.total_size += file_record.versions[version_index].size
-          this.status.updated += 1
-          this.status.data += file_record.versions[version_index].size
-
-        } else {
-          if (this.env != 'prod') {
-            console.log('Empty commit to an existing file')
-            console.log(file.name + ' already exists and has not changed since the last version')
-          }
-          // no change to the file, skip the upload
-          // get the file record and remove the last version
-          file_record.uploaded = true
-          file_record.commited = true
-          file_record.versions.pop()
-          this.status.empty += 1
-        }
+      this.status = {
+        new: 0,
+        data: 0,
+        message: null,
+        files: []
       }
 
       let vue = this
@@ -710,15 +764,10 @@ export default {
         if (vue.env != 'prod') {
           console.log('trying to activate drodpdown on files')
         }
-        $('.ui.dropdown.options').dropdown(
-          { 'silent': true }
-          );
-      }, 0);
+        $('.ui.dropdown.options').dropdown({ 'silent': true })
+      }, 0)
 
       for (let file_record of this.design.data.files) {
-        if (this.env != 'prod') {
-          console.log('In third for of loop')
-        }
         file_record.commited = true
         if(!file_record.uploaded) {
           if (this.env != 'prod') {
@@ -728,41 +777,7 @@ export default {
         file_record.uploaded = true
       }
 
-      var action, message
-
-      if (this.status.updated > 0 && this.status.new > 0) {
-        action = `added ${this.status.new} new files and updated ${this.status.updated} existing files`
-        message = null
-      } else if (this.status.new > 0) {
-        action = `added ${this.status.new} new files`
-        message = null
-      } else if (this.status.updated > 0) {
-        action = `updated ${this.status.updated} existing files`
-        message = null
-      } else {
-        action = 'no updates'
-        message = null
-      }
-
       this.updateDesignData()
-
-      this.status.ready = true
-
-      // update the status message data
-      setTimeout(function() {
-        $('.message .close').on('click', function() {
-          $(this)
-          .closest('.message')
-          .transition('fade')
-          vue.status = {
-            new: 0,
-            updated: 0,
-            empty: 0,
-            ready: false,
-            data: 0
-          }
-        })
-      }, 0);
     },
     putFileToS3(array_buffer, s3_key) {
       return new Promise((resolve, reject) => {
@@ -1169,6 +1184,7 @@ export default {
 
       this.loading = true
       let file = this.design.data.files[index]
+      this.s3_url = file.s3_url
 
       let forge_formats = [
         '3DS',
@@ -1236,6 +1252,8 @@ export default {
 
       let image_formats = ['JPEG', 'JPG', 'GIF', 'PNG', 'TIFF', 'SVG', 'BMP', 'ICO']
 
+      this.getComments(file)
+
       if (forge_formats.includes(file.format.toUpperCase())) {
         if (this.env != 'prod') {
           console.log('Design file type is supported by forge viewer, loading...')
@@ -1246,6 +1264,12 @@ export default {
         await this.translateDesignFile(this.forge_urn)
         this.translate_status = null
         while (this.translate_status != 'success') {
+          if (this.translate_status == 'failed') {
+            if (this.env != 'prod') {
+              console.log('File translation failed')
+            }
+            return
+          }
           setTimeout(await this.getTranslationStatus(this.forge_urn), 1000)
         }
 
@@ -1271,6 +1295,42 @@ export default {
         }
       }
 
+    },
+    getComments() {
+      this.$http.get(`file_comments/?s3_url=${this.s3_url}`).then(success => {
+        if (this.env != 'prod') {
+          console.log('Got design file comments for this file')
+          console.dir(success)
+        }
+        this.comments = success.body.results
+      }, error => {
+        if (this.env != 'prod') {
+          console.log('Error getting design file comments for this file')
+          console.dir(error)
+        }
+      })
+    },
+    addComment() {
+      let payload = {
+        design: this.design.id,
+        profile: this.profile.id,
+        text: this.new_comment,
+        s3_url: this.s3_url,
+
+      }
+      this.$http.post('file_comments/', payload).then(success => {
+        if (this.env != 'prod') {
+          console.log('Created new comment for design file')
+          console.dir(success)
+        }
+        this.getComments()
+      }, error => {
+        if (this.env != 'prod') {
+          console.log('Error creating new comment for this design file')
+          console.dir(error)
+        }
+      })
+      this.new_comment = null
     },
   },
   // how can we await the receipt of the new design
