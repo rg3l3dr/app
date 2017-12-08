@@ -6,344 +6,361 @@
     </div>
     <div class="ui bottom attached clearing segment">
       <!-- <transition name='fade'> -->
-        <table class="ui very basic  small compact table" id='bomTable' v-if='parts && parts.length > 0'>
-          <thead>
-            <tr>
-              <th></th>
-              <th>Part Name</th>
-              <th>Part #</th>
-              <th>Revision</th>
-              <th>Qty</th>
-              <th>Cost</th>
-              <th>Total</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tfoot>
-            <tr>
-              <td></td>
-              <td>
-                <button
-                  v-if='revision.slug == "latest" && route.params.token == null'
-                  class="ui small basic blue button"
-                  @click='addNewEmptyPart'
-                  id='add-part-button'
-                >
-                  Add New Part
-                </button>
-              </td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td>Total</td>
-              <td> $ {{ sumTotal.toFixed(2) }} </td>
-            </tr>
-          </tfoot>
-            <tr v-for='(part, index) in parts'>
+      <table class="ui very basic  small compact table" id='bomTable' v-if='parts && parts.length > 0'>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Part Name</th>
+            <th>Part #</th>
+            <th>Revision</th>
+            <th>Qty</th>
+            <th>Cost</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <td></td>
+            <td>
+              <button
+                v-if='revision.slug == "latest" && route.params.token == null'
+                class="ui small basic blue button"
+                @click='addNewEmptyPart'
+                id='add-part-button'
+              >
+                Add New Part
+              </button>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Total</td>
+            <td> $ {{ sumTotal.toFixed(2) }} </td>
+          </tr>
+        </tfoot>
+          <tr v-for='(part, index) in parts'>
 
-              <!-- Part Type Icon & Modal Link -->
-              <td class='collapsing'>
-                <router-link tag='a' to='' @click.native.prevent='openParts(index)'>
-                  <i v-if='part.parts.length > 0' class="cubes icon"></i>
-                  <i v-else class="cube icon"></i>
-                </router-link>
-              </td>
+            <!-- Part Type Icon & Modal Link -->
+            <td class='collapsing'>
+              <router-link tag='a' to='' @click.native.prevent='openParts(index)'>
+                <i v-if='part.parts.length > 0' class="cubes icon"></i>
+                <i v-else class="cube icon"></i>
+              </router-link>
+            </td>
 
-              <!-- Part Name -->
-              <td v-if='!part.created && revision.slug == "latest"  && route.params.token == null'>
-                  <div class="ui transparent search input fluid" id='part-name-editable-div'>
-                    <input
-                      class="prompt compact"
-                      type="text"
-                      v-model='newPartName.data'
-                      id='part-name-editable'
-                      placeholder="Find or create a part..."
-                      @keydown.enter='testNewPartOnEnter(index)'
-                      @blur='result ? null : testNewPartOnBlur(index, $event)'
-                      @keydown.tab.prevent='tabOver($event)'
-                      @keydown.esc='removePart(index)'
-                      @keydown.delete='newPartName.data ? null : removePart(index)'
-                      maxlength="50"
-                    >
-                    <div
-                      v-if='!newPartName.hasError'
-                      class="results"
-                      @click='testNewPartOnClick(index)'
-                    ></div>
-                  </div>
-              </td>
-
-              <td v-else-if='part.created && part.editable && revision.slug == "latest" && route.params.token == null'>
-                <div id='part-name-editable-div'>
-                  <router-link tag='a' to='' @click.native.prevent='openPart(index)'
-                  id ='part-name-editable'>
-                    {{ part.design_name }}
-                  </router-link>
+            <!-- Part Name -->
+            <td v-if='!part.created && revision.slug == "latest"  && route.params.token == null'>
+                <div class="ui transparent search input fluid" id='part-name-editable-div'>
+                  <input
+                    class="prompt compact"
+                    type="text"
+                    v-model='newPartName.data'
+                    id='part-name-editable'
+                    placeholder="Find or create a part..."
+                    @keydown.enter='testNewPartOnEnter(index)'
+                    @blur='result ? null : testNewPartOnBlur(index, $event)'
+                    @keydown.tab.prevent='tabOver($event)'
+                    @keydown.esc='removePart(index)'
+                    @keydown.delete='newPartName.data ? null : removePart(index)'
+                    maxlength="50"
+                  >
+                  <div
+                    v-if='!newPartName.hasError'
+                    class="results"
+                    @click='testNewPartOnClick(index)'
+                  ></div>
                 </div>
-              </td>
+            </td>
 
-              <td v-else id='part-name'>
-                <router-link tag='a' to='' @click.native.prevent='openHome(index)'>
+            <td v-else-if='part.created && part.editable && revision.slug == "latest" && route.params.token == null'>
+              <div id='part-name-editable-div'>
+                <router-link tag='a' to='' @click.native.prevent='openPart(index)'
+                id ='part-name-editable'>
                   {{ part.design_name }}
                 </router-link>
-              </td>
-
-              <!-- Part # -->
-              <td>
-                {{ part.design_number }}
-              </td>
-
-              <!-- Part Revision -->
-              <td id='part-revision' v-if='revision.slug == "latest" && route.params.token == null'>
-                <div class="ui dropdown revision" v-if='part.revision_name'>
-                  <div class="text">
-                    {{ part.revision_name }}
-                  </div>
-                  <i class="dropdown icon"></i>
-                  <div class="menu" >
-                    <div
-                      class="item"
-                      v-for='part_revision in part.revisions'
-                      @click='setTrackingRef(part_revision, index)'
-                    >
-                      {{ part_revision.name }}
-                    </div>
-                  </div>
-                </div>
-              </td>
-
-              <td v-else>
-                {{ part.revision_name }}
-              </td>
-
-
-              <!-- <td id='part-revision'>
-                <span v-if='part.created'>
-
-                  {{ part.rev_editor_slug }}
-
-                  <a href="">
-                    {{ part.rev_action }}
-                  </a>
-
-                  {{ part.rev_last_updated | moment("from", "now") }}
-
-                </span>
-              </td> -->
-
-              <!-- Part Quantity -->
-              <td
-                v-if='!part.created && revision.slug == "latest" && route.params.token == null'
-                class='collapsing'
-              >
-                <div class="ui transparent input" style='width:50px'>
-                  <input
-                    type="number"
-                    style='width:50px'
-                    min='1'
-                    step='1'
-                    v-model='part.quantity'
-                    id='part-quantity-editable'
-                    @keyup.enter='testNewPartOnEnter(index, $event)'
-                    @blur='testNewPartOnBlur(index, $event)'
-                  >
-                </div
-              </td>
-
-              <td
-                v-else-if='part.created && part.editable && revision.slug == "latest" && route.params.token == null'
-                class='collapsing'
-              >
-                <div class="ui transparent input" style='width:50px'>
-                  <input
-                    type="number"
-                    style='width:50px'
-                    id='part-quantity-editable'
-                    v-model='part.quantity'
-                    min='1'
-                    step='1'
-                    @keyup.enter='part.design_name ? testEditedPart(index) : showPartNameError(index)'
-                    @blur='part.design_name ? updateBlurTest(index, $event) : showPartNameError(index)'
-                  >
-                </div>
-              </td>
-
-              <td
-                v-else-if="revision.slug=='latest' && route.params.token == null"
-                id='part-quantity'
-                @click='makePartEditable(index, "quantity")'
-                class='collapsing'
-              >
-                {{ part.quantity }}
-              </td>
-
-              <td v-else class='collapsing'>
-                {{ part.quantity }}
-              </td>
-
-              <!-- Part Cost -->
-              <td v-if='!part.created && revision.slug == "latest" && part.editable && route.params.token == null' class='collapsing'>
-                <div class="ui transparent input" style='width:50px'>
-                  <input
-                    type="number"
-                    id='part-cost-editable'
-                    min='0'
-                    step='.01'
-                    v-model='part.cost'
-                    @keydown.enter='testNewPartOnEnter(index, $event)'
-                    @blur='testNewPartOnBlur(index, $event)'
-                  >
-                </div>
-              </td>
-
-              <td v-else-if='part.created && part.editable && revision.slug == "latest" && part.parts.length == 0 && route.params.token == null' class='collapsing' >
-                <div class="ui transparent input" style='width:50px'>
-                  <input
-                    id='part-cost-editable'
-                    type="number"
-                    min='0'
-                    step='.01'
-                    size='10'
-                    v-model='part.cost'
-                    @keydown.enter='part.design_name ? testEditedPart(index) : showPartNameError(index)'
-                    @keydown.tab.prevent='part.design_name ? testEditedPart(index) : showPartNameError(index)'
-                    @blur='part.design_name ? updateBlurTest(index, $event) : showPartNameError(index)'
-                  >
-                </div>
-              </td>
-
-              <td v-else-if='part.parts.length > 0' class='collapsing'>
-                $ {{ part.cost.toFixed(2) }}
-              </td>
-
-              <td
-                v-else-if='revision.slug == "latest" && route.params.token == null'
-                id='part-cost'
-                @click='makePartEditable(index, "cost")'
-                class='collapsing'
-              >
-                <!-- <span v-if='part.cost && typeof part.cost != "string"'> -->
-                <span v-if='part.cost'>
-                  $ {{ Number(part.cost).toFixed(2) }}
-                </span>
-                <span v-else>
-                  $ 0.00
-                </span>
-              </td>
-
-              <td v-else class='collapsing'>
-                $ {{ Number(part.cost).toFixed(2) }}
-              </td>
-
-              <!-- Part Total -->
-              <td v-if='part.cost' class='collapsing'>
-                $ {{ (part.quantity * part.cost).toFixed(2) }}
-              </td>
-
-              <td v-else>
-                $ 0.00
-              </td>
-
-              <!-- Remove Part Button -->
-
-              <!-- Part Menu Options -->
-              <!-- <td v-if='!part.created'> -->
-              <td v-if='revision.slug == "latest" && route.params.token == null'>
-                <button
-                  class="circular ui mini basic icon button"
-                  @click='removePart(index)'
-                >
-                  <i class="icon close"></i>
-                </button>
-              </td>
-              <!-- <td v-else >
-                <div class="ui icon top left pointing mini basic dropdown button part">
-                  <i class="caret down icon"></i>
-                  <div class="menu">
-                    <div class="item">
-                      Part Options
-                    </div>
-                    <div class="divider"></div>
-                    <div v-if='revision.slug == "latest"' class="item" @click='openPart(index)'>
-                      <i class="level down icon"></i>
-                      Select Part
-                    </div>
-                    <div class="item" @click='viewPart(index)'>
-                      <i class="home icon"></i>
-                      View Homepage
-                    </div>
-                    <div v-if='revision.slug == "latest"' class="item" @click='removePart(index)'>
-                      <i class="trash icon"></i>
-                      Remove from BOM
-                    </div>
-                  </div>
-                </div>
-              </td> -->
-            </tr>
-            <tr v-if='!parts[parts.length - 1].created'>
-              <td></td>
-              <td colspan='3'  style='color: #848f99' class='collapsing' v-if='route.params.token == null'>
-               Press enter to add part or tab to input qty and cost
-              </td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-            <!-- <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr> -->
-            <br>
-          </tbody>
-        </table>
-
-        <div style='text-align:center' v-else-if='route.params.token != null' >
-          <br>
-          <h2 class="ui icon header" >
-            <i class="cubes icon"></i>
-            <br>
-            <div class="content">
-              <!-- <button class="ui huge blue basic button" @click='addNewEmptyPart()'>
-                Click here to add parts
-              </button> -->
-              No parts yet
-              <div class="sub header">
-                <br>
-                <!-- <a href="http://help.omnibuilds.com#parts-are-the-building-blocks-of-designs" style='font-size:18px'>
-
-                  How do parts work?
-                </a> -->
-                The owner of this design has not added any parts to the BOM yet
-                <br>
-                <br>
-                <br>
               </div>
-            </div>
-          </h2>
-        </div>
-      <!--   <div style='text-align:center' v-else>
+            </td>
+
+            <td v-else id='part-name'>
+              <router-link tag='a' to='' @click.native.prevent='openHome(index)'>
+                {{ part.design_name }}
+              </router-link>
+            </td>
+
+            <!-- Part # -->
+            <td>
+              {{ part.design_number }}
+            </td>
+
+            <!-- Part Revision -->
+            <td id='part-revision' v-if='revision.slug == "latest" && route.params.token == null'>
+              <div class="ui dropdown revision" v-if='part.revision_name'>
+                <div class="text">
+                  {{ part.revision_name }}
+                </div>
+                <i class="dropdown icon"></i>
+                <div class="menu" >
+                  <div
+                    class="item"
+                    v-for='part_revision in part.revisions'
+                    @click='setTrackingRef(part_revision, index)'
+                  >
+                    {{ part_revision.name }}
+                  </div>
+                </div>
+              </div>
+            </td>
+
+            <td v-else>
+              {{ part.revision_name }}
+            </td>
+
+
+            <!-- <td id='part-revision'>
+              <span v-if='part.created'>
+
+                {{ part.rev_editor_slug }}
+
+                <a href="">
+                  {{ part.rev_action }}
+                </a>
+
+                {{ part.rev_last_updated | moment("from", "now") }}
+
+              </span>
+            </td> -->
+
+            <!-- Part Quantity -->
+            <td
+              v-if='!part.created && revision.slug == "latest" && route.params.token == null'
+              class='collapsing'
+            >
+              <div class="ui transparent input" style='width:50px'>
+                <input
+                  type="number"
+                  style='width:50px'
+                  min='1'
+                  step='1'
+                  v-model='part.quantity'
+                  id='part-quantity-editable'
+                  @keyup.enter='testNewPartOnEnter(index, $event)'
+                  @blur='testNewPartOnBlur(index, $event)'
+                >
+              </div
+            </td>
+
+            <td
+              v-else-if='part.created && part.editable && revision.slug == "latest" && route.params.token == null'
+              class='collapsing'
+            >
+              <div class="ui transparent input" style='width:50px'>
+                <input
+                  type="number"
+                  style='width:50px'
+                  id='part-quantity-editable'
+                  v-model='part.quantity'
+                  min='1'
+                  step='1'
+                  @keyup.enter='part.design_name ? testEditedPart(index) : showPartNameError(index)'
+                  @blur='part.design_name ? updateBlurTest(index, $event) : showPartNameError(index)'
+                >
+              </div>
+            </td>
+
+            <td
+              v-else-if="revision.slug=='latest' && route.params.token == null"
+              id='part-quantity'
+              @click='makePartEditable(index, "quantity")'
+              class='collapsing'
+            >
+              {{ part.quantity }}
+            </td>
+
+            <td v-else class='collapsing'>
+              {{ part.quantity }}
+            </td>
+
+            <!-- Part Cost -->
+            <td v-if='!part.created && revision.slug == "latest" && part.editable && route.params.token == null' class='collapsing'>
+              <div class="ui transparent input" style='width:50px'>
+                <input
+                  type="number"
+                  id='part-cost-editable'
+                  min='0'
+                  step='.01'
+                  v-model='part.cost'
+                  @keydown.enter='testNewPartOnEnter(index, $event)'
+                  @blur='testNewPartOnBlur(index, $event)'
+                >
+              </div>
+            </td>
+
+            <td v-else-if='part.created && part.editable && revision.slug == "latest" && part.parts.length == 0 && route.params.token == null' class='collapsing' >
+              <div class="ui transparent input" style='width:50px'>
+                <input
+                  id='part-cost-editable'
+                  type="number"
+                  min='0'
+                  step='.01'
+                  size='10'
+                  v-model='part.cost'
+                  @keydown.enter='part.design_name ? testEditedPart(index) : showPartNameError(index)'
+                  @keydown.tab.prevent='part.design_name ? testEditedPart(index) : showPartNameError(index)'
+                  @blur='part.design_name ? updateBlurTest(index, $event) : showPartNameError(index)'
+                >
+              </div>
+            </td>
+
+            <td v-else-if='part.parts.length > 0' class='collapsing'>
+              $ {{ part.cost.toFixed(2) }}
+            </td>
+
+            <td
+              v-else-if='revision.slug == "latest" && route.params.token == null'
+              id='part-cost'
+              @click='makePartEditable(index, "cost")'
+              class='collapsing'
+            >
+              <!-- <span v-if='part.cost && typeof part.cost != "string"'> -->
+              <span v-if='part.cost'>
+                $ {{ Number(part.cost).toFixed(2) }}
+              </span>
+              <span v-else>
+                $ 0.00
+              </span>
+            </td>
+
+            <td v-else class='collapsing'>
+              $ {{ Number(part.cost).toFixed(2) }}
+            </td>
+
+            <!-- Part Total -->
+            <td v-if='part.cost' class='collapsing'>
+              $ {{ (part.quantity * part.cost).toFixed(2) }}
+            </td>
+
+            <td v-else>
+              $ 0.00
+            </td>
+
+            <!-- Remove Part Button -->
+
+            <!-- Part Menu Options -->
+            <!-- <td v-if='!part.created'> -->
+            <td v-if='revision.slug == "latest" && route.params.token == null'>
+              <button
+                class="circular ui mini basic icon button"
+                @click='removePart(index)'
+              >
+                <i class="icon close"></i>
+              </button>
+            </td>
+            <!-- <td v-else >
+              <div class="ui icon top left pointing mini basic dropdown button part">
+                <i class="caret down icon"></i>
+                <div class="menu">
+                  <div class="item">
+                    Part Options
+                  </div>
+                  <div class="divider"></div>
+                  <div v-if='revision.slug == "latest"' class="item" @click='openPart(index)'>
+                    <i class="level down icon"></i>
+                    Select Part
+                  </div>
+                  <div class="item" @click='viewPart(index)'>
+                    <i class="home icon"></i>
+                    View Homepage
+                  </div>
+                  <div v-if='revision.slug == "latest"' class="item" @click='removePart(index)'>
+                    <i class="trash icon"></i>
+                    Remove from BOM
+                  </div>
+                </div>
+              </div>
+            </td> -->
+          </tr>
+          <tr v-if='!parts[parts.length - 1].created'>
+            <td></td>
+            <td colspan='3'  style='color: #848f99' class='collapsing' v-if='route.params.token == null'>
+             Press enter to add part or tab to input qty and cost
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <!-- <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr> -->
+          <br>
+        </tbody>
+      </table>
+
+      <div style='text-align:center' v-else-if='route.params.token != null' >
         <br>
         <h2 class="ui icon header" >
           <i class="cubes icon"></i>
           <br>
           <div class="content">
-            Change rev back to latest to add parts
+            <!-- <button class="ui huge blue basic button" @click='addNewEmptyPart()'>
+              Click here to add parts
+            </button> -->
+            No parts yet
             <div class="sub header">
               <br>
-              You have not added any parts yet<br>
-              Your project is read only when rev is not latest
+              <!-- <a href="http://help.omnibuilds.com#parts-are-the-building-blocks-of-designs" style='font-size:18px'>
+
+                How do parts work?
+              </a> -->
+              The owner of this design has not added any parts to the BOM yet
+              <br>
+              <br>
+              <br>
             </div>
           </div>
         </h2>
-      </div> -->
-      <!-- </transition> -->
+      </div>
+      <div style='text-align:center' v-else>
+        <br>
+        <h2 class="ui icon header" >
+          <i class="table icon"></i>
+          <br>
+          <div class="content">
+            Add parts to you BOM
+            <br><br>
+            <div class="ui large blue basic button" @click='selectFileForUpload()'>
+              Import from CSV
+            </div>
+            &nbsp or &nbsp
+            <div class="ui large blue basic button" @click='addNewEmptyPart()'>
+              Start from scratch
+            </div>
+            <br><br><br>
+
+            <div class="sub header" >
+              <!-- <br>
+              <a href="http://help.omnibuilds.com#files-are-cad-agnostic" style='font-size:18px'>
+                What is a BOM?
+              </a> -->
+            </div>
+          </div>
+        </h2>
+        <input
+          type="file"
+          id='upload-bom-input'
+          style="display:none"
+          @change='readBOM($event)'
+          @click="$store.dispatch('getToken')"
+        >
+      </div>
 
       <transition name='fade'>
         <div class="ui success message" v-if='message.active'>
@@ -452,9 +469,9 @@ export default {
     //   }, error => {})
     // },
     parts() {
-      if (this.parts.length == 0 && this.route.params.token == null) {
-        this.addNewEmptyPart()
-      }
+      // if (this.parts.length == 0 && this.route.params.token == null) {
+      //   this.addNewEmptyPart()
+      // }
     }
   },
   methods: {
@@ -482,6 +499,20 @@ export default {
 
     // manually creating the result object is failing (id is not defined)
     // have to test for an existing design that does not show up in the results
+
+    selectFileForUpload() {
+      // click the hidden files input button
+      let fileElem = document.getElementById("upload-bom-input")
+      fileElem.click()
+    },
+    readBOM() {
+      // get the file and post to server (email_BOM)
+      // prsent the user with a success message
+      let formData = new FormData()
+      formData.append('bom', $('input[type=file]')[0].files[0])
+      this.$http.put('read_bom/', formData, { headers: { 'Content-Type': 'multipart/form-data'}})
+
+    },
 
 
     testNewPartOnEnter(index, $event) {
