@@ -37,6 +37,7 @@ import SettingsTab from './components/designs/settingsTab.vue'
 import AdvancedTab from './components/designs/settings/advancedTab.vue'
 import BasicTab from './components/designs/settings/BasicTab.vue'
 import RevsTab from './components/designs/settings/revsTab.vue'
+import SharesTab from './components/designs/settings/sharesTab.vue'
 
 import CollaboratorsTab from './components/designs/settings/collaboratorsTab.vue'
 
@@ -138,6 +139,7 @@ export const routes = [
           {path: 'basic', components: {settingsContent: BasicTab}},
           {path: 'revs', components: {settingsContent: RevsTab}},
           {path: 'collaborators', components: {settingsContent: CollaboratorsTab}},
+          {path: 'shares', components: {settingsContent: SharesTab}},
           {path: 'advanced', components: {settingsContent: AdvancedTab}},
         ]
       }

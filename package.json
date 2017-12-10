@@ -20,6 +20,7 @@
     "file-system": "^2.2.2",
     "fs": "0.0.1-security",
     "marked": "^0.3.6",
+    "node-sass": "^4.7.2",
     "raven-js": "^3.16.0",
     "rusha": "^0.8.6",
     "simplemde": "^1.11.2",

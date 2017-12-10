@@ -50,23 +50,27 @@ export const actions = {
     })
   },
   getToken({commit, state}, payload) {
-    // gets the AWS temporary token from function based API view and updates the global AWS config
-    Vue.http.get('get_token/').then(success => {
-      if (state.env != 'prod') {
-        console.log('Got token')
-      }
-      let values = success.body
-      AWS.config.update({
-        region: 'us-west-2',
-        accessKeyId: values.value_1,
-        secretAccessKey: values.value_2,
-        sessionToken: values.value_3
+    return new Promise((resolve, reject) => {
+      // gets the AWS temporary token from function based API view and updates the global AWS config
+      Vue.http.get('get_token/').then(success => {
+        if (state.env != 'prod') {
+          console.log('Got token from S3')
+        }
+        let values = success.body
+        AWS.config.update({
+          region: 'us-west-2',
+          accessKeyId: values.value_1,
+          secretAccessKey: values.value_2,
+          sessionToken: values.value_3
+        })
+        values = null
+        resolve()
+      }, error => {
+        if (state.env != 'prod') {
+          console.log('Error getting token')
+        }
+        reject()
       })
-      values = null
-    }, error => {
-      if (state.env != 'prod') {
-        console.log('Error getting token')
-      }
     })
   },
   checkDesign({state}, payload) {

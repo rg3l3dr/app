@@ -84,7 +84,7 @@
             </div>
           </div>
           <router-link to="/accounts/auth/login" class="item" v-if='session.active===false'>Login</router-link>
-          <router-link to="/accounts/auth/register" v-if='session.active===false' class="item">Signup</router-link>
+          <!-- <router-link to="/accounts/auth/register" v-if='session.active===false' class="item">Signup</router-link> -->
         </div>
       </div>
 

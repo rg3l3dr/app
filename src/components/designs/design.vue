@@ -265,13 +265,16 @@
                     <div class="ui small basic button" @click='showShareModal()'>
                       <i class="share icon"></i>Share
                     </div>
-                    <a
-                      v-if='design.shares > 0'
+                    <router-link
+                      tag='a'
                       class="ui small basic left pointing label"
-                      @click='viewShares()'
+                      :to='designRoute + "/settings/shares"'
+                      v-if='design.shares > 0'
                     >
-                      {{ design.shares }}
-                    </a>
+                      <a>
+                        {{ design.shares }}
+                      </a>
+                    </router-link>
                     <div
                       v-else
                       class='ui small basic left pointing label'
